@@ -4,7 +4,6 @@ import { createContext, useEffect, useState } from "react";
 export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
-  const token = Cookies.get('token');
   const [cart, setCart] = useState([]);
   const [isAdded, setIsAdded] = useState(false);
   const [totalQuantity, setTotalQuantity] = useState(0);
@@ -19,7 +18,7 @@ export const CartProvider = ({ children }) => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         }
       })
       const data = await res.json();
@@ -33,6 +32,7 @@ export const CartProvider = ({ children }) => {
   }
 
   const addToCart = async (product) => {
+    const token = Cookies.get('token');
     if (!token) {
       window.location.href = '/account/login';
       return;
@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         }
       })
 
@@ -87,7 +87,7 @@ export const CartProvider = ({ children }) => {
         body: JSON.stringify({ quantity }),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         }
       })
 
@@ -107,7 +107,7 @@ export const CartProvider = ({ children }) => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${Cookies.get('token')}`
         }
       })
 
