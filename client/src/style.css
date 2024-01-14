@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	@apply text-base font-normal bg-secondary text-primary;
+	font-family: 'Inter', 'Zen Kaku Gothic New', sans-serif;
+}
+
+h3 {
+	@apply text-4xl;
+}
+
+input,
+textarea,
+select {
+	@apply w-full p-2 border outline-none border-primary;
+}
+
+input[type='number']::-webkit-inner-spin-button {
+	@apply opacity-100;
+}
+
+.btn-primary {
+	@apply px-4 min-w-fit xl:px-5 py-1 xl:py-1.5 transition duration-300 ease-in-out border-2 rounded-full outline-none;
+}
+
+.county-sel,
+.district-sel,
+.zipcode {
+	@apply inline-block mb-3 sm:mb-0 sm:mr-3 max-h-[2.4rem] sm:w-fit;
+}
+
+.header__logo {
+	@apply block mx-auto duration-700 max-w-52;
+}
+
+.header-hidden {
+	@apply w-full bg-secondary md:bg-primary;
+	transition: width 0.5s ease-out;
+}
+
+.header-reset {
+	@apply w-screen bg-secondary;
+	transition: width 0.5s ease-out;
+}
+
+.header__logo-hidden {
+	@apply translate-x-0 sm:-translate-x-60 md:-translate-x-full md:opacity-0;
+	transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.header__logo-reset {
+	@apply translate-x-0 opacity-100;
+	transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.menu__bg-hidden {
+	@apply translate-x-full opacity-0 w-fit max-h-0;
+	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+.menu__bg-reset {
+	@apply translate-x-0 opacity-100 h-fit md:h-full py-10 px-[8vw] bg-primary;
+	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.menu__list {
+	@apply flex justify-between gap-[12vw] pt-12 pb-24 md:gap-[8vw];
+}
+
+.menu__list ul:first-child {
+	@apply w-full space-y-8 md:space-y-5;
+}
+
+.menu__list ul:first-child li {
+	@apply pb-2.5 border-b border-dashed border-secondary/35;
+}
+
+.menu__list ul:last-child {
+	@apply w-full space-y-4 md:space-y-2.5;
+}
+
+.menu__list ul:last-child li:first-child {
+	@apply pb-2.5 border-b border-dashed border-secondary/35;
+}
+
+.menu__list ul li .menu__item {
+	@apply text-lg duration-500 md:text-sm hover:opacity-60 text-secondary;
+}
+
+.menu__gallery-hidden {
+	@apply translate-x-full opacity-0;
+	transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
+}
+.menu__gallery-reset {
+	@apply flex-1 hidden translate-x-0 bg-center bg-no-repeat bg-cover opacity-100 bg-menu-cover md:block;
+	transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
+}
+
+.header__account-btn {
+	@apply text-xxs xl:text-xs btn-primary;
+}
+
+.recommend__item__img,
+.recommend__item__info {
+	@apply max-w-[64vw] min-w-72 sm:max-w-[24vw] mx-auto;
+}
+
+.recommend__item__img {
+	@apply relative overflow-hidden rounded-full cursor-pointer;
+}
+
+.recommend__item__img img {
+	@apply object-cover object-center aspect-square duration-700 ease-out scale-[1.2];
+}
+
+.recommend__item__img:hover .recommend__item__img-cover {
+	@apply block;
+}
+
+.recommend__item__img:hover img {
+	@apply scale-100;
+}
+
+.recommend__item__info {
+	@apply flex flex-col py-2 pl-6 border-l-2 sm:gap-6 sm:pl-4 border-primary;
+}
+
+.swiper-wrapper {
+	@apply ease-linear;
+}
+
+.campaign {
+	@apply relative pb-12;
+}
+
+.campaign .swiper {
+	@apply py-6;
+}
+
+.campaign .swiper-slide img {
+	@apply object-cover rounded h-[35vw] w-full md:h-[18vw] md:w-[32vw] lg:h-[14vw] lg:w-[24vw] xl:h-[12.5vw] xl:w-[22vw];
+}
+
+.faq__item {
+	@apply px-[5vw] max-w-3xl py-20 mx-auto space-y-8;
+}
+
+.faq__item .faq__item__question {
+	@apply flex items-center justify-between w-full pb-2 border-b border-dashed border-primary/80;
+}
+
+.faq__item .faq__item__answer {
+	@apply text-sm;
+}
+
+.product__item__img,
+.product__item__info {
+	@apply md:max-w-[26vw] lg:max-w-[20vw] mx-auto;
+}
+
+.product__item__img {
+	@apply relative overflow-hidden rounded-full cursor-pointer;
+}
+
+.product__item__img img {
+	@apply object-cover object-center aspect-square duration-700 ease-out scale-[1.2];
+}
+
+.product__item__img:hover .product__item__img-cover {
+	@apply block;
+}
+
+.product__item__img:hover img {
+	@apply scale-100;
+}
+
+.product__item__info {
+	@apply flex flex-col py-0.5 pl-4 border-l-2 sm:gap-4 border-primary;
+}
