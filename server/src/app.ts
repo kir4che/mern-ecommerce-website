@@ -28,6 +28,8 @@ app.use(
 	})
 )
 
+app.use(express.static('public'))
+
 app.use('/api/user', userRouter)
 app.use('/api/products', productRouter)
 app.use('/api/posts', postRouter)
@@ -39,6 +41,6 @@ mongoose
 	.then(() => console.log('Connected to MongoDB'))
 	.catch((err) => console.error(err))
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 8080, () => {
 	console.log(`Server started on ${process.env.BACKEND_URL}`)
 })
