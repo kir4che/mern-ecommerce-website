@@ -122,7 +122,7 @@ const Checkout = () => {
           <p>支付金額</p>
           <p className='text-2xl text-primary'>
             <span className='text-sm'>NT$ </span>
-            <span className='font-medium'>{data?.order?.totalAmount}</span>
+            <span className='font-medium'>{data?.order?.totalAmount.toLocaleString()}</span>
           </p>
         </div>
         <button className="w-full py-3 text-sm font-medium border-2 rounded border-primary hover:bg-secondary hover:text-primary text-secondary bg-primary" onClick={handlePay}>確認付款</button>
