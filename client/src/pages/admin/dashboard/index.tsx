@@ -9,10 +9,11 @@ import useGetData from '../../../hooks/useGetData';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const token = Cookies.get('token')
   const role = Cookies.get('role')
   const { data: productsData, loading: productLoading, error: productError } = useGetData('/products')
   const { data: postsData, loading: postLoading, error: postError } = useGetData('/posts')
-  const { data: ordersData, loading: orderLoading, error: orderError } = useGetData('/orders')
+  const { data: ordersData, loading: orderLoading, error: orderError } = useGetData('/orders', token)
   const products = productsData?.products
   const posts = postsData?.posts
   const orders = ordersData?.orders
@@ -46,6 +47,10 @@ const Dashboard = () => {
     imageUrl: '',
     updatedAt: ''
   })
+
+  useEffect(() => {
+    console.log('posts', posts)
+  }, [posts])
 
   useEffect(() => {
     if (role.includes('user')) navigate('/')
@@ -511,19 +516,19 @@ const Dashboard = () => {
           <div className='w-full'>
             <h3 className="mb-2 text-base font-medium">訂單管理</h3>
             <ul className='p-3 overflow-y-auto border shadow max-h-80'>
-              <div className='p-2 space-y-4 overflow-x-auto'>
-                <ul className='pb-3 border-b border-zinc-300'>
+              <div className='p-2 pb-4 space-y-4 overflow-x-auto'>
+                <ul className='w-full pb-3 border-b min-w-fit border-zinc-300'>
                   <li className='flex text-xs'>
                     <p className='min-w-20'>訂單編號</p>
                     <p className='min-w-20'>訂單狀態</p>
                     <p className='min-w-20'>出貨狀態</p>
                     <p className='min-w-20'>付款狀態</p>
                     <p className='min-w-20'>總金額</p>
-                    <p>成立日期</p>
+                    <p className='min-w-44'>成立日期</p>
                   </li>
                 </ul>
                 {ordersData ? (
-                  <ul className='space-y-2'>
+                  <ul className='space-y-4'>
                     {ordersData.orders.map((order, index) => (
                       <li className='flex text-sm'>
                         <p className='min-w-20'>{index + 1}</p>
@@ -531,8 +536,8 @@ const Dashboard = () => {
                         <p className='min-w-20'>{order.shippingStatus}</p>
                         <p className='min-w-20'>{order.paymentStatus}</p>
                         <p className='min-w-20'>{order.totalAmount.toLocaleString()}</p>
-                        <p className='min-w-fit'>{new Date(order.createdAt).toLocaleString()}</p>
-                        <button className={`${order.status !== '已付款' ? 'opacity-50' : 'hover:bg-zinc-100'} px-1 ml-auto py-0.5 text-xs`} onClick={() => handleDeliver(order._id)} disabled={order.status !== '已付款'}>進行出貨</button>
+                        <p className='min-w-44'>{new Date(order.createdAt).toLocaleString()}</p>
+                        <button className={`${order.status !== '已付款' ? 'opacity-50' : 'hover:bg-zinc-100'} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-xs`} onClick={() => handleDeliver(order._id)} disabled={order.status !== '已付款'}>進行出貨</button>
                       </li>
                     ))}
                   </ul>
