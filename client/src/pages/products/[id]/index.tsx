@@ -20,7 +20,7 @@ const Product = () => {
       productId: product._id,
       quantity: quantity || 1
     });
-    setQuantity(1)
+    setTimeout(() => setQuantity(1), 500);
   }
 
   if (loading) return <Loading />

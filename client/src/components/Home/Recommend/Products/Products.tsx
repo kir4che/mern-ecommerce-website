@@ -27,10 +27,13 @@ const RecommendProducts = () => {
       productId: product._id,
       quantity: quantities[product._id] || 1
     });
-    setQuantities(prevQuantities => ({
-      ...prevQuantities,
-      [product._id]: 1
-    }));
+    setTimeout(() => {
+      setQuantities(prevQuantities => ({
+        ...prevQuantities,
+        [product._id]: 1
+      })
+      )
+    }, 500);
   }
 
   return (
