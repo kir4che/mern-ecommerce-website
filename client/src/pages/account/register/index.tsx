@@ -10,7 +10,7 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/user/register`, {
@@ -35,12 +35,12 @@ const Register = () => {
     <Layout>
       <div className="max-w-2xl mx-auto px-[12vw]">
         <h1 className='pt-12 pb-10 text-xl text-center md:text-base'>註冊會員</h1>
-        <form className='flex flex-col gap-4 md:text-sm'>
-          <input type="text" name="firstName" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.firstName} placeholder="名字" onChange={handleChange} />
-          <input type="text" name="lastName" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.lastName} placeholder="姓氏" onChange={handleChange} />
-          <input type="email" name="email" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.email} placeholder="電子郵件" onChange={handleChange} />
-          <input type="password" name="password" className='border border-primary py-2.5 pl-4 w-full placeholder-primary' value={form.password} placeholder="密碼" onChange={handleChange} />
-          <button type='submit' className='px-10 mt-4 -mb-2 py-2.5 mx-auto border border-secondary hover:border-primary text-secondary bg-primary w-fit' onClick={handleRegister}>註冊</button>
+        <form className='flex flex-col gap-4 md:text-sm' onSubmit={handleRegister}>
+          <input type="text" name="firstName" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.firstName} placeholder="名字" onChange={handleChange} required />
+          <input type="text" name="lastName" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.lastName} placeholder="姓氏" onChange={handleChange} required />
+          <input type="email" name="email" className='border py-2.5 pl-4 w-full border-primary placeholder-primary' value={form.email} placeholder="電子郵件" onChange={handleChange} required />
+          <input type="password" name="password" className='border border-primary py-2.5 pl-4 w-full placeholder-primary' value={form.password} placeholder="密碼" onChange={handleChange} required />
+          <button type='submit' className='px-10 mt-4 -mb-2 py-2.5 mx-auto border border-secondary hover:border-primary text-secondary bg-primary w-fit'>註冊</button>
           <p className='text-sm text-center md:text-xs'>
             已經有帳號了？
             <Link to="/account/login" className='hover:underline'>
