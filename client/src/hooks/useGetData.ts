@@ -18,7 +18,6 @@ const useGetData = (url: string, auth: string | null = null) => {
 					credentials: 'include',
 				})
 				const data = await res.json()
-				console.log(data)
 
 				if (data) setData(data)
 				else setError(data.message)
