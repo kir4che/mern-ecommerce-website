@@ -13,7 +13,7 @@ const Dashboard = () => {
   const role = Cookies.get('role')
   const { data: productsData, loading: productLoading, error: productError } = useGetData('/products')
   const { data: postsData, loading: postLoading, error: postError } = useGetData('/posts')
-  const { data: ordersData, loading: orderLoading, error: orderError } = useGetData('/orders/admin', token)
+  const { data: ordersData, loading: orderLoading, error: orderError } = useGetData('/orders', token)
   const products = productsData?.products
   const posts = postsData?.posts
   const orders = ordersData?.orders
