@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updatePost = exports.getPostById = exports.getPost = exports.deletePostById = exports.addPost = void 0;
 const post_model_1 = require("../models/post.model");
-const getPost = (res) => __awaiter(void 0, void 0, void 0, function* () {
+const getPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield post_model_1.PostModel.find();
         res.status(200).json({ message: 'Posts fetched Successfully!', posts });

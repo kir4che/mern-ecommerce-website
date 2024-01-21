@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { PostModel } from '../models/post.model'
 
-const getPost = async (res: Response) => {
+const getPost = async (req: Request, res: Response) => {
 	try {
 		const posts = await PostModel.find()
 		res.status(200).json({ message: 'Posts fetched Successfully!', posts })
