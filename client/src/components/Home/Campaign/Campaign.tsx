@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+
 import { Link } from 'react-router-dom';
 import useGetData from '../../../hooks/useGetData';
 
@@ -18,13 +19,15 @@ const Campaign = () => {
         </h1>
         <div className='flex items-center gap-3'>
           <div className='space-x-2 font-light text-xxs'>
-            {[1, 2, 3, 4, 5].map((item, index) => (
-              <button onClick={
-                () => swiperRef.current.slideTo(index)
-              } key={index}>
-                0{item}
-              </button>
-            ))}
+            {
+              [1, 2, 3, 4, 5].map((item, index) => (
+                <button onClick={
+                  () => swiperRef.current.slideTo(index)
+                } key={index}>
+                  0{item}
+                </button>
+              ))
+            }
           </div>
           <button onClick={() => swiperRef.current.slidePrev()}>
             <svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" fill="none" viewBox="0 0 6 10">
@@ -40,13 +43,11 @@ const Campaign = () => {
       </div>
       <Swiper
         slidesPerView={5}
-        centeredSlides
         autoplay={{
           delay: 3000,
           disableOnInteraction: false,
         }}
         loop
-        loopAdditionalSlides={10}
         modules={[Autoplay]}
         breakpoints={{
           0: {
@@ -73,9 +74,7 @@ const Campaign = () => {
         {
           posts && posts.slice(0, 5).map((post) => (
             <SwiperSlide key={post._id}>
-              <Link to={`/blogs/news/${post._id}`}>
-                <img src={post.imageUrl} alt={post.title} />
-              </Link>
+              <Link to={`/blogs/news/${post._id}`}><img src={post.imageUrl} alt={post.title} /></Link>
             </SwiperSlide>
           ))
         }
