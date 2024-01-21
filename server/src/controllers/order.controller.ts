@@ -16,7 +16,6 @@ const getOrders = async (req: Request, res: Response) => {
 const getOrdersForAdmin = async (req: Request, res: Response) => {
 	try {
 		checkUserRole(req, res, async () => {
-			await auth(req)
 			const orders = await OrderModel.find()
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		})

@@ -5,6 +5,7 @@ import auth from '../middlewares/auth.middleware'
 const checkUserRole = async (req: Request, res: Response, next: NextFunction) => {
 	await auth(req)
 	let { role } = req.session.user || {}
+	console.log(role)
 	if (role == 'admin') next()
 	else res.status(403).json({ message: 'Permission denied. Only admins can add products.' })
 }

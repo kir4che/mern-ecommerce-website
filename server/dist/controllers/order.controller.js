@@ -30,7 +30,6 @@ exports.getOrders = getOrders;
 const getOrdersForAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         (0, checkUserRole_1.default)(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
-            yield (0, auth_middleware_1.default)(req);
             const orders = yield order_model_1.OrderModel.find();
             res.status(200).json({ message: 'Orders fetched successfully!', orders });
         }));
