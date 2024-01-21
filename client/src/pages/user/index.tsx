@@ -16,7 +16,7 @@ const UserProfile = () => {
 
   const token = Cookies.get('token')
   const { data: userData, loading: userLoading, error: userError } = useGetData('/user', token)
-  const { data: ordersData, loading: ordersLoading, error: ordersError } = useGetData('/orders', token)
+  const { data: ordersData, loading: ordersLoading, error: ordersError } = useGetData('/orders')
 
   if (userLoading || ordersLoading) return <Loading />
   else if ((!userLoading && !userData) || (!ordersLoading && !ordersData)) return <Error message={[userError, ordersError]} />

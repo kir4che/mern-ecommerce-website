@@ -1,15 +1,16 @@
+import { UserModel } from '../models/user.model'
 import auth from '../middlewares/auth.middleware'
 import { OrderModel } from '../models/order.model'
 import { Request, Response } from 'express'
 
 const getOrders = async (req: Request, res: Response) => {
 	try {
-		const { role } = req.session.user || {}
+		const userId = await auth(req)
+		const role: string = await UserModel.findById(userId).select('role')
 		if (role == 'admin') {
 			const orders = await OrderModel.find()
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		} else {
-			const userId = await auth(req)
 			const orders = await OrderModel.find({ userId })
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		}
