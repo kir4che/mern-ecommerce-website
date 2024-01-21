@@ -1,19 +1,25 @@
+import checkUserRole from '../utils/checkUserRole'
 import auth from '../middlewares/auth.middleware'
 import { OrderModel } from '../models/order.model'
 import { Request, Response } from 'express'
 
 const getOrders = async (req: Request, res: Response) => {
 	try {
-		let { role } = req.session.user
-
 		const userId = await auth(req)
-		if (role === 'admin') {
+		const orders = await OrderModel.find({ userId })
+		res.status(200).json({ message: 'Orders fetched successfully!', orders })
+	} catch (err: any) {
+		res.status(500).json({ message: err.message })
+	}
+}
+
+const getOrdersForAdmin = async (req: Request, res: Response) => {
+	try {
+		checkUserRole(req, res, async () => {
+			await auth(req)
 			const orders = await OrderModel.find()
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
-		} else {
-			const orders = await OrderModel.find({ userId })
-			res.status(200).json({ message: 'Orders fetched successfully!', orders })
-		}
+		})
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
 	}
@@ -64,4 +70,4 @@ const updateOrder = async (req: Request, res: Response) => {
 	}
 }
 
-export { getOrders, getOrderById, createOrder, updateOrder }
+export { getOrders, getOrdersForAdmin, getOrderById, createOrder, updateOrder }
