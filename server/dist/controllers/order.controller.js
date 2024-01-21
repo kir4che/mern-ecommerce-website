@@ -20,7 +20,7 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, auth_middleware_1.default)(req);
         const role = yield user_model_1.UserModel.findById(userId).select('role');
-        const orders = role == 'admin' ? yield order_model_1.OrderModel.find() : yield order_model_1.OrderModel.find({ userId });
+        const orders = role.includes('admin') ? yield order_model_1.OrderModel.find() : yield order_model_1.OrderModel.find({ userId });
         res.status(200).json({ message: 'Orders fetched successfully!', orders });
     }
     catch (err) {
