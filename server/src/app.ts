@@ -21,11 +21,12 @@ app.use(
 	session({
 		name: 'sid',
 		secret: Math.random().toString(36).substring(2),
-		resave: false,
+		resave: true,
 		proxy: true,
 		saveUninitialized: true,
 		cookie: {
 			httpOnly: false,
+			maxAge: 8 * 60 * 60 * 1000, // 8 hours
 			secure: true, // true: 只有 https 才能使用 cookie
 			sameSite: 'none',
 		},
