@@ -5,7 +5,7 @@ import { Request, Response } from 'express'
 const getOrders = async (req: Request, res: Response) => {
 	try {
 		const { role } = req.session.user || {}
-		if (role === 'admin') {
+		if (role == 'admin') {
 			const orders = await OrderModel.find()
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		} else {

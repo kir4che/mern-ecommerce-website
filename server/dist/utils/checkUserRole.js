@@ -17,7 +17,7 @@ const auth_middleware_1 = __importDefault(require("../middlewares/auth.middlewar
 const checkUserRole = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, auth_middleware_1.default)(req);
     const { role } = req.session.user || {};
-    if (role === 'admin')
+    if (role == 'admin')
         next();
     else
         res.status(403).json({ message: 'Permission denied. Only admins can add products.' });

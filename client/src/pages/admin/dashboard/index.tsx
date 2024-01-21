@@ -49,10 +49,6 @@ const Dashboard = () => {
   })
 
   useEffect(() => {
-    console.log(ordersData)
-  }, [ordersData])
-
-  useEffect(() => {
     if (role.includes('user')) navigate('/')
   }, [role])
 

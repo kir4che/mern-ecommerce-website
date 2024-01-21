@@ -18,7 +18,7 @@ const order_model_1 = require("../models/order.model");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { role } = req.session.user || {};
-        if (role === 'admin') {
+        if (role == 'admin') {
             const orders = yield order_model_1.OrderModel.find();
             res.status(200).json({ message: 'Orders fetched successfully!', orders });
         }
