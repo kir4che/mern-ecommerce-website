@@ -5,7 +5,7 @@ import { Request, Response } from 'express'
 
 const getOrders = async (req: Request, res: Response) => {
 	try {
-		const userId = await auth(req)
+		let userId = await auth(req)
 		let { role } = req.session.user
 		if (role == 'admin') {
 			const orders = await OrderModel.find()

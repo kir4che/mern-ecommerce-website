@@ -17,7 +17,7 @@ const auth_middleware_1 = __importDefault(require("../middlewares/auth.middlewar
 const order_model_1 = require("../models/order.model");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, auth_middleware_1.default)(req);
+        let userId = yield (0, auth_middleware_1.default)(req);
         let { role } = req.session.user;
         if (role == 'admin') {
             const orders = yield order_model_1.OrderModel.find();
