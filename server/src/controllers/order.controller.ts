@@ -1,4 +1,3 @@
-import checkUserRole from '../utils/checkUserRole'
 import auth from '../middlewares/auth.middleware'
 import { OrderModel } from '../models/order.model'
 import { Request, Response } from 'express'
