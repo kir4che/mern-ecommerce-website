@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { ProductModel } from '../models/product.model'
 import mongoose from 'mongoose'
+import checkUserRole from '../utils/checkUserRole'
 
 const getProducts = async (req: Request, res: Response) => {
 	try {
@@ -30,9 +31,11 @@ const getProductById = async (req: Request, res: Response) => {
 
 const addProduct = async (req: Request, res: Response) => {
 	try {
-		const product = new ProductModel(req.body)
-		await product.save()
-		res.status(201).json({ message: 'Product added Successfully!' })
+		checkUserRole(req, res, async () => {
+			const product = new ProductModel(req.body)
+			await product.save()
+			res.status(201).json({ message: 'Product added Successfully!' })
+		})
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
 	}
@@ -40,19 +43,21 @@ const addProduct = async (req: Request, res: Response) => {
 
 const updateProduct = async (req: Request, res: Response) => {
 	try {
-		const productId = req.params.id
+		checkUserRole(req, res, async () => {
+			const productId = req.params.id
 
-		const product = await ProductModel.findById(productId)
-		if (!product) res.status(404).json({ message: 'Product not found!' })
+			const product = await ProductModel.findById(productId)
+			if (!product) res.status(404).json({ message: 'Product not found!' })
 
-		const updateData = req.body
-		if (!updateData || Object.keys(updateData).length === 0)
-			return res.status(400).json({ message: 'Invalid update data. Please provide data to update.' })
+			const updateData = req.body
+			if (!updateData || Object.keys(updateData).length === 0)
+				return res.status(400).json({ message: 'Invalid update data. Please provide data to update.' })
 
-		const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updateData, { new: true })
-		if (!updatedProduct) return res.status(404).json({ message: 'Product not found.' })
+			const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updateData, { new: true })
+			if (!updatedProduct) return res.status(404).json({ message: 'Product not found.' })
 
-		res.status(200).json({ message: 'Product updated Successfully!', product: updatedProduct })
+			res.status(200).json({ message: 'Product updated Successfully!', product: updatedProduct })
+		})
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
 	}
@@ -60,13 +65,15 @@ const updateProduct = async (req: Request, res: Response) => {
 
 const deleteProductById = async (req: Request, res: Response) => {
 	try {
-		const productId = req.params.id
+		checkUserRole(req, res, async () => {
+			const productId = req.params.id
 
-		const product = await ProductModel.findById(productId)
-		if (!product) res.status(404).json({ message: 'Product not found!' })
+			const product = await ProductModel.findById(productId)
+			if (!product) res.status(404).json({ message: 'Product not found!' })
 
-		await ProductModel.deleteOne({ _id: productId })
-		res.status(200).json({ message: 'Product deleted Successfully!' })
+			await ProductModel.deleteOne({ _id: productId })
+			res.status(200).json({ message: 'Product deleted Successfully!' })
+		})
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
 	}

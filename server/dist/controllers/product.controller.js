@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateProduct = exports.getProducts = exports.getProductById = exports.deleteProductById = exports.addProduct = void 0;
 const product_model_1 = require("../models/product.model");
 const mongoose_1 = __importDefault(require("mongoose"));
+const checkUserRole_1 = __importDefault(require("../utils/checkUserRole"));
 const getProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield product_model_1.ProductModel.find();
@@ -45,9 +46,11 @@ const getProductById = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getProductById = getProductById;
 const addProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const product = new product_model_1.ProductModel(req.body);
-        yield product.save();
-        res.status(201).json({ message: 'Product added Successfully!' });
+        (0, checkUserRole_1.default)(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+            const product = new product_model_1.ProductModel(req.body);
+            yield product.save();
+            res.status(201).json({ message: 'Product added Successfully!' });
+        }));
     }
     catch (err) {
         res.status(500).json({ message: err.message });
@@ -56,17 +59,19 @@ const addProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.addProduct = addProduct;
 const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productId = req.params.id;
-        const product = yield product_model_1.ProductModel.findById(productId);
-        if (!product)
-            res.status(404).json({ message: 'Product not found!' });
-        const updateData = req.body;
-        if (!updateData || Object.keys(updateData).length === 0)
-            return res.status(400).json({ message: 'Invalid update data. Please provide data to update.' });
-        const updatedProduct = yield product_model_1.ProductModel.findByIdAndUpdate(productId, updateData, { new: true });
-        if (!updatedProduct)
-            return res.status(404).json({ message: 'Product not found.' });
-        res.status(200).json({ message: 'Product updated Successfully!', product: updatedProduct });
+        (0, checkUserRole_1.default)(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+            const productId = req.params.id;
+            const product = yield product_model_1.ProductModel.findById(productId);
+            if (!product)
+                res.status(404).json({ message: 'Product not found!' });
+            const updateData = req.body;
+            if (!updateData || Object.keys(updateData).length === 0)
+                return res.status(400).json({ message: 'Invalid update data. Please provide data to update.' });
+            const updatedProduct = yield product_model_1.ProductModel.findByIdAndUpdate(productId, updateData, { new: true });
+            if (!updatedProduct)
+                return res.status(404).json({ message: 'Product not found.' });
+            res.status(200).json({ message: 'Product updated Successfully!', product: updatedProduct });
+        }));
     }
     catch (err) {
         res.status(500).json({ message: err.message });
@@ -75,12 +80,14 @@ const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.updateProduct = updateProduct;
 const deleteProductById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productId = req.params.id;
-        const product = yield product_model_1.ProductModel.findById(productId);
-        if (!product)
-            res.status(404).json({ message: 'Product not found!' });
-        yield product_model_1.ProductModel.deleteOne({ _id: productId });
-        res.status(200).json({ message: 'Product deleted Successfully!' });
+        (0, checkUserRole_1.default)(req, res, () => __awaiter(void 0, void 0, void 0, function* () {
+            const productId = req.params.id;
+            const product = yield product_model_1.ProductModel.findById(productId);
+            if (!product)
+                res.status(404).json({ message: 'Product not found!' });
+            yield product_model_1.ProductModel.deleteOne({ _id: productId });
+            res.status(200).json({ message: 'Product deleted Successfully!' });
+        }));
     }
     catch (err) {
         res.status(500).json({ message: err.message });

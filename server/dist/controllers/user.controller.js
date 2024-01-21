@@ -80,6 +80,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             email: user.email,
             role: user.role,
         };
+        req.session.save(); // 儲存 session
         res.status(200).json({ message: 'User logged in Successfully!', user: req.session.user, token });
     }
     catch (err) {

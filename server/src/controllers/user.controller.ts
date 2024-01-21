@@ -79,6 +79,8 @@ const loginUser = async (req: Request, res: Response) => {
 			role: user.role as 'user' | 'admin',
 		}
 
+		req.session.save() // 儲存 session
+
 		res.status(200).json({ message: 'User logged in Successfully!', user: req.session.user, token })
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
