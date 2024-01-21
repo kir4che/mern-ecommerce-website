@@ -25,8 +25,7 @@ app.use((0, express_session_1.default)({
     proxy: true,
     saveUninitialized: true,
     cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
+        httpOnly: false,
         secure: true, // true: 只有 https 才能使用 cookie
         sameSite: 'none',
     },
