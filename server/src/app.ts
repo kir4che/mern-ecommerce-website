@@ -26,8 +26,9 @@ app.use(
 		saveUninitialized: true,
 		cookie: {
 			httpOnly: false,
-			secure: false, // true: 只有 https 才能使用 cookie
-			sameSite: true,
+			maxAge: 8 * 60 * 60 * 1000, // 8 hours
+			secure: true, // true: 只有 https 才能使用 cookie
+			sameSite: false,
 		},
 	})
 )
