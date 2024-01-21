@@ -523,9 +523,9 @@ const Dashboard = () => {
                     <p className='min-w-44'>成立日期</p>
                   </li>
                 </ul>
-                {ordersData ? (
+                {orders ? (
                   <ul className='space-y-4'>
-                    {ordersData.orders.map((order, index) => (
+                    {orders.map((order, index) => (
                       <li className='flex text-sm'>
                         <p className='min-w-20'>{index + 1}</p>
                         <p className='min-w-20'>{order.status}</p>
