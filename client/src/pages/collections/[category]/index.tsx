@@ -150,7 +150,7 @@ const Collections = () => {
                   </div>
                   <div className='flex justify-between'>
                     <div className='text-sm sm:text-xxs min-w-fit'>
-                      <p className="text-3xl sm:text-xl">NT${product.price}</p>
+                      <p className="text-3xl sm:text-xl">NT${product.price.toLocaleString()}</p>
                     </div>
                     <button className="px-3 py-2 text-sm duration-500 border rounded-full border-primary hover:text-primary hover:bg-secondary text-secondary sm:py-1 sm:px-5 sm:text-xs bg-primary" onClick={() => handleAddToCart(product)}>
                       加入購物車
