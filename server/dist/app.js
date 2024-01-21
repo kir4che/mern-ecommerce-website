@@ -17,18 +17,14 @@ const app = (0, express_1.default)();
 dotenv_1.default.config();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({ credentials: true, origin: process.env.FRONTEND_URL }));
-app.set('trust proxy', 1);
 app.use((0, express_session_1.default)({
-    name: 'sid',
     secret: Math.random().toString(36).substring(2),
-    resave: true,
-    proxy: true,
-    saveUninitialized: true,
+    resave: false, // 固定寫法
+    saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
     cookie: {
-        httpOnly: false,
-        maxAge: 8 * 60 * 60 * 1000, // 8 hours
-        secure: true, // true: 只有 https 才能使用 cookie
-        sameSite: false,
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
+        secure: false, // true: 只有 https 才能使用 cookie
     },
 }));
 app.use(express_1.default.static('public'));

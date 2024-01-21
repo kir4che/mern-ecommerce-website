@@ -15,20 +15,15 @@ dotenv.config()
 app.use(express.json())
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }))
 
-app.set('trust proxy', 1)
-
 app.use(
 	session({
-		name: 'sid',
 		secret: Math.random().toString(36).substring(2),
-		resave: true,
-		proxy: true,
-		saveUninitialized: true,
+		resave: false, // 固定寫法
+		saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
 		cookie: {
-			httpOnly: false,
-			maxAge: 8 * 60 * 60 * 1000, // 8 hours
-			secure: true, // true: 只有 https 才能使用 cookie
-			sameSite: false,
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
+			secure: false, // true: 只有 https 才能使用 cookie
 		},
 	})
 )

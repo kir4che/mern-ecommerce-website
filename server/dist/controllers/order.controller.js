@@ -12,28 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateOrder = exports.createOrder = exports.getOrderById = exports.getOrders = void 0;
+exports.updateOrder = exports.createOrder = exports.getOrderById = exports.getOrdersForAdmin = exports.getOrders = void 0;
 const auth_middleware_1 = __importDefault(require("../middlewares/auth.middleware"));
 const order_model_1 = require("../models/order.model");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { role } = req.session.user;
-        if (role == 'admin') {
-            yield (0, auth_middleware_1.default)(req);
-            const orders = yield order_model_1.OrderModel.find();
-            res.status(200).json({ message: 'Orders fetched successfully!', orders });
-        }
-        else {
-            const userId = yield (0, auth_middleware_1.default)(req);
-            const orders = yield order_model_1.OrderModel.find({ userId });
-            res.status(200).json({ message: 'Orders fetched successfully!', orders });
-        }
+        const userId = yield (0, auth_middleware_1.default)(req);
+        const orders = yield order_model_1.OrderModel.find({ userId });
+        res.status(200).json({ message: 'Orders fetched successfully!', orders });
     }
     catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 exports.getOrders = getOrders;
+const getOrdersForAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const orders = yield order_model_1.OrderModel.find();
+        res.status(200).json({ message: 'Orders fetched successfully!', orders });
+    }
+    catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+exports.getOrdersForAdmin = getOrdersForAdmin;
 const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, auth_middleware_1.default)(req);
