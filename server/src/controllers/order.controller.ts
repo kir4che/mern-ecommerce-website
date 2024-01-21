@@ -7,8 +7,13 @@ const getOrders = async (req: Request, res: Response) => {
 		let { role } = req.session.user
 
 		const userId = await auth(req)
-		const orders = role === 'admin' ? await OrderModel.find() : await OrderModel.find({ userId })
-		res.status(200).json({ message: 'Orders fetched successfully!', orders })
+		if (role === 'admin') {
+			const orders = await OrderModel.find()
+			res.status(200).json({ message: 'Orders fetched successfully!', orders })
+		} else {
+			const orders = await OrderModel.find({ userId })
+			res.status(200).json({ message: 'Orders fetched successfully!', orders })
+		}
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
 	}
