@@ -19,7 +19,8 @@ app.use(express_1.default.json());
 app.use((0, cors_1.default)({ credentials: true, origin: process.env.FRONTEND_URL }));
 app.use((0, express_session_1.default)({
     secret: Math.random().toString(36).substring(2),
-    saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
+    resave: true,
+    saveUninitialized: true,
     cookie: {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days

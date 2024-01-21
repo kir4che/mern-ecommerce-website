@@ -16,8 +16,7 @@ const auth_middleware_1 = __importDefault(require("../middlewares/auth.middlewar
 // 檢查使用者權限
 const checkUserRole = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, auth_middleware_1.default)(req);
-    let { role } = req.session.user || {};
-    console.log(role);
+    let { role } = req.session.user;
     if (role == 'admin')
         next();
     else
