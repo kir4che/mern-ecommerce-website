@@ -49,6 +49,10 @@ const Dashboard = () => {
   })
 
   useEffect(() => {
+    console.log(orders)
+  }, [orders])
+
+  useEffect(() => {
     if (role.includes('user')) navigate('/')
   }, [role])
 
@@ -523,7 +527,7 @@ const Dashboard = () => {
                     <p className='min-w-44'>成立日期</p>
                   </li>
                 </ul>
-                {orders ? (
+                {orders.length > 0 ? (
                   <ul className='space-y-4'>
                     {orders.map((order, index) => (
                       <li className='flex text-sm'>
