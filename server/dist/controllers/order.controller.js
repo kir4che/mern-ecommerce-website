@@ -17,13 +17,14 @@ const auth_middleware_1 = __importDefault(require("../middlewares/auth.middlewar
 const order_model_1 = require("../models/order.model");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let userId = yield (0, auth_middleware_1.default)(req);
-        let { role } = req.session.user;
+        const { role } = req.session.user;
         if (role == 'admin') {
+            yield (0, auth_middleware_1.default)(req);
             const orders = yield order_model_1.OrderModel.find();
             res.status(200).json({ message: 'Orders fetched successfully!', orders });
         }
         else {
+            const userId = yield (0, auth_middleware_1.default)(req);
             const orders = yield order_model_1.OrderModel.find({ userId });
             res.status(200).json({ message: 'Orders fetched successfully!', orders });
         }

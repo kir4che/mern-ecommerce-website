@@ -5,12 +5,13 @@ import { Request, Response } from 'express'
 
 const getOrders = async (req: Request, res: Response) => {
 	try {
-		let userId = await auth(req)
-		let { role } = req.session.user
+		const { role } = req.session.user
 		if (role == 'admin') {
+			await auth(req)
 			const orders = await OrderModel.find()
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		} else {
+			const userId = await auth(req)
 			const orders = await OrderModel.find({ userId })
 			res.status(200).json({ message: 'Orders fetched successfully!', orders })
 		}
