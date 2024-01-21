@@ -75,7 +75,7 @@ const RecommendProducts = () => {
         },
       }}
     >
-      {products && products.slice(0, 5).map((product) => (
+      {products && [...products.slice(0, 5), ...products.slice(0, 5)].map((product) => (
         <SwiperSlide key={product.title}>
           <div className="recommend__item">
             <h3 className="space-y-0.5 px-2 w-fit bg-primary sm:text-lg z-10 relative mb-2.5 text-secondary">{product.title}</h3>
