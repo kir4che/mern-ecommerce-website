@@ -1,4 +1,3 @@
-import { UserModel } from '../models/user.model'
 import auth from '../middlewares/auth.middleware'
 import { OrderModel } from '../models/order.model'
 import { Request, Response } from 'express'
@@ -6,9 +5,17 @@ import { Request, Response } from 'express'
 const getOrders = async (req: Request, res: Response) => {
 	try {
 		const userId = await auth(req)
-		const role: string = await UserModel.findById(userId).select('role')
+		const orders = await OrderModel.find({ userId })
+		res.status(200).json({ message: 'Orders fetched successfully!', orders })
+	} catch (err: any) {
+		res.status(500).json({ message: err.message })
+	}
+}
 
-		const orders = role.includes('admin') ? await OrderModel.find() : await OrderModel.find({ userId })
+const getOrdersForAdmin = async (req: Request, res: Response) => {
+	try {
+		await auth(req)
+		const orders = await OrderModel.find()
 		res.status(200).json({ message: 'Orders fetched successfully!', orders })
 	} catch (err: any) {
 		res.status(500).json({ message: err.message })
@@ -60,4 +67,4 @@ const updateOrder = async (req: Request, res: Response) => {
 	}
 }
 
-export { getOrders, getOrderById, createOrder, updateOrder }
+export { getOrders, getOrdersForAdmin, getOrderById, createOrder, updateOrder }
