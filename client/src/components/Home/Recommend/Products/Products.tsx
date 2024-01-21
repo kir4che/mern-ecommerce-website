@@ -45,7 +45,7 @@ const RecommendProducts = () => {
         disableOnInteraction: false,
       }}
       loop
-      loopAdditionalSlides={3}
+      loopAdditionalSlides={5}
       navigation
       cssMode
       style={{

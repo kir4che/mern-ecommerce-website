@@ -46,7 +46,7 @@ const Campaign = () => {
           disableOnInteraction: false,
         }}
         loop
-        loopAdditionalSlides={3}
+        loopAdditionalSlides={5}
         modules={[Autoplay]}
         breakpoints={{
           0: {
