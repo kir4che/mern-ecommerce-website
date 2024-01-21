@@ -26,9 +26,8 @@ app.use((0, express_session_1.default)({
     saveUninitialized: true,
     cookie: {
         httpOnly: false,
-        maxAge: 8 * 60 * 60 * 1000, // 8 hours
         secure: false, // true: 只有 https 才能使用 cookie
-        sameSite: 'none',
+        sameSite: true,
     },
 }));
 app.use(express_1.default.static('public'));
