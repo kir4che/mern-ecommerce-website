@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import Layout from '../Layout/Layout';
+import Layout from '../../layouts/AppLayout';
 
-const Error = ({ message = [] }) => {
+const Error = ({ message = {} }) => {
   const navigate = useNavigate();
 
   return (

@@ -1,7 +1,7 @@
-import Layout from '../Layout/Layout'
+import AppLayout from '@/layouts/AppLayout'
 
 const Loading = () => (
-  <Layout>
+  <AppLayout>
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-secondary'>
       <svg
         className='w-8 h-8 mr-3 text-primary animate-spin'
@@ -17,7 +17,7 @@ const Loading = () => (
       </svg>
       <span className='text-3xl font-bold text-primary'>Loading...</span>
     </div>
-  </Layout>
+  </AppLayout>
 )
 
 export default Loading

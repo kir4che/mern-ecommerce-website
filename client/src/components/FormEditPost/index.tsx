@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import InputWithLabel from '../ui/InputWithLabel';
+import InputWithLabel from '../atoms/Input';
 
 const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUpdate }) => {
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

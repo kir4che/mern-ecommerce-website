@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Layout from '../../../components/Layout/Layout';
+import Layout from '../../../layouts/AppLayout';
 
 const Register = () => {
   const navigate = useNavigate();

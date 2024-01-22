@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Error from '../../../components/Error/Error';
-import Layout from '../../../components/Layout/Layout';
-import Loading from '../../../components/Loading/Loading';
+import Error from '../../error';
+import Layout from '../../../layouts/AppLayout';
+import Loading from '../../../components/Loading';
 import useGetData from '../../../hooks/useGetData';
-import ProductEditForm from '../../../components/EditForm/ProductEditForm';
-import PostEditForm from '../../../components/EditForm/PostEditForm';
+import ProductEditForm from '../../../components/FormEditProduct';
+import PostEditForm from '../../../components/FormEditPost';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,16 +55,6 @@ const Dashboard = () => {
 
   if (productLoading || postLoading || orderLoading) return <Loading />
   else if ((!productLoading && !products) || (!postLoading && !posts) || (!orderLoading && !orders)) return <Error message={[productError, postError, orderError]} />
-
-  const handleFormOpen = (item, data) => {
-    if (item === 'products') {
-      setProductForm(data)
-      setIsAddOrEditProductForm(data.title === '' ? 'add' : 'edit')
-    } else {
-      setPostForm(data)
-      setIsAddOrEditPostForm(data.title === '' ? 'add' : 'edit')
-    }
-  }
 
   const handleFormUpdate = async (item: string, todo: string) => {
     if (todo === 'add') {

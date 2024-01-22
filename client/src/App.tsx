@@ -1,11 +1,20 @@
-import About from "./components/Home/About/About";
-import Campaign from "./components/Home/Campaign/Campaign";
-import News from './components/Home/News/News';
-import Recommend from "./components/Home/Recommend/Recommend";
-import ShopList from "./components/Home/ShopList/ShopList";
-import Layout from "./components/Layout/Layout";
+import { useEffect } from "react";
+import { useCart } from './hooks/useCart';
 
-function App() {
+import About from "./components/Home/About";
+import Campaign from "./components/Home/Campaign";
+import News from './components/Home/News';
+import Recommend from "./components/Home/Recommend";
+import ShopList from "./components/Home/ShopList/ShopList";
+import Layout from "./layouts/AppLayout";
+
+export default function App() {
+  const { getCart } = useCart();
+
+  useEffect(() => {
+    getCart()
+  }, [])
+
   return (
     <Layout>
       <Recommend />
@@ -16,5 +25,3 @@ function App() {
     </Layout>
   );
 }
-
-export default App;

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Error from '../../../components/Error/Error';
-import RecommendProducts from '../../../components/Home/Recommend/Products/Products';
-import Layout from '../../../components/Layout/Layout';
-import Loading from '../../../components/Loading/Loading';
+import Error from '../../error';
+import RecommendProducts from '../../../components/Home/Recommend/Products';
+import Layout from '../../../layouts/AppLayout';
+import Loading from '../../../components/Loading';
 import { useCart } from '../../../hooks/useCart';
 import useGetData from '../../../hooks/useGetData';
 

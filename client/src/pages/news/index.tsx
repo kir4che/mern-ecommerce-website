@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
-import Error from '../../components/Error/Error';
-import Layout from "../../components/Layout/Layout";
-import Loading from '../../components/Loading/Loading';
+import Breadcrumb from "../../components/molecules/Breadcrumb";
+import Error from '../error';
+import Layout from "../../layouts/AppLayout";
+import Loading from '../../components/Loading';
 import useGetData from '../../hooks/useGetData';
 
 const News = () => {

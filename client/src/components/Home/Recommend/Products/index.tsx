@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useCart } from '../../../../hooks/useCart';
@@ -41,7 +41,7 @@ const RecommendProducts = () => {
       slidesPerView={5}
       centeredSlides
       autoplay={{
-        delay: 5000,
+        delay: 8000,
         disableOnInteraction: false,
       }}
       loop
@@ -75,7 +75,7 @@ const RecommendProducts = () => {
         },
       }}
     >
-      {products && [...products.slice(0, 5), ...products.slice(0, 5)].map((product) => (
+      {products && [...products.slice(0, 5), ...products.slice(0, 5), ...products.slice(0, 5)].map((product) => (
         <SwiperSlide key={product.title}>
           <div className="recommend__item">
             <h3 className="space-y-0.5 px-2 w-fit bg-primary sm:text-lg z-10 relative mb-2.5 text-secondary">{product.title}</h3>
