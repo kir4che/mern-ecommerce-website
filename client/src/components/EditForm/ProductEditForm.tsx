@@ -90,7 +90,7 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
                 onChange={handleFormChange}
               />
             </label>
-            <div className='flex gap-4'>
+            {/* <div className='flex gap-4'>
               <label className='block'>
                 內容物
                 <input
@@ -165,7 +165,7 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
                 <option value="請保存於陰涼處，避免高溫或陽光照射。">請保存於陰涼處，避免高溫或陽光照射。</option>
                 <option value="請保存於陰涼處，避免高溫或陽光照射，亦可冷藏保存。">請保存於陰涼處，避免高溫或陽光照射，亦可冷藏保存。</option>
               </select>
-            </label>
+            </label> */}
             <label className='block'>
               圖片網址
               <input
