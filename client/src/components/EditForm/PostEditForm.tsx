@@ -1,4 +1,5 @@
 import { Dialog } from '@headlessui/react';
+import InputWithLabel from '../ui/InputWithLabel';
 
 const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUpdate }) => {
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -19,16 +20,7 @@ const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUp
             </button>
           </Dialog.Title>
           <Dialog.Description className='py-4 space-y-2 text-sm'>
-            <label className='block'>
-              標題
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleFormChange}
-                autoFocus
-              />
-            </label>
+            <InputWithLabel text='標題' name='title' value={form.title} onChange={handleFormChange} />
             <label className='block'>
               分類
               <input
@@ -39,16 +31,7 @@ const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUp
                 placeholder='活動'
               />
             </label>
-            <label className='block'>
-              日期
-              <input
-                type="text"
-                name="date"
-                value={form.date}
-                onChange={handleFormChange}
-                placeholder='2024/01/01'
-              />
-            </label>
+            <InputWithLabel text='日期' name='date' value={form.date} onChange={handleFormChange} />
             <label className='block'>
               內容
               <textarea
@@ -58,16 +41,7 @@ const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUp
                 onChange={handleFormChange}
               />
             </label>
-            <label className='block'>
-              圖片網址
-              <input
-                type="text"
-                name="imageUrl"
-                value={form.imageUrl}
-                onChange={handleFormChange}
-                placeholder='http://xxx.jpg'
-              />
-            </label>
+            <InputWithLabel text='圖片網址' name='imageUrl' value={form.imageUrl} onChange={handleFormChange} placeholder='http://xxx.jpg' />
           </Dialog.Description>
           <div className='ml-auto text-sm w-fit'>
             <button className='px-2 py-1 rounded-md hover:bg-gray-100' onClick={() => handleFormUpdate('posts', isAddOrEdit)}>確定變更</button>

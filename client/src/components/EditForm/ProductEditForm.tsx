@@ -1,4 +1,5 @@
 import { Dialog } from '@headlessui/react';
+import InputWithLabel from '../ui/InputWithLabel';
 
 const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUpdate }) => {
 
@@ -27,16 +28,7 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
           </Dialog.Title>
           <Dialog.Description className='py-4 space-y-2 text-sm'>
             <div className='flex gap-4'>
-              <label className='block w-2/3'>
-                標題
-                <input
-                  type="text"
-                  name="title"
-                  value={form.title}
-                  onChange={handleFormChange}
-                  autoFocus
-                />
-              </label>
+              <InputWithLabel text='標題' name='title' value={form.title} onChange={handleFormChange} />
               <label className='block w-1/3'>
                 分類
                 <select
@@ -53,34 +45,10 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
               </label>
             </div>
             <div className='flex gap-4'>
-              <label className='flex-1 block'>
-                價格
-                <input
-                  type="number"
-                  name="price"
-                  value={form.price}
-                  onChange={handleFormChange}
-                />
-              </label>
-              <label className='flex-1 block'>
-                庫存數量
-                <input
-                  type="number"
-                  name="countInStock"
-                  value={form.countInStock}
-                  onChange={handleFormChange}
-                />
-              </label>
+              <InputWithLabel text='價格' type='number' name='price' value={form.price} onChange={handleFormChange} />
+              <InputWithLabel text='庫存數量' type='number' name='countInStock' value={form.countInStock} onChange={handleFormChange} />
             </div>
-            <label className='block'>
-              標語
-              <input
-                type="text"
-                name="tagline"
-                value={form.tagline}
-                onChange={handleFormChange}
-              />
-            </label>
+            <InputWithLabel text='標語' name='tagline' value={form.tagline} onChange={handleFormChange} />
             <label className='block'>
               簡介
               <textarea
@@ -90,48 +58,12 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
                 onChange={handleFormChange}
               />
             </label>
-            {/* <div className='flex gap-4'>
-              <label className='block'>
-                內容物
-                <input
-                  type="text"
-                  name="content"
-                  value={form.content}
-                  onChange={handleFormChange}
-                />
-              </label>
-              <label className='block'>
-                過敏原
-                <span className='text-xs font-light text-gray-600'> (請用半形逗號隔開)</span>
-                <input
-                  type="text"
-                  name="allergens"
-                  value={form.allergens}
-                  onChange={handleFormChange}
-                  placeholder='小麥,乳製品,蛋'
-                />
-              </label>
+            <div className='flex gap-4'>
+              <InputWithLabel text='內容物' name='content' value={form.content} onChange={handleFormChange} />
+              <InputWithLabel text='過敏原' name='allergens' value={form.allergens} onChange={handleFormChange} placeholder='小麥,乳製品,蛋' />
             </div>
-            <label className='block'>
-              成分
-              <input
-                type="text"
-                name="ingredients"
-                value={form.ingredients}
-                onChange={handleFormChange}
-                placeholder='小麥粉、牛奶、無鹽奶油、蛋...'
-              />
-            </label>
-            <label className='block'>
-              營養成分
-              <input
-                type="text"
-                name="nutrition"
-                value={form.nutrition}
-                onChange={handleFormChange}
-                placeholder='（每100g）能量180kcal，蛋白質5.0g，脂肪2.5g，碳水化合物35.0g，食鹽相當量0.5g'
-              />
-            </label>
+            <InputWithLabel text='成分' name='ingredients' value={form.ingredients} onChange={handleFormChange} placeholder='小麥粉、牛奶、無鹽奶油、蛋...' />
+            <InputWithLabel text='營養成分' name='nutrition' value={form.nutrition} onChange={handleFormChange} placeholder='（每100g）能量180kcal，蛋白質5.0g，脂肪2.5g，碳水化合物35.0g，食鹽相當量0.5g' />
             <label className='block'>
               運送方式
               <select
@@ -144,16 +76,7 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
                 <option value="低溫宅配">低溫宅配</option>
               </select>
             </label>
-            <label className='block'>
-              有效期限
-              <input
-                type="text"
-                name="expiryDate"
-                value={form.expiryDate}
-                onChange={handleFormChange}
-                placeholder='常溫保存3天，冷藏可延長效期約5天。'
-              />
-            </label>
+            <InputWithLabel text='有效期限' name='expiryDate' value={form.expiryDate} onChange={handleFormChange} placeholder='常溫保存3天，冷藏可延長效期約5天。' />
             <label className='block'>
               保存方式
               <select
@@ -165,17 +88,8 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
                 <option value="請保存於陰涼處，避免高溫或陽光照射。">請保存於陰涼處，避免高溫或陽光照射。</option>
                 <option value="請保存於陰涼處，避免高溫或陽光照射，亦可冷藏保存。">請保存於陰涼處，避免高溫或陽光照射，亦可冷藏保存。</option>
               </select>
-            </label> */}
-            <label className='block'>
-              圖片網址
-              <input
-                type="text"
-                name="imageUrl"
-                value={form.imageUrl}
-                onChange={handleFormChange}
-                placeholder='http://xxx.jpg'
-              />
             </label>
+            <InputWithLabel text='圖片網址' name='imageUrl' value={form.imageUrl} onChange={handleFormChange} placeholder='http://xxx.jpg' />
           </Dialog.Description>
           <div className='ml-auto text-sm w-fit'>
             <button className='px-2 py-1 rounded-md hover:bg-gray-100' onClick={() => handleFormUpdate('products', 'edit')}>確定變更</button>
@@ -183,7 +97,7 @@ const ProductEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFor
           </div>
         </Dialog.Panel>
       </div>
-    </Dialog>
+    </Dialog >
   )
 
 }
