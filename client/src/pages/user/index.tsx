@@ -17,6 +17,8 @@ const UserProfile = () => {
   const token = Cookies.get('token')
   const { data: userData, loading: userLoading, error: userError } = useGetData('/user', token)
   const { data: ordersData, loading: ordersLoading, error: ordersError } = useGetData('/orders')
+  const user = userData?.user
+  const orders = ordersData?.orders
 
   if (userLoading || ordersLoading) return <Loading />
   else if ((!userLoading && !userData) || (!ordersLoading && !ordersData)) return <Error message={[userError, ordersError]} />
@@ -57,9 +59,9 @@ const UserProfile = () => {
                   <p>成立日期</p>
                 </li>
               </ul>
-              {ordersData ? (
+              {orders ? (
                 <ul className='space-y-2'>
-                  {ordersData.orders.map((order, index) => (
+                  {orders.map((order, index) => (
                     <li className='flex text-sm'>
                       <p className='min-w-20'>{index + 1}</p>
                       <p className='min-w-20'>{order.status}</p>
@@ -74,13 +76,15 @@ const UserProfile = () => {
               ) : <p className='text-sm'>尚未有訂單。</p>
               }
             </div>
-            <div className='space-y-4'>
-              <h2>詳細資訊</h2>
-              <div className='space-y-2 text-sm'>
-                <p>{userData?.user?.name}</p>
-                <p>{userData?.user?.email}</p>
+            {
+              user && <div className='space-y-4'>
+                <h2>詳細資訊</h2>
+                <div className='space-y-2 text-sm'>
+                  <p>{user.name}</p>
+                  <p>{user.email}</p>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>}
     </Layout >
