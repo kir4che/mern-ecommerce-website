@@ -27,10 +27,11 @@ const AccountLinks = ({ isMenuOpen, isLogin, role, handleLogout }) => {
         )}
         <button className='flex items-center min-w-fit gap-1 md:gap-0.5' onClick={handleLogout}>
           <img
+            src={`https://img.icons8.com/windows/32/${isMenuOpen ? 'ffffff' : ''}/exit.png`}
+            alt='exit-icon'
             width='22'
             height='22'
-            src={`https://img.icons8.com/windows/32/${isMenuOpen ? 'ffffff' : ''}/exit.png`}
-            alt='exit'
+            loading="lazy"
           />
           <span className={`${isMenuOpen ? 'text-secondary' : ''} text-sm md:text-xs hover:underline`}>登出</span>
         </button>

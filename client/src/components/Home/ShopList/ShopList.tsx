@@ -10,7 +10,7 @@ const ShopList = () => {
       </h1>
       <div className='px-[5vw] py-6 md:flex-row gap-12 md:gap-0 flex-col flex justify-between'>
         <div>
-          <img src={shop1} className='object-cover w-full md:w-[43vw] mb-4 rounded h-max max-h-[45vw] md:max-h-[24vw]' alt='shop1' />
+          <img src={shop1} alt='sunrise shop' className='object-cover w-full md:w-[43vw] mb-4 rounded h-max max-h-[45vw] md:max-h-[24vw]' loading="lazy" />
           <div className='flex items-baseline gap-1.5'>
             <p className='text-3xl font-medium md:text-base'>日出本店</p>
             <p className='text-lg font-light md:text-xs'>Sunrise</p>
@@ -39,7 +39,7 @@ const ShopList = () => {
           </div>
         </div>
         <div>
-          <img src={shop2} className='object-cover w-full md:w-[43vw] mb-4 rounded h-max max-h-[45vw] md:max-h-[24vw]' alt='shop2' />
+          <img src={shop2} alt='sunrise2 shop' className='object-cover w-full md:w-[43vw] mb-4 rounded h-max max-h-[45vw] md:max-h-[24vw]' loading="lazy" />
           <div className='space-y-2'>
             <p className='text-3xl font-medium md:text-base'>日出二店</p>
             <p className='text-base md:text-xs'>即將開幕</p>

@@ -48,13 +48,13 @@ const About = () => {
         className='absolute top-0 left-0 flex w-full'
       >
         <SwiperSlide className='max-w-fit'>
-          <img src={bg1} alt='bg1' className='block object-cover object-bottom' />
+          <img src={bg1} alt='bg1' className='block object-cover object-bottom' loading="lazy" />
         </SwiperSlide>
         <SwiperSlide className='max-w-fit'>
-          <img src={bg2} alt='bg2' className='block object-cover object-bottom w-100' />
+          <img src={bg2} alt='bg2' className='block object-cover object-bottom w-100' loading="lazy" />
         </SwiperSlide>
         <SwiperSlide className='max-w-fit'>
-          <img src={bg3} alt='bg3' className='block object-cover object-bottom w-[674px]' />
+          <img src={bg3} alt='bg3' className='block object-cover object-bottom w-[674px]' loading="lazy" />
         </SwiperSlide>
       </Swiper>
       <div className="absolute top-0 left-0 z-10 w-full h-full bg-black/50"></div>

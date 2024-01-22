@@ -30,7 +30,7 @@ const Product = () => {
     <Layout>
       <section className='flex flex-col justify-between gap-5 xl:gap-0 md:flex-row pb-14'>
         <div className='md:max-w-[50%]'>
-          <img src={product.imageUrl} alt={product.title} className='object-cover object-center h-full md:min-h-screenwithh' />
+          <img src={product.imageUrl} alt={product.title} className='object-cover object-center h-full md:min-h-screenwithh' loading="lazy" />
         </div>
         <div className="px-[5vw] md:px-0 mx-auto md:pt-20 md:max-w-lg">
           <p className="text-xs">{product.tagline}</p>

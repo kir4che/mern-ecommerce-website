@@ -16,7 +16,7 @@ const UserProfile = () => {
 
   const token = Cookies.get('token')
   const { data: userData, loading: userLoading, error: userError } = useGetData('/user', token)
-  const { data: ordersData, loading: ordersLoading, error: ordersError } = useGetData('/orders')
+  const { data: ordersData, loading: ordersLoading, error: ordersError } = useGetData('/orders', token)
   const user = userData?.user
   const orders = ordersData?.orders
 

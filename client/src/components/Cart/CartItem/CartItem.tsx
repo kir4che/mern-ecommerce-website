@@ -34,7 +34,7 @@ const CartItem = () => {
       {cart.length > 0 && cart.map((item) => (
         <li className="flex items-start w-full" key={item._id}>
           <div className="flex w-full gap-[2.5vw] md:gap-[1.5vw]">
-            <img className="object-cover w-32 md:h-20" src={item.product.imageUrl} alt={item.product.title} />
+            <img src={item.product.imageUrl} alt={item.product.title} className="object-cover w-32 md:h-20" loading="lazy" />
             <div className='space-y-2'>
               <Link to={`/products/${item.productId}`} className="text-sm hover:underline">{item.product.title}</Link>
               <p className='text-xs text-gray-600'>NT${item.product.price.toLocaleString()}</p>
@@ -51,9 +51,9 @@ const CartItem = () => {
             </div>
             <span className="md:text-sm">NT${(item.product.price * item.quantity).toLocaleString()}</span>
           </div>
-        </li>
+        </li >
       ))}
-    </ul>
+    </ul >
   )
 }
 

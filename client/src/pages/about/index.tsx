@@ -58,7 +58,7 @@ const About = () => {
                 讓我們一同迎接每天的日出，開始一天美好的旅程，從日出麵包坊出發。
               </p>
             </div>
-            <img src={aboutMission} alt="mission" className="h-[72vw] md:h-[600px] object-cover object-top w-screen md:w-[45vw]" />
+            <img src={aboutMission} alt="mission" className="h-[72vw] md:h-[600px] object-cover object-top w-screen md:w-[45vw]" loading="lazy" />
           </div>
         </article>
         <article className='border-t border-primary mx-[4.2vw] md:mx-[2.5vw]'>
@@ -80,7 +80,7 @@ const About = () => {
                 在日出麵包坊，我們以每一款麵包為傲，因為它們不僅代表著我們的工藝水準，更代表著我們對品質的堅持。
               </p>
             </div>
-            <img src={aboutPride} alt="pride" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" />
+            <img src={aboutPride} alt="pride" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" loading="lazy" />
           </div>
         </article>
         <article className='border-t border-primary mx-[4.2vw] md:mx-[2.5vw]'>
@@ -100,7 +100,7 @@ const About = () => {
                 我們的堅持不僅體現在原材料的挑選上，更體現在烘焙過程的細緻掌控。從配方的挑選到烘焙的準確掌握，每一個步驟都是為了確保客戶得到的是最高水準的產品。我們嚴格遵守衛生標準，確保每一位烘焙師傅都具備高度的專業素養，使我們的政策成為客戶信任的保證。
               </p>
             </div>
-            <img src={aboutPolicy} alt="policy" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" />
+            <img src={aboutPolicy} alt="policy" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" loading="lazy" />
           </div>
         </article>
         <article className='border-t border-primary mx-[4.2vw] md:mx-[2.5vw]'>
@@ -122,7 +122,7 @@ const About = () => {
                 我們相信，微笑是最美味的語言，而本店的每一個麵包都是用心製作出的，希望能為客戶帶來滿滿的微笑。
               </p>
             </div>
-            <img src={aboutPosture} alt="posture" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" />
+            <img src={aboutPosture} alt="posture" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" loading="lazy" />
           </div>
         </article>
         <article className='border-t border-primary mx-[4.2vw] md:mx-[2.5vw]'>
@@ -145,7 +145,7 @@ const About = () => {
                 日出麵包坊的商品不僅是食物，更是一場對味覺的饗宴。我們的商品系列將為您帶來無限的驚喜，讓您每天都能品嚐到不同的美味。
               </p>
             </div>
-            <img src={aboutItem} alt="item" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" />
+            <img src={aboutItem} alt="item" className="h-[72vw] md:h-[600px] object-cover object-center w-screen md:w-[45vw]" loading="lazy" />
           </div>
         </article>
       </section>
@@ -165,19 +165,19 @@ const About = () => {
           modules={[Autoplay]}
         >
           <SwiperSlide className='min-w-72'>
-            <img src={shop1} className='h-[450px] object-cover w-full' alt='shop1' />
+            <img src={shop1} className='h-[450px] object-cover w-full' alt='shop1' loading="lazy" />
           </SwiperSlide>
           <SwiperSlide className='min-w-72'>
-            <img src={shop2} className='h-[450px] object-cover w-full' alt='shop2' />
+            <img src={shop2} className='h-[450px] object-cover w-full' alt='shop2' loading="lazy" />
           </SwiperSlide>
           <SwiperSlide className='min-w-72'>
-            <img src={shop3} className='h-[450px] object-cover w-full' alt='shop3' />
+            <img src={shop3} className='h-[450px] object-cover w-full' alt='shop3' loading="lazy" />
           </SwiperSlide>
           <SwiperSlide className='min-w-72'>
-            <img src={shop4} className='h-[450px] object-cover w-full' alt='shop4' />
+            <img src={shop4} className='h-[450px] object-cover w-full' alt='shop4' loading="lazy" />
           </SwiperSlide>
           <SwiperSlide className='min-w-72'>
-            <img src={shop5} className='h-[450px] object-cover w-full' alt='shop5' />
+            <img src={shop5} className='h-[450px] object-cover w-full' alt='shop5' loading="lazy" />
           </SwiperSlide>
         </Swiper>
       </section>
@@ -215,7 +215,7 @@ const About = () => {
               </p>
             </div>
           </div>
-          <img src={shop} alt="shop" className="object-cover w-full md:w-[45vw] h-max max-h-[45vw] md:max-h-[25vw]" />
+          <img src={shop} alt="sunrise shop" className="object-cover w-full md:w-[45vw] h-max max-h-[45vw] md:max-h-[25vw]" loading="lazy" />
         </div>
       </section>
     </Layout>
