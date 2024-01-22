@@ -10,7 +10,7 @@ const PostEditForm = ({ isAddOrEdit, setIsAddOrEdit, form, setForm, handleFormUp
   return (
     <Dialog open={isAddOrEdit === 'edit' || isAddOrEdit === 'add'} className="relative z-50" onClose={() => { }}>
       <div className="fixed inset-0 flex items-center justify-center w-screen bg-primary/5">
-        <Dialog.Panel className='max-w-xl w-full min-w-[400px] p-4 overflow-y-auto bg-white rounded-md max-h-[75%]'>
+        <Dialog.Panel className='max-w-xl w-full min-w-[400px] p-4 overflow-y-auto bg-white rounded-md max-h-[80%]'>
           <Dialog.Title className='flex items-center justify-between pb-2 border-b border-gray-300'>
             編輯最新消息
             <button className='hover:opacity-60' onClick={() => setIsAddOrEdit('')}>
