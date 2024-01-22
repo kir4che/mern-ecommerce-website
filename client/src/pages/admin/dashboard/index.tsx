@@ -56,16 +56,6 @@ const Dashboard = () => {
   if (productLoading || postLoading || orderLoading) return <Loading />
   else if ((!productLoading && !products) || (!postLoading && !posts) || (!orderLoading && !orders)) return <Error message={[productError, postError, orderError]} />
 
-  const handleFormOpen = (item, data) => {
-    if (item === 'products') {
-      setProductForm(data)
-      setIsAddOrEditProductForm(data.title === '' ? 'add' : 'edit')
-    } else {
-      setPostForm(data)
-      setIsAddOrEditPostForm(data.title === '' ? 'add' : 'edit')
-    }
-  }
-
   const handleFormUpdate = async (item: string, todo: string) => {
     if (todo === 'add') {
       try {
