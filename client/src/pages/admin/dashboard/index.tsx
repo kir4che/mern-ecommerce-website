@@ -58,11 +58,11 @@ const Dashboard = () => {
 
   const handleFormOpen = (item, data) => {
     if (item === 'products') {
-      setIsAddOrEditProductForm(data.title === '' ? 'add' : 'edit')
       setProductForm(data)
+      setTimeout(() => setIsAddOrEditProductForm(data.title === '' ? 'add' : 'edit'), 5000)
     } else {
-      setIsAddOrEditPostForm(data.title === '' ? 'add' : 'edit')
       setPostForm(data)
+      setTimeout(() => setIsAddOrEditPostForm(data.title === '' ? 'add' : 'edit'), 5000)
     }
   }
 
