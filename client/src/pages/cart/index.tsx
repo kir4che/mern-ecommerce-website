@@ -1,8 +1,8 @@
-import Layout from '../../components/Layout/Layout';
+import Layout from '../../layouts/AppLayout';
 import { Link, useNavigate } from 'react-router-dom';
-import CartItem from '../../components/Cart/CartItem/CartItem';
+import CartItem from '../../components/Cart';
 import { useCart } from '../../hooks/useCart';
-import Loading from '../../components/Loading/Loading';
+import Loading from '../../components/Loading';
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 

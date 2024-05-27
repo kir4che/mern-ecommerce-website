@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import Footer from '../Footer/Footer';
-import Header from '../Header/Header';
 
-const Layout = ({ children }) => {
+import Footer from '@/components/organisms/Footer';
+import Header from '@/components/organisms/Header';
+
+const AppLayout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -22,4 +23,4 @@ const Layout = ({ children }) => {
   );
 }
 
-export default Layout;
+export default AppLayout;

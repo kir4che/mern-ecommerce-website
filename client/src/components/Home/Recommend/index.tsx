@@ -1,9 +1,9 @@
-import Header from './Header/Header';
+import Header from './Header';
 
 import { Link } from 'react-router-dom';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import RecommendProducts from './Products/Products';
+import RecommendProducts from './Products';
 
 const Recommend = () => {
   return (

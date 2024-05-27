@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 export const CartContext = createContext(null);
 
@@ -7,10 +7,6 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isAdded, setIsAdded] = useState(false);
   const [totalQuantity, setTotalQuantity] = useState(0);
-
-  useEffect(() => {
-    getCart()
-  }, [])
 
   const getCart = async () => {
     try {

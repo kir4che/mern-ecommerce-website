@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
-import Layout from "../../components/Layout/Layout";
+import Breadcrumb from "../../components/molecules/Breadcrumb";
+import Layout from "../../layouts/AppLayout";
 
 import aboutItem from '../../assets/images/about/about-item.jpg';
 import aboutMission from '../../assets/images/about/about-mission.jpg';

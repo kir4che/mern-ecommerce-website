@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Layout from '../../../components/Layout/Layout';
+import Layout from '../../../layouts/AppLayout';
 import { useCart } from '../../../hooks/useCart';
 
 const Login = () => {

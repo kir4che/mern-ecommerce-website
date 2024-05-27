@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useCart } from '../../../hooks/useCart';
+import { useCart } from '../../hooks/useCart';
 import { Link } from 'react-router-dom';
 
 const QuantityInput = ({ productId, quantity, max = 99, changeQuantity }) => (

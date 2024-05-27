@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Layout from '../../../components/Layout/Layout';
+import Layout from '../../../layouts/AppLayout';
 import useGetData from '../../../hooks/useGetData';
 import { useNavigate, useParams } from 'react-router-dom';
-import Loading from '../../../components/Loading/Loading';
+import Loading from '../../../components/Loading';
 import Cookies from 'js-cookie';
 
 const Checkout = () => {

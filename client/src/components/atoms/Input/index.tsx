@@ -1,4 +1,4 @@
-const InputWithLabel = ({ text, type = 'text', name, value, placeholder = '', onChange }) => {
+const Input = ({ text, type = 'text', name, value, placeholder = '', onChange }) => {
   return (
     <label className='block'>
       {text}
@@ -13,4 +13,4 @@ const InputWithLabel = ({ text, type = 'text', name, value, placeholder = '', on
   )
 }
 
-export default InputWithLabel
+export default Input
