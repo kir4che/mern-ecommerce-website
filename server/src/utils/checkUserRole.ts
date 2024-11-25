@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import auth from "../middlewares/auth.middleware";
 
 // 檢查使用者權限
 const checkUserRole = async (
@@ -7,7 +6,6 @@ const checkUserRole = async (
   res: Response,
   next: NextFunction,
 ) => {
-  await auth(req);
   let { role } = req.session.user;
   if (role == "admin") next();
   else

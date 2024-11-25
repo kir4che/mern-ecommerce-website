@@ -1,18 +1,20 @@
 import { Router } from "express";
+
+import { authMiddleware } from "@/middlewares/auth.middleware";
 import {
   createOrder,
   getOrderById,
   getOrdersForAdmin,
   getOrders,
   updateOrder,
-} from "../controllers/order.controller";
+} from "@/controllers/order.controller";
 
 const router = Router();
 
 router.route("/").get(getOrders);
 router.route("/admin").get(getOrdersForAdmin);
-router.route("/:id").get(getOrderById);
+router.route("/:id").get(authMiddleware, getOrderById);
 router.route("/").post(createOrder);
-router.route("/:id").patch(updateOrder);
+router.route("/:id").patch(authMiddleware, updateOrder);
 
 export { router as orderRouter };

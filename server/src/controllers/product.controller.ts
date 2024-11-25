@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ProductModel } from "../models/product.model";
+import { ProductModel } from "@/models/product.model";
 import mongoose from "mongoose";
 
 const getProducts = async (req: Request, res: Response) => {
@@ -55,11 +55,9 @@ const updateProduct = async (req: Request, res: Response) => {
 
     const updateData = req.body;
     if (!updateData || Object.keys(updateData).length === 0)
-      return res
-        .status(400)
-        .json({
-          message: "Invalid update data. Please provide data to update.",
-        });
+      return res.status(400).json({
+        message: "Invalid update data. Please provide data to update.",
+      });
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       productId,
@@ -69,12 +67,10 @@ const updateProduct = async (req: Request, res: Response) => {
     if (!updatedProduct)
       return res.status(404).json({ message: "Product not found." });
 
-    res
-      .status(200)
-      .json({
-        message: "Product updated Successfully!",
-        product: updatedProduct,
-      });
+    res.status(200).json({
+      message: "Product updated Successfully!",
+      product: updatedProduct,
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

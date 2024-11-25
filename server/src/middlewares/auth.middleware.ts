@@ -1,26 +1,33 @@
-import { Request } from "express";
-import jwt, { Secret } from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
+import jwt, { Secret } from "jsonwebtoken";
 
-interface Decoded {
-  userId: Types.ObjectId;
+interface AuthRequest extends Request {
+  userId?: Types.ObjectId;
 }
 
-const auth = async (req: Request) => {
-  const token = req.header("Authorization")?.split(" ")[1];
-  if (!token) throw new Error("Unauthorized!");
-
+export const authMiddleware = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as Secret,
-    ) as Decoded;
-    if (!decoded) throw new Error("Authentication failed!");
-    return decoded.userId;
+    const token = req.cookies.token; // 從 cookie 中讀取 token
+
+    if (!token) {
+      throw new Error("Unauthorized!");
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as Secret) as {
+      userId: Types.ObjectId;
+    };
+    req.userId = decoded.userId; // 將 userId 附加到 req 物件上
+    next();
   } catch (err: any) {
-    if (err.name === "TokenExpiredError") throw new Error("Token has expired.");
-    else throw new Error("Invalid token!");
+    if (err.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid JWT token." });
+    } else if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token has expired." });
+    } else return res.status(401).json({ message: "Unauthorized access!" });
   }
 };
-
-export default auth;

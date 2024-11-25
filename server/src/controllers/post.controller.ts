@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PostModel } from "../models/post.model";
+import { PostModel } from "@/models/post.model";
 
 const getPost = async (req: Request, res: Response) => {
   try {
@@ -37,11 +37,9 @@ const updatePost = async (req: Request, res: Response) => {
     if (post) {
       const updateData = req.body;
       if (!updateData || Object.keys(updateData).length === 0)
-        return res
-          .status(400)
-          .json({
-            message: "Invalid update data. Please provide data to update.",
-          });
+        return res.status(400).json({
+          message: "Invalid update data. Please provide data to update.",
+        });
 
       const updatedPost = await PostModel.findByIdAndUpdate(
         postId,
