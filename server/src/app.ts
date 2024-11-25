@@ -3,17 +3,25 @@ import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import mongoose from "mongoose";
-import { cartRouter } from "./routes/cart.route";
-import { postRouter } from "./routes/post.route";
-import { productRouter } from "./routes/product.route";
-import { userRouter } from "./routes/user.route";
-import { orderRouter } from "./routes/order.route";
+import cookieParser from "cookie-parser";
+
+import { cartRouter } from "@/routes/cart.route";
+import { postRouter } from "@/routes/post.route";
+import { productRouter } from "@/routes/product.route";
+import { userRouter } from "@/routes/user.route";
+import { orderRouter } from "@/routes/order.route";
 
 const app = express();
 dotenv.config();
 
 app.use(express.json());
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true, // 允許發送 Cookie
+  }),
+);
 
 app.use(
   session({

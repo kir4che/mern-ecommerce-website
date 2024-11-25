@@ -1,16 +1,21 @@
 import { Request, Response } from "express";
-import auth from "../middlewares/auth.middleware";
-import { CartModel } from "../models/cart.model";
-import { CartItemModel, ICartItem } from "../models/cartItem.model";
-import { ProductModel } from "../models/product.model";
+import { Types } from "mongoose";
 
-const getCart = async (req: Request, res: Response) => {
+import { CartModel } from "@/models/cart.model";
+import { CartItemModel, ICartItem } from "@/models/cartItem.model";
+import { ProductModel } from "@/models/product.model";
+
+interface AuthRequest extends Request {
+  userId?: Types.ObjectId;
+}
+
+const getCart = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = await auth(req);
+    const userId = req.userId;
     // populate() 方法會將指定的欄位填入資料，也就是會將 cart.items 中的所有資料填入。
-    const cart = (await CartModel.findOne({ userId }).populate("items")) as {
+    const cart = await CartModel.findOne({ userId }).populate<{
       items: ICartItem[];
-    };
+    }>("items");
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
     const populatedItems = await Promise.all(
@@ -42,11 +47,11 @@ const getCart = async (req: Request, res: Response) => {
   }
 };
 
-const addToCart = async (req: Request, res: Response) => {
+const addToCart = async (req: AuthRequest, res: Response) => {
   const { productId, quantity } = req.body;
 
   try {
-    const userId = await auth(req);
+    const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
@@ -78,11 +83,11 @@ const addToCart = async (req: Request, res: Response) => {
   }
 };
 
-const removeFromCart = async (req: Request, res: Response) => {
+const removeFromCart = async (req: AuthRequest, res: Response) => {
   const itemId = req.params.id;
 
   try {
-    const userId = await auth(req);
+    const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
@@ -99,9 +104,9 @@ const removeFromCart = async (req: Request, res: Response) => {
   }
 };
 
-const changeQuantity = async (req: Request, res: Response) => {
+const changeQuantity = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = await auth(req);
+    const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
@@ -121,9 +126,9 @@ const changeQuantity = async (req: Request, res: Response) => {
   }
 };
 
-const clearCart = async (req: Request, res: Response) => {
+const clearCart = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = await auth(req);
+    const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
