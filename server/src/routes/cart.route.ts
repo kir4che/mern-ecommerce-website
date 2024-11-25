@@ -1,12 +1,18 @@
-import { Router } from 'express'
-import { addToCart, changeQuantity, clearCart, getCart, removeFromCart } from '../controllers/cart.controller'
+import { Router } from "express";
+import {
+  addToCart,
+  changeQuantity,
+  clearCart,
+  getCart,
+  removeFromCart,
+} from "../controllers/cart.controller";
 
-const router = Router()
+const router = Router();
 
-router.route('/').get(getCart)
-router.route('/').post(addToCart)
-router.route('/:id').delete(removeFromCart)
-router.route('/:id').patch(changeQuantity)
-router.route('/').delete(clearCart)
+router.route("/").get(getCart);
+router.route("/").post(addToCart);
+router.route("/:id").delete(removeFromCart);
+router.route("/:id").patch(changeQuantity);
+router.route("/").delete(clearCart);
 
-export { router as cartRouter }
+export { router as cartRouter };

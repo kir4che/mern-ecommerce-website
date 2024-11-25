@@ -1,6 +1,13 @@
-const Input = ({ text, type = 'text', name, value, placeholder = '', onChange }) => {
+const Input = ({
+  text,
+  type = "text",
+  name,
+  value,
+  placeholder = "",
+  onChange,
+}) => {
   return (
-    <label className='block'>
+    <label className="block">
       {text}
       <input
         type={type}
@@ -10,7 +17,7 @@ const Input = ({ text, type = 'text', name, value, placeholder = '', onChange })
         onChange={onChange}
       />
     </label>
-  )
-}
+  );
+};
 
-export default Input
+export default Input;

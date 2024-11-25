@@ -1,26 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import Footer from '@/components/organisms/Footer';
-import Header from '@/components/organisms/Header';
+import Footer from "@/components/organisms/Footer";
+import Header from "@/components/organisms/Header";
 
 const AppLayout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (isMenuOpen) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = 'unset'
-  }, [isMenuOpen])
+    if (isMenuOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "unset";
+  }, [isMenuOpen]);
 
   return (
     <>
-      <div className={isMenuOpen ? 'fixed top-0 z-30 flex w-full min-h-screen' : 'sticky top-0 z-50'}>
+      <div
+        className={
+          isMenuOpen
+            ? "fixed top-0 z-30 flex w-full min-h-screen"
+            : "sticky top-0 z-50"
+        }
+      >
         <Header isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-        <div className={isMenuOpen ? "menu__gallery-reset  " : "menu__gallery-hidden"} />
+        <div
+          className={
+            isMenuOpen ? "menu__gallery-reset  " : "menu__gallery-hidden"
+          }
+        />
       </div>
-      <main className='min-h-screenwithhf'>{children}</main>
+      <main className="min-h-screenwithhf">{children}</main>
       <Footer />
     </>
   );
-}
+};
 
 export default AppLayout;
