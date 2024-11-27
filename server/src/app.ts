@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
 import { cartRouter } from "@/routes/cart.route";
-import { postRouter } from "@/routes/post.route";
+import { newRouter } from "@/routes/new.route";
 import { productRouter } from "@/routes/product.route";
 import { userRouter } from "@/routes/user.route";
 import { orderRouter } from "@/routes/order.route";
@@ -40,7 +40,7 @@ app.use(express.static("public"));
 
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
-app.use("/api/posts", postRouter);
+app.use("/api/news", newRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 
