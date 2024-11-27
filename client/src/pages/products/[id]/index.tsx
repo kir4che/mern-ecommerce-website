@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import Error from "../../error";
-import RecommendProducts from "../../../components/Home/Recommend/Products";
-import Layout from "../../../layouts/AppLayout";
-import Loading from "../../../components/Loading";
-import { useCart } from "../../../hooks/useCart";
-import useGetData from "../../../hooks/useGetData";
+import NotFound from "@/pages/notFound";
+import ProductSlider from "@/components/molecules/ProductSlider";
+import Layout from "@/layouts/AppLayout";
+import Loading from "@/components/atoms/Loading";
+import { useCart } from "@/context/CartContext";
+import { useGetData } from "@/hooks/useGetData";
+
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Accordion from "@/components/molecules/Accordion";
 
 const Product = () => {
   const { id } = useParams();
@@ -17,14 +21,15 @@ const Product = () => {
 
   const handleAddToCart = (product) => {
     addToCart({
-      productId: product._id,
+      id: product._id,
+      product,
       quantity: quantity || 1,
     });
     setTimeout(() => setQuantity(1), 500);
   };
 
   if (loading) return <Loading />;
-  else if (!loading && !product) return <Error message={[error]} />;
+  else if (!loading && !product) return <NotFound message={[error]} />;
 
   return (
     <Layout>
@@ -56,28 +61,17 @@ const Product = () => {
           <div className="flex justify-between pb-6 border-b-2 border-gray-400 border-dashed sm:items-center">
             <p className="text-3xl sm:text-2xl">NT${product.price}</p>
             <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-between gap-3">
-                <label className="pr-2 text-sm border-r border-gray-300 min-w-fit sm:text-xs">
-                  數量
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  id="quantity"
-                  className="text-base outline-none sm:text-sm"
-                  min={1}
-                  max={product.countInStock}
-                  value={quantity}
-                  defaultValue={1}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                />
-              </div>
-              <button
-                className="px-4 py-2 text-sm duration-500 border rounded-full md:px-6 border-primary hover:text-primary hover:bg-secondary text-secondary bg-primary"
-                onClick={() => handleAddToCart(product)}
-              >
+              <Input
+                label="數量"
+                min={1}
+                max={product.countInStock}
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              />
+              <Button onClick={() => handleAddToCart(product)}>
                 加入購物車
-              </button>
+              </Button>
             </div>
           </div>
           <div className="space-y-2.5 border-b border-gray-400 pt-7 pb-10 text-xxs">
@@ -119,56 +113,8 @@ const Product = () => {
             </p>
           </div>
           <div>
-            <details
-              className="py-5 text-xs border-b border-gray-400 group"
-              open
-            >
-              <summary className="flex items-center justify-between cursor-pointer">
-                <p className="font-medium">原材料</p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="9"
-                  fill="none"
-                  className="block group-open:rotate-180"
-                  viewBox="0 0 16 9"
-                >
-                  <path
-                    fill="#081122"
-                    d="M.358.353a.5.5 0 0 1 .707 0l6.56 6.56 6.561-6.56a.5.5 0 1 1 .707.708L7.626 8.328.358 1.061a.5.5 0 0 1 0-.708Z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </summary>
-              <p className="border-t-[1.25px] pt-4 mt-4 border-gray-300 border-dashed">
-                {product.ingredients}
-              </p>
-            </details>
-            <details
-              className="py-5 text-xs border-b border-gray-400 group"
-              open
-            >
-              <summary className="flex items-center justify-between cursor-pointer">
-                <p className="font-medium">營養成分表示</p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="9"
-                  fill="none"
-                  className="block group-open:rotate-180"
-                  viewBox="0 0 16 9"
-                >
-                  <path
-                    fill="#081122"
-                    d="M.358.353a.5.5 0 0 1 .707 0l6.56 6.56 6.561-6.56a.5.5 0 1 1 .707.708L7.626 8.328.358 1.061a.5.5 0 0 1 0-.708Z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </summary>
-              <p className="border-t-[1.25px] pt-4 mt-4 border-gray-300 border-dashed">
-                {product.nutrition}
-              </p>
-            </details>
+            <Accordion title="原材料">{product.ingredients}</Accordion>
+            <Accordion title="營養成分表示">{product.nutrition}</Accordion>
           </div>
         </div>
       </section>
@@ -178,7 +124,7 @@ const Product = () => {
           <span>Recommend</span>
         </h2>
         <div className="py-16 px-[5vw] sm:px-0">
-          <RecommendProducts />
+          <ProductSlider />
         </div>
       </section>
     </Layout>

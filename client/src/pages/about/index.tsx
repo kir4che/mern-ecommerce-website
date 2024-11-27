@@ -1,20 +1,20 @@
 import { useEffect } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Breadcrumb from "../../components/molecules/Breadcrumb";
-import Layout from "../../layouts/AppLayout";
+import Breadcrumb from "@/components/molecules/Breadcrumb";
+import Layout from "@/layouts/AppLayout";
 
-import aboutItem from "../../assets/images/about/about-item.jpg";
-import aboutMission from "../../assets/images/about/about-mission.jpg";
-import aboutPolicy from "../../assets/images/about/about-policy.jpg";
-import aboutPosture from "../../assets/images/about/about-posture.jpg";
-import aboutPride from "../../assets/images/about/about-pride.jpg";
-import shop1 from "../../assets/images/about/shop1.jpg";
-import shop2 from "../../assets/images/about/shop2.jpg";
-import shop3 from "../../assets/images/about/shop3.jpg";
-import shop4 from "../../assets/images/about/shop4.jpg";
-import shop5 from "../../assets/images/about/shop5.jpg";
-import shop from "../../assets/images/shops/shop1.jpg";
+import aboutItem from "@/assets/images/about/about-item.jpg";
+import aboutMission from "@/assets/images/about/about-mission.jpg";
+import aboutPolicy from "@/assets/images/about/about-policy.jpg";
+import aboutPosture from "@/assets/images/about/about-posture.jpg";
+import aboutPride from "@/assets/images/about/about-pride.jpg";
+import shop1 from "@/assets/images/about/shop1.jpg";
+import shop2 from "@/assets/images/about/shop2.jpg";
+import shop3 from "@/assets/images/about/shop3.jpg";
+import shop4 from "@/assets/images/about/shop4.jpg";
+import shop5 from "@/assets/images/about/shop5.jpg";
+import shop from "@/assets/images/shops/shop1.jpg";
 
 const About = () => {
   useEffect(() => {

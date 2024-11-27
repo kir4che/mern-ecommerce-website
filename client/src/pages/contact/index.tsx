@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Layout from "../../layouts/AppLayout";
+import Layout from "@/layouts/AppLayout";
 
 const Contact = () => {
   const [form, setForm] = useState({

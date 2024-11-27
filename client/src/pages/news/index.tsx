@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
-import Breadcrumb from "../../components/molecules/Breadcrumb";
-import Error from "../error";
-import Layout from "../../layouts/AppLayout";
-import Loading from "../../components/Loading";
-import useGetData from "../../hooks/useGetData";
-
+import Breadcrumb from "@/components/molecules/Breadcrumb";
+import NotFound from "@/pages/notFound";
+import Layout from "@/layouts/AppLayout";
+import Loading from "@/components/atoms/Loading";
+import { useGetData } from "@/hooks/useGetData";
 const News = () => {
-  const { data, loading, error } = useGetData("/posts");
+  const { data, loading, error } = useGetData("/news");
 
   if (loading) return <Loading />;
-  else if (!loading && !data) return <Error message={[error]} />;
+  else if (!loading && !data) return <NotFound message={[error]} />;
 
   return (
     <Layout>
@@ -21,26 +20,26 @@ const News = () => {
         </h1>
       </section>
       <ul className="px-[5vw] py-12 w-full max-w-3xl md:py-20 mx-auto">
-        {data.posts
+        {data.news
           .sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           )
-          .map((post) => (
-            <li key={post._id}>
+          .map((newsItem) => (
+            <li key={newsItem._id}>
               <Link
-                to={`/blogs/news/${post._id}`}
+                to={`/news/${newsItem._id}`}
                 className="flex items-center gap-y-4 md:gap-y-0 py-4 border-b-[1.5px] md:border-b-[0.875px] border-dashed border-primary"
               >
                 <div className="flex items-center gap-2 min-w-40 md:min-w-36 w-fit">
                   <p className="w-[4.85rem] text-sm font-light md:w-16 md:text-xxs">
-                    {post.date}
+                    {newsItem.date}
                   </p>
                   <p className="px-3 py-1 text-sm font-light rounded-full min-w-fit text-secondary md:text-xxs bg-primary">
-                    {post.category}
+                    {newsItem.category}
                   </p>
                 </div>
                 <p className="inline-block w-full text-lg duration-500 ease-in-out md:text-sm md:inline hover:opacity-60">
-                  {post.title}
+                  {newsItem.title}
                 </p>
               </Link>
             </li>

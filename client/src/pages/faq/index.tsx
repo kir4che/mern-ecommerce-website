@@ -1,6 +1,6 @@
 import { Disclosure } from "@headlessui/react";
-import Breadcrumb from "../../components/molecules/Breadcrumb";
-import Layout from "../../layouts/AppLayout";
+import Breadcrumb from "@/components/molecules/Breadcrumb";
+import Layout from "@/layouts/AppLayout";
 
 const FAQ = () => {
   const faqItems = [

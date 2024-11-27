@@ -9,7 +9,9 @@ module.exports = {
       },
       minHeight: {
         screenwithh: "calc(100vh - 4rem)",
-        screenwithhf: "calc(100vh - 17.265rem)",
+      },
+      maxWidth: {
+        100: "25rem",
       },
       minWidth: {
         76: "19rem",
@@ -29,7 +31,6 @@ module.exports = {
       },
       backgroundImage: {
         "about-cover": "url('/src/assets/images/about/about-cover.jpg')",
-        "menu-cover": "url('/src/assets/images/about/shop1.jpg')",
       },
       fontSize: {
         "6xl": "calc(2.625rem + 1vw)",
@@ -38,20 +39,14 @@ module.exports = {
         "4xl": "calc(1.75rem + 0.6vw)",
         "3xl": "calc(1.25rem + 1vw)",
         "2.5xl": "calc(1rem + 1vw)",
-        "2xl": "calc(1.5rem + 0.25vw)",
-        "1.5xl": "calc(1.375rem + 0.25vw)",
-        xl: "calc(1.25rem + 0.25vw)",
-        lg: "calc(1.05rem + 0.25vw)",
-        base: "calc(0.875rem + 0.25vw)",
-        sm: "calc(0.75rem + 0.25vw)",
-        xs: "calc(0.625rem + 0.25vw)",
         xxs: "calc(0.5rem + 0.25vw)",
+        base: "0.9375rem",
       },
       colors: {
-        primary: "#061222",
-        secondary: "#FCFBFA",
+        primary: "#252525",
+        secondary: "#FFFDFB",
       },
     },
   },
-  plugins: [],
+  plugins: [require("daisyui"), require("@tailwindcss/line-clamp")],
 };
