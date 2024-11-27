@@ -1,14 +1,16 @@
 import { useState } from "react";
-import Layout from "../../../layouts/AppLayout";
-import useGetData from "../../../hooks/useGetData";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../../../components/Loading";
-import Cookies from "js-cookie";
+import axios from "axios";
+
+import { useGetData } from "@/hooks/useGetData";
+
+import Layout from "@/layouts/AppLayout";
+import Loading from "@/components/atoms/Loading";
 
 const Checkout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data, loading } = useGetData(`/orders/${id}`, Cookies.get("token"));
+  const { data, loading } = useGetData(`/orders/${id}`);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentForm, setPaymentForm] = useState({
     cardNumber: "",
@@ -30,18 +32,18 @@ const Checkout = () => {
 
     // 更新訂單狀態
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/orders/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-        body: JSON.stringify({
+      const res = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/orders/${id}`,
+        {
           status: "已付款",
           paymentStatus: "已付款",
-        }),
-      });
-      if (res.ok) {
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+
+      if (res.status === 200) {
         alert("付款成功！");
         setPaymentMethod("");
         setPaymentForm({

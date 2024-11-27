@@ -1,6 +1,18 @@
 import { Link } from "react-router-dom";
 
-const LinkBtn = ({ to, isInMenu = false, className = "", text }) => (
+interface LinkBtnProperty {
+  to: string;
+  isInMenu?: boolean;
+  className?: string;
+  text: string;
+}
+
+const LinkBtn: React.FC<LinkBtnProperty> = ({
+  to,
+  isInMenu,
+  className,
+  text,
+}) => (
   <Link
     to={to}
     className={`${

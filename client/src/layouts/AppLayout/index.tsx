@@ -1,35 +1,37 @@
 import { useEffect, useState } from "react";
 
+import HeaderMenu from "@/components/organisms/HeaderMenu";
 import Footer from "@/components/organisms/Footer";
-import Header from "@/components/organisms/Header";
 
-const AppLayout = ({ children }) => {
+import shopImage from "@/assets/images/about/shop1.jpg";
+
+const AppLayout = ({ className = "", children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isMenuOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
+    else document.body.style.overflow = "auto";
   }, [isMenuOpen]);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <div
-        className={
-          isMenuOpen
-            ? "fixed top-0 z-30 flex w-full min-h-screen"
-            : "sticky top-0 z-50"
-        }
+        className={`w-full h-full bg-secondary z-50 ${isMenuOpen ? "flex absolute flex-col md:flex-row" : "sticky top-0"}`}
       >
-        <Header isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+        <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         <div
-          className={
-            isMenuOpen ? "menu__gallery-reset  " : "menu__gallery-hidden"
-          }
-        />
+          className={`flex-1 xl:basis-96 ${isMenuOpen ? "block" : "hidden"}`}
+        >
+          <img
+            src={shopImage}
+            alt="menu-cover"
+            className="object-cover w-full h-full"
+          />
+        </div>
       </div>
-      <main className="min-h-screenwithhf">{children}</main>
+      <main className={`flex-1 ${className}`}>{children}</main>
       <Footer />
-    </>
+    </div>
   );
 };
 

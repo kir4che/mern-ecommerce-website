@@ -1,16 +1,28 @@
-const IconBtn = ({ onClick = () => {}, icon, isInMenu = false, text }) => (
+import React from "react";
+
+interface IconBtnProperty {
+  onClick?: () => void;
+  icon: JSX.Element;
+  isInMenu: boolean;
+  children?: React.ReactNode;
+}
+
+const IconBtn: React.FC<IconBtnProperty> = ({
+  onClick,
+  icon,
+  isInMenu,
+  children,
+}) => (
   <button
     className="flex items-center min-w-fit gap-1 md:gap-0.5"
     onClick={onClick}
   >
     {icon}
-    {text && (
-      <span
-        className={`${isInMenu ? "text-secondary" : ""} text-sm md:text-xs hover:underline`}
-      >
-        {text}
-      </span>
-    )}
+    <span
+      className={`${isInMenu ? "text-secondary" : ""} text-sm md:text-xs hover:underline`}
+    >
+      {children}
+    </span>
   </button>
 );
 

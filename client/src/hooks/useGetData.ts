@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
-const useGetData = (url: string, auth: string | null = null) => {
+export const useGetData = (url: string, auth: string | null = null) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -9,20 +10,15 @@ const useGetData = (url: string, auth: string | null = null) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${process.env.REACT_APP_API_URL}${url}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: auth !== null ? `Bearer ${auth}` : "",
-          },
-          credentials: "include",
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}${url}`, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         });
-        const data = await res.json();
 
-        if (data) setData(data);
-        else setError(data.message);
+        if (res.status === 200) setData(res.data);
+        else setError("取得資料失敗，請稍後再試！");
       } catch (error) {
-        setError(error.message);
+        setError("取得資料失敗，請稍後再試！");
       } finally {
         setLoading(false);
       }
@@ -33,5 +29,3 @@ const useGetData = (url: string, auth: string | null = null) => {
 
   return { data, loading, error };
 };
-
-export default useGetData;

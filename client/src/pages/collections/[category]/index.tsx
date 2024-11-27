@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Breadcrumb from "../../../components/molecules/Breadcrumb";
-import Error from "../../error";
-import Layout from "../../../layouts/AppLayout";
-import Loading from "../../../components/Loading";
-import useGetData from "../../../hooks/useGetData";
-import { useCart } from "../../../hooks/useCart";
+import Breadcrumb from "@/components/molecules/Breadcrumb";
+import NotFound from "@/pages/notFound";
+import Layout from "@/layouts/AppLayout";
+import Loading from "@/components/atoms/Loading";
+import { useGetData } from "@/hooks/useGetData";
+
+import { useCart } from "@/context/CartContext";
 
 const categories = [
   {
@@ -142,7 +143,7 @@ const Collections = () => {
   }, [products, category]);
 
   if (loading) return <Loading />;
-  else if (!loading && !products) return <Error message={[error]} />;
+  else if (!loading && !products) return <NotFound message={[error]} />;
 
   return (
     <Layout>

@@ -1,27 +1,49 @@
-import Cookies from "js-cookie";
-import { createContext, useState } from "react";
+import { createContext, useState, ReactNode, useContext } from "react";
+import axios from "axios";
 
-export const CartContext = createContext(null);
+interface CartItem {
+  id: string;
+  product: string;
+  quantity: number;
+}
 
-export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+interface CartContextType {
+  cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  totalQuantity: number;
+  setTotalQuantity: React.Dispatch<React.SetStateAction<number>>;
+  isAdded: boolean;
+  setIsAdded: React.Dispatch<React.SetStateAction<boolean>>;
+  getCart: () => Promise<void>;
+  addToCart: (product: CartItem) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  changeQuantity: (productId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+}
+
+export const CartContext = createContext<CartContextType | undefined>(
+  undefined,
+);
+
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isAdded, setIsAdded] = useState(false);
   const [totalQuantity, setTotalQuantity] = useState(0);
 
   const getCart = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/cart`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       });
-      const data = await res.json();
-      if (res.ok) {
-        setCart(data.cart);
+
+      if (res.status === 200) {
+        setCart(res.data.cart);
         setTotalQuantity(
-          data.cart.reduce((total, cartItem) => total + cartItem.quantity, 0),
+          res.data.cart.reduce(
+            (total: number, cartItem: CartItem) => total + cartItem.quantity,
+            0,
+          ),
         );
       }
     } catch (err: any) {
@@ -29,50 +51,47 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (product) => {
-    const token = Cookies.get("token");
+  const addToCart = async (product: CartItem) => {
+    const token = document.cookie.includes("token=");
     if (!token) {
-      window.location.href = "/account/login";
+      window.location.href = "/login";
       return;
     }
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/cart`, {
-        method: "POST",
-        body: JSON.stringify(product),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/cart`,
+        product,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCart(data.cart);
+      );
+
+      if (res.status === 200) {
+        setCart(res.data.cart);
         getCart();
         setIsAdded(true);
       }
+
       setTimeout(() => setIsAdded(false), 2500);
     } catch (err: any) {
       console.error(err.message);
     }
   };
 
-  const removeFormCart = async (itemId) => {
+  const removeFromCart = async (itemId: string) => {
     try {
-      const res = await fetch(
+      const res = await axios.delete(
         `${process.env.REACT_APP_API_URL}/cart/${itemId}`,
         {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         },
       );
 
-      const data = await res.json();
-      if (res.ok) {
-        setCart(data.cart);
+      if (res.status === 200) {
+        setCart(res.data.cart);
         getCart();
       }
     } catch (err: any) {
@@ -80,23 +99,19 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const changeQuantity = async (productId, quantity) => {
+  const changeQuantity = async (productId: string, quantity: number) => {
     try {
-      const res = await fetch(
+      const res = await axios.patch(
         `${process.env.REACT_APP_API_URL}/cart/${productId}`,
+        { quantity },
         {
-          method: "PATCH",
-          body: JSON.stringify({ quantity }),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         },
       );
 
-      const data = await res.json();
-      if (res.ok) {
-        setCart(data.cart);
+      if (res.status === 200) {
+        setCart(res.data.cart);
         getCart();
       }
     } catch (err: any) {
@@ -106,15 +121,12 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/cart`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
+      const res = await axios.delete(`${process.env.REACT_APP_API_URL}/cart`, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
       });
 
-      if (res.ok) getCart();
+      if (res.status === 200) getCart();
     } catch (err: any) {
       console.error(err.message);
     }
@@ -125,12 +137,13 @@ export const CartProvider = ({ children }) => {
       value={{
         cart,
         setCart,
-        getCart,
         totalQuantity,
         setTotalQuantity,
-        addToCart,
         isAdded,
-        removeFormCart,
+        setIsAdded,
+        getCart,
+        addToCart,
+        removeFromCart,
         changeQuantity,
         clearCart,
       }}
@@ -138,4 +151,10 @@ export const CartProvider = ({ children }) => {
       {children}
     </CartContext.Provider>
   );
+};
+
+export const useCart = (): CartContextType => {
+  const context = useContext(CartContext);
+  if (!context) throw new Error("useCart must be used within a CartProvider");
+  return context;
 };
