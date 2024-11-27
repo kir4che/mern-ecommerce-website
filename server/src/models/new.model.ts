@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 
-export interface IPost extends Document {
+export interface INew extends Document {
   _id: Types.ObjectId;
   title: string;
   category: string;
@@ -11,7 +11,7 @@ export interface IPost extends Document {
   updatedAt: Date;
 }
 
-const postSchema = new Schema<IPost>(
+const newSchema = new Schema<INew>(
   {
     title: { type: String, required: true },
     category: { type: String, required: true },
@@ -22,4 +22,4 @@ const postSchema = new Schema<IPost>(
   { timestamps: true },
 );
 
-export const PostModel = model<IPost>("post", postSchema);
+export const NewModel = model<INew>("new", newSchema);
