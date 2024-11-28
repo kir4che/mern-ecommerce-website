@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import ProductEditForm from "@/components/organisms/FormEditProduct";
-import FormEditNew from "@/components/organisms/FormEditNew";
+import FormEditNew from "@/components/organisms/FormEditPost";
 import Loading from "@/components/atoms/Loading";
 
 const AdminDashboard = () => {
@@ -69,11 +69,7 @@ const AdminDashboard = () => {
   // }, [role])
 
   if (productLoading || newLoading || orderLoading) return <Loading />;
-  else if (
-    (!productLoading && !products) ||
-    (!newLoading && !news) ||
-    (!orderLoading && !orders)
-  )
+  if (productError || newError || orderError)
     return <NotFound message={[productError, newError, orderError]} />;
 
   const handleFormUpdate = async (item: string, todo: string) => {

@@ -4,8 +4,24 @@ import { NewModel } from "@/models/new.model";
 
 const getNew = async (req: Request, res: Response) => {
   try {
-    const news = await NewModel.find();
-    res.status(200).json({ message: "News fetched Successfully!", news });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const total = await NewModel.countDocuments();
+
+    const news = await NewModel.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ date: -1 });
+
+    res.status(200).json({
+      message: "News fetched successfully!",
+      news,
+      total,
+      limit,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

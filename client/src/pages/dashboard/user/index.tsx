@@ -11,6 +11,7 @@ import Loading from "@/components/atoms/Loading";
 import Button from "@/components/atoms/Button";
 
 import { ReactComponent as LogoutIcon } from "@/assets/icons/logout.inline.svg";
+import { error } from "console";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -37,9 +38,9 @@ const UserDashboard = () => {
   } = useGetData("/orders");
   const orders = ordersData?.orders;
 
-  if (userLoading || ordersLoading) return <Loading />;
-  else if ((!userLoading && !userData) || (!ordersLoading && !ordersData))
+  if (userError || ordersError)
     return <NotFound message={[userError, ordersError]} />;
+  if (userLoading || ordersLoading) return <Loading />;
 
   // 暫時不處理實際完成訂單流程
   const handleComplete = async (id: string) => {

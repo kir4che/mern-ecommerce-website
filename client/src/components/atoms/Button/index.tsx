@@ -27,7 +27,7 @@ const Button: React.FC<ButtonProps> = ({
     type={type}
     className={`btn
       ${variant === "link" && "btn-link"} 
-      ${variant === "icon" && "btn-link"} 
+      ${variant === "icon" && "btn-icon"} 
       ${variant !== "link" && variant !== "icon" && "btn-outline"}
       duration-500 rounded-full 
       ${variant === "secondary" && "text-secondary bg-primary hover:text-primary hover:bg-secondary"} 
