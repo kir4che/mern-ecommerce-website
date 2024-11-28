@@ -143,7 +143,7 @@ const Collections = () => {
   }, [products, category]);
 
   if (loading) return <Loading />;
-  else if (!loading && !products) return <NotFound message={[error]} />;
+  if (error) return <NotFound message={[error]} />;
 
   return (
     <Layout>

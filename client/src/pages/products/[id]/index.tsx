@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NotFound from "@/pages/notFound";
 import ProductSlider from "@/components/molecules/ProductSlider";
@@ -28,8 +28,8 @@ const Product = () => {
     setTimeout(() => setQuantity(1), 500);
   };
 
-  if (loading) return <Loading />;
-  else if (!loading && !product) return <NotFound message={[error]} />;
+  if (loading) return;
+  if (error) return <NotFound message={[error]} />;
 
   return (
     <Layout>

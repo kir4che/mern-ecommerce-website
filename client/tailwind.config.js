@@ -33,14 +33,10 @@ module.exports = {
         "about-cover": "url('/src/assets/images/about/about-cover.jpg')",
       },
       fontSize: {
-        "6xl": "calc(2.625rem + 1vw)",
-        "5xl": "calc(2.875rem + 0.25vw)",
-        "4.5xl": "calc(2rem + 0.5vw)",
-        "4xl": "calc(1.75rem + 0.6vw)",
-        "3xl": "calc(1.25rem + 1vw)",
-        "2.5xl": "calc(1rem + 1vw)",
-        xxs: "calc(0.5rem + 0.25vw)",
         base: "0.9375rem",
+      },
+      lineHeight: {
+        12: "3rem",
       },
       colors: {
         primary: "#252525",

@@ -1,52 +1,95 @@
+import { useState, useEffect, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
-import Breadcrumb from "@/components/molecules/Breadcrumb";
-import NotFound from "@/pages/notFound";
-import Layout from "@/layouts/AppLayout";
-import Loading from "@/components/atoms/Loading";
-import { useGetData } from "@/hooks/useGetData";
-const News = () => {
-  const { data, loading, error } = useGetData("/news");
 
+import { useGetData } from "@/hooks/useGetData";
+import { formatDate } from "@/utils/formatDate";
+
+import Layout from "@/layouts/AppLayout";
+import NotFound from "@/pages/notFound";
+import Loading from "@/components/atoms/Loading";
+import Breadcrumb from "@/components/molecules/Breadcrumb";
+import Pagination from "@/components/molecules/Pagination";
+
+const News = () => {
+  const limit = 5;
+  const [page, setPage] = useState(1);
+  const [prefetchData, setPrefetchData] = useState(null);
+  const [newsData, setNewsData] = useState({ news: [], total: 0 });
+
+  const { data, loading, error } = useGetData(
+    `/news?page=${page}&limit=${limit}`,
+  );
+  // 預抓取下一頁的 news，若當前頁數為最後一頁則跳過。
+  const { data: prefetch } = useGetData(
+    `/news?page=${page + 1}&limit=${limit}`,
+    {
+      skip: page >= Math.ceil(newsData.total / limit),
+    },
+  );
+
+  useEffect(() => {
+    if (data) setNewsData(data);
+  }, [data]);
+
+  useEffect(() => {
+    if (prefetch) setPrefetchData(prefetch);
+  }, [prefetch]);
+
+  const totalPages = Math.ceil(newsData.total / limit);
+
+  const handlePageChange = useCallback(
+    (newPage) => {
+      if (newPage <= totalPages && newPage > 0) {
+        setPage(newPage);
+        if (newPage > page) {
+          // 使用已預抓取的數據，避免延遲。
+          setNewsData(prefetchData);
+        }
+      }
+    },
+    [page, prefetchData, totalPages],
+  );
+
+  if (error) return <NotFound message={[error]} />;
   if (loading) return <Loading />;
-  else if (!loading && !data) return <NotFound message={[error]} />;
 
   return (
     <Layout>
-      <section className="px-8 pt-3 h-36 md:min-h-32 md:h-[9.6vw] bg-primary">
+      <div className="px-5 pt-4 md:px-8 min-h-40 bg-primary">
         <Breadcrumb text="最新消息" textColor="text-secondary" />
-        <h1 className="flex flex-col items-center mx-auto md:gap-2 w-fit text-secondary">
-          <span className="md:text-base font-light text-1.5xl">News</span>
-          <span className="text-4xl md:text-xl">最新消息列表</span>
-        </h1>
-      </section>
-      <ul className="px-[5vw] py-12 w-full max-w-3xl md:py-20 mx-auto">
-        {data.news
-          .sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-          )
-          .map((newsItem) => (
-            <li key={newsItem._id}>
-              <Link
-                to={`/news/${newsItem._id}`}
-                className="flex items-center gap-y-4 md:gap-y-0 py-4 border-b-[1.5px] md:border-b-[0.875px] border-dashed border-primary"
-              >
-                <div className="flex items-center gap-2 min-w-40 md:min-w-36 w-fit">
-                  <p className="w-[4.85rem] text-sm font-light md:w-16 md:text-xxs">
-                    {newsItem.date}
-                  </p>
-                  <p className="px-3 py-1 text-sm font-light rounded-full min-w-fit text-secondary md:text-xxs bg-primary">
-                    {newsItem.category}
-                  </p>
-                </div>
-                <p className="inline-block w-full text-lg duration-500 ease-in-out md:text-sm md:inline hover:opacity-60">
-                  {newsItem.title}
-                </p>
-              </Link>
-            </li>
-          ))}
+        <h2 className="flex flex-col items-center justify-center gap-y-2 text-secondary">
+          <span className="text-lg font-light">News</span>
+          <span className="text-2xl">最新消息列表</span>
+        </h2>
+      </div>
+      <ul className="max-w-screen-xl px-5 pt-10 mx-auto space-y-4 md:px-8">
+        {newsData.news.map(({ _id, date, category, title, content }) => (
+          <li
+            key={_id}
+            className="py-4 space-y-4 border-b border-dashed border-primary/80"
+          >
+            <time className="inline-block mb-2 font-light">
+              {formatDate(date)}
+            </time>
+            <Link to={`/news/${_id}`}>
+              <p className="flex items-center text-xl font-medium leading-7 hover:underline hover:underline-offset-4">
+                <span className="px-2.5 text-nowrap py-1 mr-2 text-sm font-light rounded-full self-start bg-primary text-secondary">
+                  {category}
+                </span>
+                {title}
+              </p>
+            </Link>
+            <p className="leading-7 line-clamp-3">{content}</p>
+          </li>
+        ))}
       </ul>
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </Layout>
   );
 };
 
-export default News;
+export default memo(News);

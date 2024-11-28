@@ -4,6 +4,7 @@ import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useGetData } from "@/hooks/useGetData";
+import { formatDate } from "@/utils/formatDate";
 
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
@@ -274,12 +275,15 @@ const App = () => {
             View all
           </Link>
         </div>
-        <ul className="">
+        <ul>
           {news?.slice(0, 3).map(({ _id, date, category, title }) => (
-            <li key={_id}>
+            <li
+              key={_id}
+              className="py-4 border-b border-dashed border-primary/80"
+            >
               <Link
                 to={`/news/${_id}`}
-                className="flex flex-wrap items-center justify-between py-4 border-b border-dashed gap-y-2 border-primary/80 whitespace-nowrap"
+                className="flex flex-wrap items-center justify-between gap-y-2"
               >
                 <p className="text-sm leading-7 text-wrap hover:underline hover:underline-offset-4">
                   <span className="px-2.5 py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
@@ -287,7 +291,7 @@ const App = () => {
                   </span>
                   {title}
                 </p>
-                <p className="text-xs font-light">{date}</p>
+                <p className="text-xs font-light">{formatDate(date)}</p>
               </Link>
             </li>
           ))}
