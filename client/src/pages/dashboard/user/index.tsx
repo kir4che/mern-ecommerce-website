@@ -69,7 +69,7 @@ const UserDashboard = () => {
             <div className="w-full max-w-2xl pb-4 space-y-4 overflow-x-auto">
               <h2>訂單歷史</h2>
               <ul className="pb-3 border-b border-zinc-300">
-                <li className="flex text-xs">
+                <li className="flex text-sm">
                   <p className="min-w-20">訂單編號</p>
                   <p className="min-w-20">訂單狀態</p>
                   <p className="min-w-20">出貨狀態</p>
@@ -93,7 +93,7 @@ const UserDashboard = () => {
                         {new Date(order.createdAt).toLocaleString()}
                       </p>
                       <button
-                        className={`${order.shippingStatus !== "已送達" ? "opacity-50" : "hover:bg-zinc-100"} px-1 ml-auto py-0.5 text-xs`}
+                        className={`${order.shippingStatus !== "已送達" ? "opacity-50" : "hover:bg-zinc-100"} px-1 ml-auto py-0.5 text-sm`}
                         onClick={() => handleComplete(order._id)}
                         disabled={order.shippingStatus !== "已送達"}
                       >

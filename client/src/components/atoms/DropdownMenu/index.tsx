@@ -6,14 +6,9 @@ import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.i
 interface DropdownMenuProps {
   title: string;
   list: { label: string; value: string }[];
-  className?: string;
 }
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({
-  title,
-  list,
-  className,
-}) => {
+const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
   const detailsRef = useRef(null);
 
   useEffect(() => {
@@ -30,17 +25,17 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   }, []);
 
   return (
-    <details ref={detailsRef} className={`dropdown ${className}`}>
+    <details ref={detailsRef} className="dropdown">
       <summary className="h-10 border rounded-none btn bg-secondary hover:bg-secondary border-primary focus-within:border-primary">
         {title}
         <ArrowDownIcon className="w-4 h-4 ml-2 stroke-primary" />
       </summary>
-      <ul className="z-50 w-[11rem] p-2 mt-2 rounded-none shadow menu dropdown-content bg-secondary">
+      <ul className="z-50 w-[11rem] h-full p-2 mt-2 rounded-none shadow menu dropdown-content bg-secondary">
         {list.map(({ label, value }, index) => (
           <li key={index}>
             <Link
               to={value}
-              className="block px-3 py-2 rounded-none hover:bg-primary hover:text-secondary"
+              className="px-3 py-2 rounded-none hover:bg-primary hover:text-secondary"
             >
               {label}
             </Link>

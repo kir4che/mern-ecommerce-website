@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useGetData } from "@/hooks/useGetData";
 import { formatDate } from "@/utils/formatDate";
+import { CATEGORY_LIST, SHOP_INFO, SHOP_LIST } from "@/data";
 
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
@@ -15,45 +16,8 @@ import ProductSlider from "@/components/molecules/ProductSlider";
 import bg1 from "@/assets/images/about/bg1.jpg";
 import bg2 from "@/assets/images/about/bg2.jpg";
 import bg3 from "@/assets/images/about/bg3.jpg";
-import shop1 from "@/assets/images/shops/shop1.jpg";
-import shop2 from "@/assets/images/shops/shop2.jpg";
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
 import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
-
-const categories = [
-  { label: "全部", value: "/collections/all" },
-  { label: "推薦", value: "/collections/recommend" },
-  { label: "麵包", value: "/collections/bread" },
-  { label: "蛋糕", value: "/collections/cake" },
-  { label: "餅乾", value: "/collections/cookie" },
-  { label: "其他", value: "/collections/other" },
-];
-
-const shopInfo = {
-  address: "地址",
-  time: "營業時間",
-  phone: "電話",
-  traffic: "交通方式",
-};
-
-const shops = [
-  {
-    name: "日出本店",
-    alias: "Sunrise",
-    info: {
-      address: "台北市大安區忠孝東路四段 123 號",
-      time: "週一至週日 08:00 - 20:00",
-      phone: "02-1234-5678",
-      traffic: "捷運忠孝復興站 2 號出口",
-    },
-    imageUrl: shop1,
-  },
-  {
-    name: "日出二店",
-    alias: "",
-    imageUrl: shop2,
-  },
-];
 
 const App = () => {
   const swiperRef = useRef(null);
@@ -67,9 +31,9 @@ const App = () => {
   }, [data]);
 
   const renderTitle = (title: string, subtitle: string, className?: string) => (
-    <h2 className={`text-lg ${className}`}>
+    <h2 className={`text-xl ${className}`}>
       {title}
-      <span className="ml-2 text-sm">/ {subtitle}</span>
+      <span className="ml-2 text-sm font-normal">/ {subtitle}</span>
     </h2>
   );
 
@@ -92,7 +56,7 @@ const App = () => {
             </Marquee>
           </div>
           <div className="mt-4 ml-auto text-right md:m-0 md:absolute md:right-0">
-            <DropdownMenu title="從類別中尋找商品" list={categories} />
+            <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
           </div>
         </div>
         <div className="py-8">
@@ -167,7 +131,7 @@ const App = () => {
           {renderTitle("About us", "日出麵包坊", "text-secondary")}
         </div>
         <div className="relative z-20 px-5 mx-auto space-y-8 max-w-screen-2xl md:px-8 text-secondary">
-          <h3 className="text-4xl">
+          <h3 className="text-4xl leading-[54px]">
             日出麵包坊
             <br />
             手工麵包
@@ -177,7 +141,7 @@ const App = () => {
             精選食材，吃得安心。
           </h3>
           <div className="flex flex-col justify-between gap-y-10 md:items-end md:flex-row">
-            <p className="max-w-md text-sm md:max-w-xs">
+            <p className="max-w-md md:max-w-sm">
               日出麵包坊位於台灣，是一家擁有濃厚鄉村風情的麵包店。我們以追求最新鮮的食材和最美味的口感為己任，致力於為您提供每天的美好開始。在日出麵包坊，我們與當地農產者建立了深厚的合作關係，以確保我們的麵包和點心始終新鮮、安全，並且滿足您對品質的嚴格要求。我們希望透過每一口麵包，為您的一天帶來新的活力和愉悅。
             </p>
             <Link
@@ -192,12 +156,12 @@ const App = () => {
         <Swiper
           slidesPerView="auto"
           spaceBetween={0}
+          loop
           autoplay={{
             delay: 1,
             disableOnInteraction: false,
           }}
           speed={15000}
-          loop
           modules={[Autoplay]}
           className="absolute top-0 left-0 flex w-full"
         >
@@ -233,8 +197,8 @@ const App = () => {
         <hr className="w-full border-primary/30" />
         {renderTitle("Shop List", "店家一覽")}
         <div className="flex flex-col gap-y-4 gap-x-12 md:flex-row">
-          {shops.map((shop) => (
-            <div key={shop.name} className="flex flex-col w-full gap-4">
+          {SHOP_LIST.map((shop) => (
+            <div key={shop.name} className="flex flex-col w-full gap-2">
               <img
                 src={shop.imageUrl}
                 alt={shop.name}
@@ -242,15 +206,17 @@ const App = () => {
                 loading="lazy"
               />
               <div className="space-y-2">
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-base font-medium">{shop.name}</p>
-                  <p className="text-xs text-primary/45">{shop.alias}</p>
-                </div>
+                <p className="font-medium">
+                  {shop.name}
+                  <span className="ml-1.5 text-sm font-normal text-primary/45">
+                    {shop.alias}
+                  </span>
+                </p>
                 <ul className="text-sm leading-7">
                   {shop.info && Object.keys(shop.info).length > 0 ? (
                     Object.entries(shop.info).map(([key, value]) => (
                       <li key={key}>
-                        <span className="font-medium">{shopInfo[key]}：</span>
+                        <span className="font-medium">{SHOP_INFO[key]}：</span>
                         {value}
                       </li>
                     ))
@@ -285,13 +251,13 @@ const App = () => {
                 to={`/news/${_id}`}
                 className="flex flex-wrap items-center justify-between gap-y-2"
               >
-                <p className="text-sm leading-7 text-wrap hover:underline hover:underline-offset-4">
-                  <span className="px-2.5 py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
+                <p className="text-wrap hover:underline hover:underline-offset-4">
+                  <span className="px-2.5 inline-block py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
                     {category}
                   </span>
                   {title}
                 </p>
-                <p className="text-xs font-light">{formatDate(date)}</p>
+                <p className="text-sm font-light">{formatDate(date)}</p>
               </Link>
             </li>
           ))}

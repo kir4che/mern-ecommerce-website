@@ -197,21 +197,21 @@ const Collections = () => {
                 <div className="mb-2 sm:-mb-2">
                   {product.categories.map((category, index) => (
                     <p
-                      className="py-1 px-2.5 border sm:border-[0.875px] w-fit font-medium rounded-full text-xs sm:text-xxs bg-secondary border-primary"
+                      className="py-1 px-2.5 border sm:border-[0.875px] w-fit font-medium rounded-full text-sm bg-secondary border-primary"
                       key={index}
                     >
                       #{category}
                     </p>
                   ))}
                   <div className="flex items-center gap-2 ml-auto w-fit">
-                    <label className="w-full pr-3 text-sm border-r border-gray-300 sm:pr-1 sm:text-xs">
+                    <label className="w-full pr-3 text-sm border-r border-gray-300 sm:pr-1">
                       數量
                     </label>
                     <input
                       type="number"
                       name="quantity"
                       id="quantity"
-                      className="py-1 pl-1.5 pr-0 min-w-14 sm:min-w-12 sm:text-xs"
+                      className="py-1 pl-1.5 pr-0 min-w-14 sm:min-w-12 text-sm"
                       min={1}
                       max={product.countInStock}
                       value={quantities[product._id]}
@@ -232,7 +232,7 @@ const Collections = () => {
                     </p>
                   </div>
                   <button
-                    className="px-3 py-2 text-sm duration-500 border rounded-full border-primary hover:text-primary hover:bg-secondary text-secondary sm:py-1 sm:px-5 sm:text-xs bg-primary"
+                    className="px-3 py-2 text-sm duration-500 border rounded-full border-primary hover:text-primary hover:bg-secondary text-secondary sm:py-1 sm:px-5 bg-primary"
                     onClick={() => handleAddToCart(product)}
                   >
                     加入購物車

@@ -19,7 +19,7 @@ const IconBtn: React.FC<IconBtnProperty> = ({
   >
     {icon}
     <span
-      className={`${isInMenu ? "text-secondary" : ""} text-sm md:text-xs hover:underline`}
+      className={`${isInMenu ? "text-secondary" : ""} text-sm hover:underline`}
     >
       {children}
     </span>

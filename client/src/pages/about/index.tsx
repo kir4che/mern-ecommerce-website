@@ -30,7 +30,7 @@ const About = () => {
             <p className="text-1.5xl md:text-base">About us</p>
             <h1 className="-ml-1 text-4xl md:text-2.5xl">日光麵包坊</h1>
           </div>
-          <p className="leading-7 drop-shadow md:leading-6 md:max-w-xs md:text-xs">
+          <p className="leading-7 drop-shadow md:leading-6 md:max-w-xs md:text-sm">
             一家位於台北市的小巧麵包店，以精選食材和獨特手藝打造美味營養的麵包。與小麥農戶合作，直接從田野挑選最優質的小麥，確保每片麵包蘊含豐富營養。堅持使用新鮮、當季食材，讓每位顧客品味到最美味口感。
             <br />
             我們不僅是麵包店，更是注入愛與用心的烘焙之地。師傅們擁有豐富經驗和熱愛烘焙，細緻打磨從麵團揉製到烤製的每一個細節。期待每次相遇成為味蕾冒險，用心製作的麵包，願成為您每天清晨的陽光，為您帶來美好的一天。
@@ -41,7 +41,7 @@ const About = () => {
         <article className="border-t border-primary mx-[4.2vw] md:mx-[2.5vw]">
           <div className="flex items-baseline gap-2 mt-2 mb-8 md:mb-0">
             <p className="text-3xl md:text-base">01</p>
-            <h2 className="md:text-xs">Our Mission / 使命</h2>
+            <h2 className="md:text-sm">Our Mission / 使命</h2>
           </div>
           <div className="flex flex-col-reverse gap-5 md:items-center md:justify-end md:flex-row md:gap-[8vw]">
             <div className="space-y-8">
@@ -52,7 +52,7 @@ const About = () => {
                 <br />
                 我們用心製作的麵包。
               </h3>
-              <p className="md:max-w-lg md:text-xs">
+              <p className="md:max-w-lg md:text-sm">
                 在日出麵包坊，我們的使命是提供客戶最美味、最新鮮的麵包，每天都為他們的生活注入一份美好的開始。我們深信，一個美好的早晨始於一口香噴噴的麵包，而這正是我們存在的意義。
                 <br />
                 <br />
@@ -73,7 +73,7 @@ const About = () => {
         <article className="border-t border-primary mx-[4.2vw] md:mx-[2.5vw]">
           <div className="flex items-baseline gap-2 mt-2 mb-8 md:mb-0">
             <p className="text-3xl md:text-base">02</p>
-            <h2 className="md:text-xs">Our Pride / 驕傲</h2>
+            <h2 className="md:text-sm">Our Pride / 驕傲</h2>
           </div>
           <div className="flex flex-col-reverse gap-5 md:items-center md:justify-end md:flex-row md:gap-[8vw]">
             <div className="space-y-8">
@@ -82,7 +82,7 @@ const About = () => {
                 <br />
                 從日出的工藝開始。
               </h3>
-              <p className="md:max-w-lg md:text-xs">
+              <p className="md:max-w-lg md:text-sm">
                 日出麵包坊的驕傲在於我們的製作工藝。每一個麵包都是由我們經驗豐富的烘焙師傅精心製作，用心挑選優質原材料，確保每一口都是一種享受。
                 <br />
                 <br />
@@ -103,7 +103,7 @@ const About = () => {
         <article className="border-t border-primary mx-[4.2vw] md:mx-[2.5vw]">
           <div className="flex items-baseline gap-2 mt-2 mb-8 md:mb-0">
             <p className="text-3xl md:text-base">03</p>
-            <h2 className="md:text-xs">Our Policy / 政策</h2>
+            <h2 className="md:text-sm">Our Policy / 政策</h2>
           </div>
           <div className="flex flex-col-reverse gap-5 md:items-center md:justify-end md:flex-row md:gap-[8vw]">
             <div className="space-y-8">
@@ -112,7 +112,7 @@ const About = () => {
                 <br />
                 品質是我們的保證。
               </h3>
-              <p className="md:max-w-lg md:text-xs">
+              <p className="md:max-w-lg md:text-sm">
                 堅持使用最優質的原材料為基石，每天清晨開始，用心製作新鮮的麵包。這不僅為客戶帶來新鮮的口感，更是我們對品質的承諾，讓客戶品嚐到的不僅是美味，更是健康和安心。
                 <br />
                 <br />
@@ -130,7 +130,7 @@ const About = () => {
         <article className="border-t border-primary mx-[4.2vw] md:mx-[2.5vw]">
           <div className="flex items-baseline gap-2 mt-2 mb-8 md:mb-0">
             <p className="text-3xl md:text-base">04</p>
-            <h2 className="md:text-xs">Our Posture / 態度</h2>
+            <h2 className="md:text-sm">Our Posture / 態度</h2>
           </div>
           <div className="flex flex-col-reverse gap-5 md:items-center md:justify-end md:flex-row md:gap-[8vw]">
             <div className="space-y-8">
@@ -160,7 +160,7 @@ const About = () => {
         <article className="border-t border-primary mx-[4.2vw] md:mx-[2.5vw]">
           <div className="flex items-baseline gap-2 mt-2 mb-8 md:mb-0">
             <p className="text-3xl md:text-base">05</p>
-            <h2 className="md:text-xs">Our Item / 商品</h2>
+            <h2 className="md:text-sm">Our Item / 商品</h2>
           </div>
           <div className="flex flex-col-reverse gap-5 md:items-center md:justify-end md:flex-row md:gap-[8vw]">
             <div className="space-y-8">

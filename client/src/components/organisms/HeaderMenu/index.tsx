@@ -98,7 +98,7 @@ const HeaderMenu = ({ isMenuOpen, setIsMenuOpen }) => {
                 className={`w-6 h-6 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`}
               />
               <span
-                className={`absolute -top-2 -right-3 rounded-full w-5 h-5 inline-flex text-xs items-center justify-center ${
+                className={`absolute -top-2 -right-3 rounded-full w-5 h-5 inline-flex text-sm items-center justify-center ${
                   isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
                 }`}
               >

@@ -63,12 +63,9 @@ const Login = () => {
         <Button type="submit" className="mx-auto mt-8 rounded-none w-28">
           登入
         </Button>
-        <p className="text-sm text-center md:text-xs">
+        <p className="text-sm text-center">
           還沒有帳號？
-          <Link
-            to="/register"
-            className="text-sm text-center md:text-xs hover:underline"
-          >
+          <Link to="/register" className="text-sm text-center hover:underline">
             立即註冊
           </Link>
         </p>

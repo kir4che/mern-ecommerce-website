@@ -207,7 +207,7 @@ const AdminDashboard = () => {
               <ul className="p-3 overflow-y-auto border shadow max-h-80">
                 {products.map((product) => (
                   <li
-                    className="flex items-center justify-between py-3 text-xs border-b border-gray-300 border-dashed cursor-pointer"
+                    className="flex items-center justify-between py-3 text-sm border-b border-gray-300 border-dashed cursor-pointer"
                     key={product._id}
                   >
                     <p className="hover:opacity-80">{product.title}</p>
@@ -288,7 +288,7 @@ const AdminDashboard = () => {
               <ul className="p-4 overflow-y-auto border shadow max-h-80">
                 {news.map((newsItem) => (
                   <li
-                    className="flex items-center justify-between py-3 text-xs border-b border-gray-300 border-dashed cursor-pointer"
+                    className="flex items-center justify-between py-3 text-sm border-b border-gray-300 border-dashed cursor-pointer"
                     key={newsItem._id}
                   >
                     <p className="hover:opacity-80">{newsItem.title}</p>
@@ -361,7 +361,7 @@ const AdminDashboard = () => {
             <ul className="p-3 overflow-y-auto border shadow max-h-80">
               <div className="p-2 pb-4 space-y-4 overflow-x-auto">
                 <ul className="w-full pb-3 border-b min-w-fit border-zinc-300">
-                  <li className="flex text-xs">
+                  <li className="flex text-sm">
                     <p className="min-w-20">訂單編號</p>
                     <p className="min-w-20">訂單狀態</p>
                     <p className="min-w-20">出貨狀態</p>
@@ -385,7 +385,7 @@ const AdminDashboard = () => {
                           {new Date(order.createdAt).toLocaleString()}
                         </p>
                         <button
-                          className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-zinc-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-xs`}
+                          className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-zinc-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-sm`}
                           onClick={() => handleDeliver(order._id)}
                           disabled={order.status !== "已付款"}
                         >
