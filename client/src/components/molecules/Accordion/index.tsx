@@ -9,7 +9,7 @@ const Accordion: React.FC<AccordionProperty> = ({
   title,
   children,
 }) => (
-  <details className="py-5 text-xs border-b border-gray-400 group" open>
+  <details className="py-5 text-sm border-b border-gray-400 group" open>
     <summary className="flex items-center justify-between cursor-pointer">
       <p className="font-medium">{title}</p>
       <svg

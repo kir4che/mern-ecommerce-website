@@ -32,9 +32,6 @@ module.exports = {
       backgroundImage: {
         "about-cover": "url('/src/assets/images/about/about-cover.jpg')",
       },
-      fontSize: {
-        base: "0.9375rem",
-      },
       lineHeight: {
         12: "3rem",
       },

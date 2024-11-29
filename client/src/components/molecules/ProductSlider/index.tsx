@@ -34,17 +34,20 @@ const ProductSlider = () => {
 
   return (
     <Swiper
+      centeredSlides
+      spaceBetween={24}
       modules={[Autoplay, Navigation]}
       autoplay={{ delay: 10000, disableOnInteraction: false }}
       loop
       navigation
       breakpoints={{
         0: { slidesPerView: 1 },
-        520: { slidesPerView: 1.5, spaceBetween: 40 },
+        520: { slidesPerView: 1.5 },
         640: { slidesPerView: 2 },
         800: { slidesPerView: 2.5 },
         1024: { slidesPerView: 3.25 },
         1280: { slidesPerView: 3.6 },
+        1440: { slidesPerView: 4 },
         1720: { slidesPerView: 5 },
       }}
       style={
@@ -56,23 +59,25 @@ const ProductSlider = () => {
     >
       {products.map((product) => (
         <SwiperSlide key={product._id}>
-          <section className="mx-auto sm:space-x-10 max-w-96">
-            <h3 className="relative z-10 px-2 mb-3 text-xl w-fit bg-primary text-secondary">
-              {product.title}
-            </h3>
-            <ul className="flex z-10 relative gap-1.5">
-              {product.categories.map((category, index) => (
-                <li
-                  key={index}
-                  className="px-2 py-1 text-xs border rounded-full w-fit bg-secondary border-primary"
-                >
-                  # {category}
-                </li>
-              ))}
-            </ul>
+          <section className="relative sm:max-w-80">
+            <div className="absolute z-10">
+              <h3 className="px-2 mb-3 text-xl w-fit bg-primary text-secondary">
+                {product.title}
+              </h3>
+              <ul className="flex gap-1.5">
+                {product.categories.map((category, index) => (
+                  <li
+                    key={index}
+                    className="px-2 py-1 text-sm border rounded-full w-fit bg-secondary border-primary"
+                  >
+                    # {category}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <Link
               to={`/products/${product._id}`}
-              className="relative block mx-auto mb-3 -mt-16 overflow-hidden rounded-full aspect-square img-with-overlay"
+              className="relative inline-block overflow-hidden rounded-full aspect-square img-with-overlay"
             >
               <img
                 src={product.imageUrl}
@@ -88,13 +93,11 @@ const ProductSlider = () => {
                 <div className="absolute inset-0 rounded-full bg-primary/50" />
               </div>
             </Link>
-            <div className="flex flex-col gap-6 py-2 pl-4 mx-auto border-l-2 border-primary">
+            <div className="flex flex-col gap-6 py-2 pl-4 border-l-2 border-primary">
               <div className="flex items-center justify-between">
-                <p className="text-2xl">NT${product.price}</p>
+                <p className="text-2xl font-medium">NT${product.price}</p>
                 <div className="flex items-center gap-2">
-                  <label className="pr-3 text-sm sm:pr-1 sm:text-xs">
-                    數量
-                  </label>
+                  <label className="text-sm">數量</label>
                   <Input
                     type="number"
                     min={1}
@@ -103,7 +106,6 @@ const ProductSlider = () => {
                     onChange={(e) =>
                       handleQuantityChange(product._id, Number(e.target.value))
                     }
-                    inputStyle="text-xs"
                   />
                   <Button
                     variant="icon"
@@ -114,12 +116,14 @@ const ProductSlider = () => {
                   />
                 </div>
               </div>
-              <p className="text-sm leading-6 line-clamp-5 min-h-[7.5rem]">
+              <p className="text-base leading-7 line-clamp-3 min-h-[7.5rem]">
                 {product.description}
               </p>
-              <div className="flex justify-between text-xs text-nowrap">
-                <p className="text-gray-400">過敏原標示</p>
-                <p className="font-medium">{product.allergens.join(", ")}</p>
+              <div className="flex justify-between text-nowrap">
+                <p className="text-sm text-gray-400">過敏原標示</p>
+                <p className="text-sm font-medium">
+                  {product.allergens.join(", ")}
+                </p>
               </div>
             </div>
           </section>

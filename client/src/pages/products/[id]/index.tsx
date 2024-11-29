@@ -43,19 +43,19 @@ const Product = () => {
           />
         </div>
         <div className="px-[5vw] md:px-0 mx-auto md:pt-20 md:max-w-lg">
-          <p className="text-xs">{product.tagline}</p>
+          <p className="text-sm">{product.tagline}</p>
           <h1 className="mb-6 text-2xl font-medium">{product.title}</h1>
           <div className="flex gap-1.5">
             {product.categories.map((category, index) => (
               <p
-                className="px-3 py-0.75 text-sm font-medium bg-secondary border rounded-full w-fit sm:text-xs border-primary"
+                className="px-3 py-0.75 text-sm font-medium bg-secondary border rounded-full w-fit border-primary"
                 key={index}
               >
                 #{category}
               </p>
             ))}
           </div>
-          <p className="pt-6 pb-4 my-5 text-xs border-t-[1.25px] border-gray-300 border-dashed">
+          <p className="pt-6 pb-4 my-5 text-sm border-t-[1.25px] border-gray-300 border-dashed">
             {product.description}
           </p>
           <div className="flex justify-between pb-6 border-b-2 border-gray-400 border-dashed sm:items-center">

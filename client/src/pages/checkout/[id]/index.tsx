@@ -94,7 +94,7 @@ const Checkout = () => {
               />
               <p>
                 <span>信用卡</span>
-                <span className="ml-2 text-xs text-zinc-500">
+                <span className="ml-2 text-sm text-zinc-500">
                   (VISA、MasterCard、JCB)
                 </span>
               </p>

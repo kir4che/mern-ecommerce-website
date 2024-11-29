@@ -133,7 +133,7 @@ const Cart = () => {
                 繼續購物
               </Link>
             </div>
-            <div className="flex justify-between pb-4 mt-10 mb-8 text-xs border-b">
+            <div className="flex justify-between pb-4 mt-10 mb-8 text-sm border-b">
               <p className="w-2/5">商品</p>
               <p className="hidden md:block">數量</p>
               <p>小計</p>
@@ -156,7 +156,7 @@ const Cart = () => {
                         >
                           {item.product.title}
                         </Link>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-sm text-gray-600">
                           NT${item.product.price.toLocaleString()}
                         </p>
                         <div className="flex items-center gap-[2vw] md:hidden">

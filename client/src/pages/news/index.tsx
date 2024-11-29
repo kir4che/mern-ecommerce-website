@@ -72,7 +72,7 @@ const News = () => {
               {formatDate(date)}
             </time>
             <Link to={`/news/${_id}`}>
-              <p className="flex items-center text-xl font-medium leading-7 hover:underline hover:underline-offset-4">
+              <p className="flex items-center text-2xl font-medium leading-7 hover:underline hover:underline-offset-4">
                 <span className="px-2.5 text-nowrap py-1 mr-2 text-sm font-light rounded-full self-start bg-primary text-secondary">
                   {category}
                 </span>

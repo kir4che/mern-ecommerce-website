@@ -20,7 +20,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "data.ts"],
   "exclude": ["node_modules"],
   "extends": "./tsconfig.paths.json"
 }
