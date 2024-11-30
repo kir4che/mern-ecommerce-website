@@ -40,26 +40,25 @@ const App = () => {
   return (
     <Layout>
       {/* 跑馬燈 & 商品類別 */}
-      <section className="relative px-4 pb-[6vw] sm:pb-10 md:px-8">
-        <div className="relative overflow-hidden md:flex md:items-center md:justify-between">
-          <div className="border-b border-primary">
-            <Marquee className="flex items-center gap-5 h-18">
-              {Array.from({ length: 10 }, (_, index) => (
-                <p
-                  className="flex items-baseline gap-2 text-2xl font-medium min-w-fit"
-                  key={index}
-                >
-                  Recommend
-                  <span className="text-base font-normal">/ 本店推薦</span>
-                </p>
-              ))}
-            </Marquee>
-          </div>
-          <div className="mt-4 ml-auto text-right md:m-0 md:absolute md:right-0">
+      <section className="px-5 pb-8 md:px-8">
+        <div className="relative md:border-b md:border-primary">
+          <Marquee className="flex items-center gap-5 h-18">
+            {Array.from({ length: 10 }, (_, index) => (
+              <p
+                className="flex items-baseline gap-2 text-2xl font-medium min-w-fit"
+                key={index}
+              >
+                Recommend
+                <span className="text-base font-normal">/ 本店推薦</span>
+              </p>
+            ))}
+          </Marquee>
+          <hr className="block border-b-1 border-primary md:hidden" />
+          <div className="absolute right-0 z-50 mt-4 ml-auto text-right md:top-4 md:m-0">
             <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
           </div>
         </div>
-        <div className="py-8">
+        <div className="pt-24 pb-12 md:py-10">
           <ProductSlider />
         </div>
         <Link
