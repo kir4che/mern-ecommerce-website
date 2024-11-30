@@ -24,7 +24,7 @@ const New = () => {
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
           <time className="font-light">{formatDate(newsItem.date)}</time>
           <hr className="hidden w-8 h-0.5 rotate-90 bg-primary/30 md:block" />
-          <h1 className="text-3xl font-medium">{newsItem.title}</h1>
+          <h1>{newsItem.title}</h1>
         </div>
         <img
           src={newsItem.imageUrl}
