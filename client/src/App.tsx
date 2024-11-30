@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useGetData } from "@/hooks/useGetData";
 import { formatDate } from "@/utils/formatDate";
-import { CATEGORY_LIST, SHOP_INFO, SHOP_LIST } from "@/data";
+import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
@@ -131,19 +131,19 @@ const App = () => {
           {renderTitle("About us", "日出麵包坊", "text-secondary")}
         </div>
         <div className="relative z-20 px-5 mx-auto space-y-8 max-w-screen-2xl md:px-8 text-secondary">
-          <h3 className="text-4xl leading-[54px]">
-            日出麵包坊
-            <br />
-            手工麵包
-            <br />
-            新鮮・美味
-            <br />
-            精選食材，吃得安心。
-          </h3>
+          <h3
+            dangerouslySetInnerHTML={{
+              __html: ABOUT.slogan.replace(/\n/g, "<br/>"),
+            }}
+            className="text-4xl leading-[54px]"
+          />
           <div className="flex flex-col justify-between gap-y-10 md:items-end md:flex-row">
-            <p className="max-w-md md:max-w-sm">
-              日出麵包坊位於台灣，是一家擁有濃厚鄉村風情的麵包店。我們以追求最新鮮的食材和最美味的口感為己任，致力於為您提供每天的美好開始。在日出麵包坊，我們與當地農產者建立了深厚的合作關係，以確保我們的麵包和點心始終新鮮、安全，並且滿足您對品質的嚴格要求。我們希望透過每一口麵包，為您的一天帶來新的活力和愉悅。
-            </p>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: ABOUT.description.replace(/\n/g, "<br/>"),
+              }}
+              className="sm:max-w-sm"
+            />
             <Link
               to="/about"
               className="flex items-center justify-end gap-2 text-base font-medium hover:underline-offset-4 hover:underline"
