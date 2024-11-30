@@ -5,22 +5,24 @@
 @tailwind utilities;
 
 body {
-	@apply text-base font-normal bg-secondary text-primary;
+	@apply text-base font-normal leading-normal tracking-wide bg-secondary text-primary;
 	font-family: 'Inter', 'Zen Kaku Gothic New', sans-serif;
-  line-height: 1.5;
-  letter-spacing: 0.5px;
+}
+
+h1 {
+  @apply text-3xl font-semibold;
 }
 
 h2 {
-  @apply text-2xl font-medium leading-12;
+  @apply text-2xl font-medium;
 }
 
 h3 {
-	@apply text-xl font-medium leading-10;
+	@apply text-xl font-medium;
 }
 
 h4 {
-  @apply text-lg font-medium leading-9;
+  @apply text-lg font-medium;
 }
 
 h5 {
@@ -28,7 +30,7 @@ h5 {
 }
 
 p {
-  @apply text-base font-normal leading-8;
+  @apply text-base leading-loose;
 }
 
 .btn {
@@ -95,18 +97,6 @@ input:-webkit-autofill {
 
 .swiper-wrapper {
 	@apply ease-linear;
-}
-
-.faq__item {
-	@apply px-[5vw] max-w-3xl py-20 mx-auto space-y-8;
-}
-
-.faq__item .faq__item__question {
-	@apply flex items-center justify-between w-full pb-2 border-b border-dashed border-primary/80;
-}
-
-.faq__item .faq__item__answer {
-	@apply text-sm;
 }
 
 .product__item__img,
