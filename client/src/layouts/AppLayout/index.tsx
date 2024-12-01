@@ -14,9 +14,9 @@ const AppLayout = ({ className = "", children }) => {
   }, [isMenuOpen]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="relative flex flex-col min-h-screen">
       <div
-        className={`w-full h-full bg-secondary z-50 ${isMenuOpen ? "flex absolute flex-col md:flex-row" : "sticky top-0"}`}
+        className={`top-0  min-h-full bg-secondary z-50 ${isMenuOpen ? "flex fixed flex-col md:flex-row" : " sticky"}`}
       >
         <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         <div
