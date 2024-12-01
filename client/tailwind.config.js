@@ -13,30 +13,17 @@ module.exports = {
       maxWidth: {
         100: "25rem",
       },
-      minWidth: {
-        76: "19rem",
-      },
       width: {
-        22: "5.5rem",
-        88: "22rem",
         100: "25rem",
       },
       height: {
         18: "4.5rem",
-        22: "5.5rem",
-      },
-      padding: {
-        0.25: "0.0625rem",
-        0.75: "0.1875rem",
       },
       backgroundImage: {
         "about-cover": "url('/src/assets/images/about/about-cover.jpg')",
       },
-      lineHeight: {
-        12: "3rem",
-      },
       colors: {
-        primary: "#252525",
+        primary: "#03101F",
         secondary: "#FFFDFB",
       },
     },

@@ -21,8 +21,8 @@ const About = () => {
         <Breadcrumb text={ABOUT.title} textColor="text-secondary" />
         <div className="max-w-6xl py-40 mx-auto space-y-8 text-secondary">
           <div className="space-y-1">
-            <p className="text-base">About us</p>
-            <h2 className="text-4xl leading-[54px]">{ABOUT.title}</h2>
+            <p>About us</p>
+            <h2 className="text-4xl leading-normal">{ABOUT.title}</h2>
           </div>
           <p
             dangerouslySetInnerHTML={{
@@ -48,7 +48,7 @@ const About = () => {
                   dangerouslySetInnerHTML={{
                     __html: detail.heading.replace(/\n/g, "<br/>"),
                   }}
-                  className="text-3xl leading-10"
+                  className="text-3xl leading-normal"
                 />
                 <p
                   dangerouslySetInnerHTML={{
@@ -113,10 +113,10 @@ const About = () => {
                   {shop.alias}
                 </span>
               </p>
-              <ul className="leading-10">
+              <ul>
                 {shop.info && Object.keys(shop.info).length > 0 ? (
                   Object.entries(shop.info).map(([key, value]) => (
-                    <li key={key}>
+                    <li key={key} className="py-2">
                       <span className="px-2 py-1 mr-2 font-medium rounded bg-primary/10">
                         {SHOP_INFO[key]}
                       </span>
