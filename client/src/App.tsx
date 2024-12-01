@@ -54,7 +54,7 @@ const App = () => {
             ))}
           </Marquee>
           <hr className="block border-b-1 border-primary md:hidden" />
-          <div className="absolute right-0 z-50 mt-4 ml-auto text-right md:top-4 md:m-0">
+          <div className="absolute right-0 z-10 mt-4 ml-auto text-right md:top-4 md:m-0">
             <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
           </div>
         </div>

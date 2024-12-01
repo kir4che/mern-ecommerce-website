@@ -34,7 +34,9 @@ const Navigation = ({ handleMenuClose }) => (
             </Link>
           </li>
         )}
-        <ul className={`${index === 1 ? "space-y-2.5" : "space-y-4"}`}>
+        <ul
+          className={`text-nowrap ${index === 1 ? "space-y-2.5" : "space-y-4"}`}
+        >
           {section.items.map(({ title, path }) => (
             <li key={path}>
               <Link to={path} onClick={handleMenuClose}>
