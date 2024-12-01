@@ -116,7 +116,7 @@ const ProductSlider = () => {
                   />
                 </div>
               </div>
-              <p className="text-base leading-7 line-clamp-3 min-h-[7.5rem]">
+              <p className="line-clamp-3 min-h-[7.5rem]">
                 {product.description}
               </p>
               <div className="flex justify-between text-nowrap">

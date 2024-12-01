@@ -108,16 +108,14 @@ const App = () => {
             <SwiperSlide key={newsItem._id}>
               <Link
                 to={`/news/${newsItem._id}`}
-                className="space-y-2.5 hover:underline hover:underline-offset-4"
+                className="space-y-1 hover:underline hover:underline-offset-4"
               >
                 <img
                   src={newsItem.imageUrl}
                   alt={newsItem.title}
                   className="object-cover w-full max-h-40"
                 />
-                <p className="text-base font-medium line-clamp-1">
-                  {newsItem.title}
-                </p>
+                <p className="font-medium line-clamp-1">{newsItem.title}</p>
               </Link>
             </SwiperSlide>
           ))}
@@ -134,7 +132,7 @@ const App = () => {
             dangerouslySetInnerHTML={{
               __html: ABOUT.slogan.replace(/\n/g, "<br/>"),
             }}
-            className="text-4xl leading-[54px]"
+            className="text-4xl leading-normal"
           />
           <div className="flex flex-col justify-between gap-y-10 md:items-end md:flex-row">
             <p
@@ -211,7 +209,7 @@ const App = () => {
                     {shop.alias}
                   </span>
                 </p>
-                <ul className="text-sm leading-7">
+                <ul className="text-sm leading-loose">
                   {shop.info && Object.keys(shop.info).length > 0 ? (
                     Object.entries(shop.info).map(([key, value]) => (
                       <li key={key}>
