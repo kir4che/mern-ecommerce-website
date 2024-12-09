@@ -49,7 +49,7 @@ const ResetPassword: React.FC = () => {
 
   return (
     <Layout className="relative flex flex-col justify-center w-full max-w-sm px-4 mx-auto">
-      <h2 className="mb-8 -mt-20 text-xl text-center sm:-mt-36">重設密碼</h2>
+      <h2 className="mb-8 -mt-12 text-xl text-center ">重設密碼</h2>
       <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
         <Input
           value={password}

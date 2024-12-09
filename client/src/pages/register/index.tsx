@@ -29,7 +29,7 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await axios.new(
+      const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/user/register`,
         { email, password },
         { headers: { "Content-Type": "application/json" } },
@@ -43,8 +43,8 @@ const Register = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-xs px-4 mx-auto sm:px-0">
-      <h2 className="mb-8 -mt-20 text-xl text-center sm:-mt-36">註冊會員</h2>
+    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+      <h2 className="mb-8 -mt-12 text-2xl text-center">註冊會員</h2>
       <form
         className="flex flex-col gap-4 md:text-sm"
         onSubmit={handleRegister}

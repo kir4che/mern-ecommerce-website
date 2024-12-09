@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 body {
-	@apply text-base font-normal leading-normal tracking-wide bg-secondary text-primary;
-	font-family: 'Inter', 'Zen Kaku Gothic New', sans-serif;
+	@apply text-xl tracking-wide bg-secondary text-primary;
+  font-family: 'Inter', 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 h1 {
@@ -34,7 +34,7 @@ p {
 }
 
 .btn {
-  @apply gap-1 font-medium min-h-fit;
+  @apply gap-1 text-base font-medium min-h-fit;
 }
 
 .btn-link {
