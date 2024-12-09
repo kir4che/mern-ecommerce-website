@@ -27,8 +27,8 @@ const Login = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-xs px-4 mx-auto sm:px-0">
-      <h2 className="mb-8 -mt-20 text-xl text-center sm:-mt-36">登入會員</h2>
+    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+      <h2 className="mb-8 -mt-12 text-2xl text-center">登入會員</h2>
       <form className="flex flex-col gap-4 md:text-sm" onSubmit={handleLogin}>
         <Input
           value={email}
@@ -65,7 +65,7 @@ const Login = () => {
         </Button>
         <p className="text-sm text-center">
           還沒有帳號？
-          <Link to="/register" className="text-sm text-center hover:underline">
+          <Link to="/register" className="text-center hover:underline">
             立即註冊
           </Link>
         </p>

@@ -1,57 +1,64 @@
 import { useState } from "react";
 import Layout from "@/layouts/AppLayout";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import { error } from "console";
 
 const Contact = () => {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    telephone: "",
     content: "",
   });
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", form);
+  };
+
   return (
-    <Layout>
-      <section className="px-[5vw] pt-8 pb-10 md:pb-16 w-full max-w-[812px] mx-auto">
-        <h1 className="text-5xl font-normal">聯繫我們</h1>
-      </section>
-      <form className="px-[5vw] space-y-4 md:space-y-6 w-full md:w-fit mx-auto">
-        <div className="space-y-4 md:space-y-0 md:space-x-4">
-          <input
+    <Layout className="flex flex-col items-center justify-center w-full max-w-lg px-5 mx-auto md:px-8">
+      <h2 className="mb-10 text-2xl text-center">聯繫我們</h2>
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
+        <div className="flex flex-col gap-4 md:flex-row">
+          <Input
             type="text"
             name="name"
             value={form.name}
-            className="py-2.5 pl-4 w-full md:w-80 text-sm border placeholder-primary border-primary"
+            onChange={handleChange}
             placeholder="姓名"
+            required
+            className="flex-1"
           />
-          <input
+          <Input
             type="email"
             name="email"
             value={form.email}
-            className="py-2.5 pl-4 w-full md:w-80 text-sm border placeholder-primary border-primary"
+            onChange={handleChange}
             placeholder="電子郵件"
+            required
+            className="flex-1"
           />
         </div>
-        <input
-          type="tel"
-          name="telephone"
-          pattern="[0-9\-]*"
-          value={form.telephone}
-          className="py-2.5 pl-4 w-full text-sm border placeholder-primary border-primary"
-          placeholder="電話號碼"
-        />
         <textarea
           name="content"
           value={form.content}
+          onChange={handleChange}
           rows={4}
-          className="py-2.5 pl-4 w-full text-sm border placeholder-primary border-primary"
           placeholder="內容"
+          required
+          className="w-full textarea textarea-bordered"
         />
-        <button
-          type="submit"
-          className="px-8 py-3 md:text-sm text-secondary bg-primary"
-        >
+        <Button type="submit" className="block w-40 mx-auto rounded-none">
           傳送
-        </button>
+        </Button>
       </form>
     </Layout>
   );

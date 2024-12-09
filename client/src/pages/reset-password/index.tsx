@@ -62,8 +62,8 @@ const RequestResetLink: React.FC = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-xs px-4 mx-auto sm:px-0">
-      <h2 className="mb-8 -mt-20 text-xl text-center sm:-mt-36">重設密碼</h2>
+    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+      <h2 className="mb-8 -mt-12 text-2xl text-center">重設密碼</h2>
       <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
         <Input
           value={email}
@@ -79,7 +79,7 @@ const RequestResetLink: React.FC = () => {
         />
         <Button
           type="submit"
-          className="mx-auto mt-4 rounded-none"
+          className="w-40 mx-auto mt-8 rounded-none"
           disabled={loading || countdown > 0}
           aria-disabled={loading || countdown > 0}
         >
