@@ -41,7 +41,7 @@ const App = () => {
     <Layout>
       {/* 跑馬燈 & 商品類別 */}
       <section className="px-5 pb-8 md:px-8">
-        <div className="relative md:border-b md:border-primary">
+        <div className="relative overflow-hidden overflow-y-clip md:border-b md:border-primary max-w-screen">
           <Marquee className="flex items-center gap-5 h-18">
             {Array.from({ length: 10 }, (_, index) => (
               <p

@@ -8,7 +8,6 @@ interface ButtonProps {
   children?: React.ReactNode;
   onClick?: () => void;
   className?: string;
-  iconStyle?: string;
   [key: string]: any;
 }
 
@@ -20,7 +19,6 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick = () => {},
   className = "",
-  iconStyle = "stroke-primary",
   ...props
 }) => (
   <button
@@ -36,7 +34,7 @@ const Button: React.FC<ButtonProps> = ({
     {...props}
   >
     {Icon && (
-      <Icon className={`w-5 h-5 ${iconPosition && "order-2"} ${iconStyle}`} />
+      <Icon className={`w-5 h-5 ${iconPosition && "order-2"}`} />
     )}
     {children}
   </button>

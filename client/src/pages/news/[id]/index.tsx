@@ -32,7 +32,7 @@ const New = () => {
           className="object-cover object-center w-full h-80 md:min-h-96 md:h-[24vw]"
           loading="lazy"
         />
-        <ReactMarkdown className="py-8 markdown">
+        <ReactMarkdown className="py-8 text-base markdown">
           {newsItem.content}
         </ReactMarkdown>
       </article>

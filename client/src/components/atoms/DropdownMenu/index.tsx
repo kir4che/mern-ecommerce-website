@@ -30,7 +30,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
         {title}
         <ArrowDownIcon className="w-4 h-4 ml-2 stroke-primary" />
       </summary>
-      <ul className="z-50 w-[11rem] flex-col h-full p-2 mt-2 rounded-none shadow menu bg-secondary">
+      <ul className="w-[11rem] flex-col h-full p-2 mt-2 rounded-none shadow menu bg-secondary">
         {list.map(({ label, value }, index) => (
           <li key={index}>
             <Link

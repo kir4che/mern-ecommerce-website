@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body {
+  @apply max-w-[100vw] overflow-x-hidden;
+}
+
 body {
 	@apply text-xl tracking-wide bg-secondary text-primary;
   font-family: 'Inter', 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

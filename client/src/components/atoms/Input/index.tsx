@@ -11,7 +11,6 @@ interface InputProperty {
   required?: boolean;
   error?: string | null;
   className?: string;
-  iconStyle?: string;
   labelStyle?: string;
   inputStyle?: string;
   [key: string]: any;
@@ -28,7 +27,6 @@ const Input: React.FC<InputProperty> = ({
   required = false,
   error,
   className,
-  iconStyle,
   labelStyle,
   inputStyle,
   ...props
@@ -56,7 +54,7 @@ const Input: React.FC<InputProperty> = ({
       >
         {Icon && (
           <Icon
-            className={`w-5 ${hasError ? "stroke-red-400 text-red-400" : "stroke-current"} ${iconStyle}`}
+            className={`w-5 ${hasError ? "stroke-red-400 text-red-400" : "stroke-current"}`}
           />
         )}
         <input
