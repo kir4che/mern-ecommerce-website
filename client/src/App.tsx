@@ -41,7 +41,8 @@ const App = () => {
     <Layout>
       {/* 跑馬燈 & 商品類別 */}
       <section className="px-5 pb-8 md:px-8">
-        <div className="relative overflow-hidden overflow-y-clip md:border-b md:border-primary max-w-screen">
+      <div className="relative">
+        <div className="overflow-hidden border-b border-primary max-w-screen">
           <Marquee className="flex items-center gap-5 h-18">
             {Array.from({ length: 10 }, (_, index) => (
               <p
@@ -53,11 +54,12 @@ const App = () => {
               </p>
             ))}
           </Marquee>
-          <hr className="block border-b-1 border-primary md:hidden" />
-          <div className="absolute right-0 z-10 mt-4 ml-auto text-right md:top-4 md:m-0">
-            <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
-          </div>
+          {/* <hr className="block border-b-1 border-primary md:hidden" /> */}
         </div>
+        <div className="absolute z-10 mt-4 ml-auto text-right right-2 md:top-4 md:m-0">
+          <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
+        </div>
+      </div>
         <div className="pt-24 pb-12 md:py-10">
           <ProductSlider />
         </div>
