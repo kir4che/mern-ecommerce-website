@@ -68,7 +68,7 @@ const News = () => {
             key={_id}
             className="py-4 space-y-4 border-b border-dashed border-primary/80"
           >
-            <time className="inline-block mb-2 font-light">
+            <time className="inline-block text-base mb-2 font-light">
               {formatDate(date)}
             </time>
             <Link to={`/news/${_id}`}>

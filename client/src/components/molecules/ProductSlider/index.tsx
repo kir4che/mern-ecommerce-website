@@ -111,17 +111,16 @@ const ProductSlider = () => {
                     variant="icon"
                     icon={PlusIcon}
                     onClick={() => handleAddToCart(product)}
-                    className="w-6 h-6 border bg-secondary border-primary hover:bg-primary"
-                    iconStyle="stroke-primary hover:stroke-secondary"
+                    className="w-6 h-6 border stroke-primary hover:stroke-secondary bg-secondary border-primary hover:bg-primary"
                   />
                 </div>
               </div>
-              <p className="line-clamp-3 min-h-[7.5rem]">
+              <p className="line-clamp-3 mb-6 overflow-hidden text-ellipsis min-h-24">
                 {product.description}
               </p>
               <div className="flex justify-between text-nowrap">
                 <p className="text-sm text-gray-400">過敏原標示</p>
-                <p className="text-sm font-medium">
+                <p className="text-sm">
                   {product.allergens.join(", ")}
                 </p>
               </div>
