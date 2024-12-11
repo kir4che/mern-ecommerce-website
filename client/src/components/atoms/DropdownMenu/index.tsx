@@ -26,7 +26,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
 
   return (
     <details ref={detailsRef} className="dropdown">
-      <summary className="h-12 text-base border rounded-none md:h-10 md:text-sm btn bg-secondary hover:bg-secondary border-primary focus-within:border-primary">
+      <summary className="h-10 px-2.5 border rounded-none btn bg-secondary hover:bg-secondary border-primary focus-within:border-primary">
         {title}
         <ArrowDownIcon className="w-4 h-4 ml-2 stroke-primary" />
       </summary>
