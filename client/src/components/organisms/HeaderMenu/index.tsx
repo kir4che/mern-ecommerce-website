@@ -63,11 +63,8 @@ const HeaderMenu = ({ isMenuOpen, setIsMenuOpen }) => {
         </Link>
         <div className="flex items-center gap-3 mr-3 md:gap-4">
           {user ? (
-            <Link
-              to={user.role === "admin" ? "/admin/dashboard" : "/my-account"}
-              className="hidden md:block"
-            >
-              <UserIcon className="w-6 h-6" />
+            <Link to={user.role === "admin" ? "/admin/dashboard" : "/my-account"} className="hidden md:block">
+              <UserIcon className="w-6 h-6 stroke-primary" />
             </Link>
           ) : (
             <div className="flex items-center gap-3">

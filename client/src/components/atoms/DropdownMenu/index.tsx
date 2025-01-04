@@ -35,7 +35,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
           <li key={index}>
             <Link
               to={value}
-              className="px-3 py-2 text-base rounded-none md:text-sm hover:bg-primary hover:text-secondary"
+              className="px-3 py-2 text-base rounded-none hover:bg-primary hover:text-secondary"
             >
               {label}
             </Link>

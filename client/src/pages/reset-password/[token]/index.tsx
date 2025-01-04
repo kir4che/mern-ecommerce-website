@@ -30,7 +30,7 @@ const ResetPassword: React.FC = () => {
     setSuccess("");
 
     try {
-      const res = await axios.new(
+      const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/user/update-password`,
         { resetToken: token, password },
         { headers: { "Content-Type": "application/json" } },

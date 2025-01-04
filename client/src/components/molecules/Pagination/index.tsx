@@ -43,6 +43,7 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
           variant="icon"
           icon={ArrowLeftIcon}
           onClick={() => onPageChange(page - 1)}
+          className='border-none stroke-primary hover:opacity-50'
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -75,6 +76,7 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
           variant="icon"
           icon={ArrowRightIcon}
           onClick={() => onPageChange(page + 1)}
+          className='border-none stroke-primary hover:opacity-50'
         />
       )}
     </div>

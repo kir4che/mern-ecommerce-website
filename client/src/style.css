@@ -9,7 +9,7 @@ html, body {
 }
 
 body {
-	@apply text-xl tracking-wide bg-secondary text-primary;
+	@apply text-base tracking-wide bg-secondary text-primary;
   font-family: 'Inter', 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -38,7 +38,7 @@ p {
 }
 
 .btn {
-  @apply gap-1 text-base font-medium min-h-fit;
+  @apply gap-1 font-medium min-h-fit;
 }
 
 .btn-link {
@@ -46,15 +46,15 @@ p {
 }
 
 .btn-icon {
-  @apply p-0 bg-transparent border-none shadow-none hover:shadow-none hover:bg-transparent;
+  @apply p-0 shadow-none border-primary hover:shadow-none hover:bg-transparent;
 }
 
 .btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
-  @apply bg-transparent border-none opacity-30;
+  @apply bg-gray-200 border-gray-300 border-solid opacity-50 cursor-not-allowed;
 }
 
 .btn.btn-disabled, .btn[disabled], .btn:disabled {
-  @apply border-none bg-zinc-200;
+  @apply bg-gray-200 border-none;
 }
 
 .btn-primary {
@@ -70,7 +70,7 @@ input:-webkit-autofill {
 }
 
 .input:has(input[type='number']) {
-  @apply pl-2.5 pr-0 rounded-none h-fit py-1;
+  @apply pl-2.5 pr-0 rounded-none h-fit;
 }
 
 .select {
@@ -103,27 +103,3 @@ input:-webkit-autofill {
 	@apply ease-linear;
 }
 
-.product__item__img,
-.product__item__info {
-	@apply md:max-w-[26vw] lg:max-w-[20vw] mx-auto;
-}
-
-.product__item__img {
-	@apply relative overflow-hidden rounded-full cursor-pointer;
-}
-
-.product__item__img img {
-	@apply object-cover object-center aspect-square duration-700 ease-out scale-[1.2];
-}
-
-.product__item__img:hover .product__item__img-cover {
-	@apply block;
-}
-
-.product__item__img:hover img {
-	@apply scale-100;
-}
-
-.product__item__info {
-	@apply flex flex-col py-0.5 pl-4 border-l-2 sm:gap-4 border-primary;
-}

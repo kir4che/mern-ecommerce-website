@@ -81,7 +81,7 @@ const Cart = () => {
       return alert("請填寫完整資訊！");
 
     try {
-      const { data, status } = await axios.new(
+      const { data, status } = await axios.post(
         `${process.env.REACT_APP_API_URL}/orders`,
         {
           name: buyerInfo.name,
@@ -192,7 +192,7 @@ const Cart = () => {
             </ul>
           </section>
           <section>
-            <h3 className="pb-2 mb-4 text-base border-b border-zinc-300">
+            <h3 className="pb-2 mb-4 text-base border-b border-gray-300">
               購買人資訊
             </h3>
             <div className="space-y-3 text-sm">
@@ -235,7 +235,7 @@ const Cart = () => {
         </section>
 
         <section className="px-[2vw] md:w-1/4 pt-8">
-          <h1 className="pb-4 mb-4 text-xl font-medium border-b border-zinc-300">
+          <h1 className="pb-4 mb-4 text-xl font-medium border-b border-gray-300">
             訂單摘要
           </h1>
           <div>
@@ -251,7 +251,7 @@ const Cart = () => {
               <span className="font-semibold">NT$65</span>
             </p>
           </div>
-          <p className="flex justify-between pt-4 pb-10 mt-8 text-sm font-medium border-t border-zinc-300">
+          <p className="flex justify-between pt-4 pb-10 mt-8 text-sm font-medium border-t border-gray-300">
             <span>總計</span>
             <span className="font-semibold">NT${calculateTotal()}</span>
           </p>

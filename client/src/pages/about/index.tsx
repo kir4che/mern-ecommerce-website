@@ -5,6 +5,7 @@ import { ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
 import Layout from "@/layouts/AppLayout";
 import Breadcrumb from "@/components/molecules/Breadcrumb";
+import BlurImage from "@/components/atoms/BlurImage";
 
 import shop1 from "@/assets/images/about/shop1.jpg";
 import shop2 from "@/assets/images/about/shop2.jpg";
@@ -39,7 +40,7 @@ const About = () => {
             className="px-5 pt-4 pb-12 border-t border-primary md:px-8"
           >
             <h2 className="mb-3 text-lg md:text-sm md:mb-0">
-              <span className="mr-2 text-xl font-light md:text-base">{`0${index + 1}`}</span>
+              <span className="mr-2 text-xl font-light">{`0${index + 1}`}</span>
               {detail.title}
             </h2>
             <div className="flex flex-col-reverse gap-6 mx-auto md:items-center md:justify-between md:max-w-6xl md:flex-row">
@@ -58,11 +59,10 @@ const About = () => {
                 />
               </div>
               <div className="flex-1">
-                <img
+                <BlurImage
                   src={detail.image}
                   alt={detail.title.toLowerCase().split(" / ")[1]}
-                  className="object-cover rounded w-full max-h-96 md:max-h-[640px]"
-                  loading="lazy"
+                  className="object-cover rounded w-full max-h-96 md:max-h-[480px]"
                 />
               </div>
             </div>
@@ -70,20 +70,19 @@ const About = () => {
         ))}
       </section>
       <Swiper
-        loop
-        autoplay={{ delay: 0, disableOnInteraction: false }}
-        speed={7000}
         slidesPerView={4}
         spaceBetween={0}
         modules={[Autoplay]}
+        autoplay={{ delay: 0, disableOnInteraction: false }}
+        speed={7000}
+        loop
       >
         {shopImages.map((image, index) => (
           <SwiperSlide key={index} className="min-w-72">
-            <img
+            <BlurImage
               src={image}
               className="h-[450px] opacity-85 object-cover w-full"
               alt={`shop${index + 1}`}
-              loading="lazy"
             />
           </SwiperSlide>
         ))}
@@ -109,7 +108,7 @@ const About = () => {
             <div className="space-y-4 md:space-y-8 md:min-w-96">
               <p className="text-2xl font-medium">
                 {shop.name}
-                <span className="ml-1.5 text-lg font-normal text-primary/45">
+                <span className="ml-1.5 text-base font-normal text-primary/45">
                   {shop.alias}
                 </span>
               </p>

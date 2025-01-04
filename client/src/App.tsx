@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useGetData } from "@/hooks/useGetData";
+import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
@@ -11,6 +11,7 @@ import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import Marquee from "@/components/atoms/Marquee";
 import DropdownMenu from "@/components/atoms/DropdownMenu";
+import BlurImage from "@/components/atoms/BlurImage";
 import ProductSlider from "@/components/molecules/ProductSlider";
 
 import bg1 from "@/assets/images/about/bg1.jpg";
@@ -21,7 +22,10 @@ import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right
 
 const App = () => {
   const swiperRef = useRef(null);
-  const { data } = useGetData("/news");
+  const { data } = useAxios("/news", {
+    method: "GET",
+  });
+
   const news = useMemo(() => {
     return (
       data?.news?.sort(
@@ -65,14 +69,15 @@ const App = () => {
         </div>
         <Link
           to="/collections/all"
-          className="flex items-center justify-end gap-2 text-base font-medium hover:underline-offset-4 hover:underline"
+          className="flex items-center justify-end gap-2 hover:underline-offset-4 hover:underline"
         >
           商品一覽
           <ArrowRightIcon className="w-5 h-5 stroke-primary" />
         </Link>
       </section>
       {/* Campaign */}
-      <section className="px-5 pb-10 md:px-8">
+      {news.length > 0 && (
+        <section className="px-5 pb-10 md:px-8">
         <div className="flex flex-wrap items-center justify-between mb-2 ">
           <hr className="w-full border-primary/30" />
           {renderTitle("Campaign & Pickup", "最新活動")}
@@ -81,11 +86,13 @@ const App = () => {
               variant="icon"
               icon={ArrowLeftIcon}
               onClick={() => swiperRef.current?.slidePrev()}
+              className='border-none stroke-primary hover:opacity-50'
             />
             <Button
               variant="icon"
               icon={ArrowRightIcon}
               onClick={() => swiperRef.current?.slideNext()}
+              className='border-none stroke-primary hover:opacity-50'
             />
           </div>
         </div>
@@ -112,7 +119,7 @@ const App = () => {
                 to={`/news/${newsItem._id}`}
                 className="space-y-1 hover:underline hover:underline-offset-4"
               >
-                <img
+                <BlurImage
                   src={newsItem.imageUrl}
                   alt={newsItem.title}
                   className="object-cover w-full max-h-40"
@@ -122,7 +129,8 @@ const App = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-      </section>
+        </section>
+      )}
       {/* About */}
       <section className="relative pt-12 pb-20 overflow-hidden md:pb-40">
         <div className="relative z-20 px-5 mx-auto mb-10 max-w-screen-2xl md:px-8">
@@ -145,7 +153,7 @@ const App = () => {
             />
             <Link
               to="/about"
-              className="flex items-center justify-end gap-2 text-base font-medium hover:underline-offset-4 hover:underline"
+              className="flex items-center justify-end gap-2 hover:underline-offset-4 hover:underline"
             >
               了解更多
               <ArrowRightIcon className="w-5 h-5 stroke-secondary" />
@@ -164,30 +172,16 @@ const App = () => {
           modules={[Autoplay]}
           className="absolute top-0 left-0 flex w-full"
         >
-          <SwiperSlide className="max-w-fit">
-            <img
-              src={bg1}
-              alt="bg1"
-              className="block object-cover object-bottom"
-              loading="lazy"
-            />
-          </SwiperSlide>
-          <SwiperSlide className="max-w-fit">
-            <img
-              src={bg2}
-              alt="bg2"
-              className="block object-cover object-bottom w-100"
-              loading="lazy"
-            />
-          </SwiperSlide>
-          <SwiperSlide className="max-w-fit">
-            <img
-              src={bg3}
-              alt="bg3"
-              className="block object-cover object-bottom w-[674px]"
-              loading="lazy"
-            />
-          </SwiperSlide>
+          {[bg1, bg2, bg3].map((bg, index) => (
+            <SwiperSlide key={index} className="max-w-fit">
+              <BlurImage
+                src={bg}
+                alt={`bg-${index + 1}`}
+                className={`block object-cover object-bottom ${
+                  index === 1 && "w-100"} ${index === 2 && "w-[674px]"}`}
+              />
+            </SwiperSlide>
+          ))}
         </Swiper>
         <div className="absolute top-0 left-0 z-10 w-full h-full bg-black/50"></div>
       </section>
@@ -229,39 +223,41 @@ const App = () => {
         </div>
       </section>
       {/* News */}
-      <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
-        <hr className="w-full border-primary/30" />
-        <div className="flex items-center justify-between">
-          {renderTitle("News", "最新消息")}
-          <Link
-            to="/news"
-            className="text-sm hover:underline hover:underline-offset-4"
-          >
-            View all
-          </Link>
-        </div>
-        <ul>
-          {news?.slice(0, 3).map(({ _id, date, category, title }) => (
-            <li
-              key={_id}
-              className="py-4 border-b border-dashed border-primary/80"
+      {news.length > 0 && (
+        <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
+          <hr className="w-full border-primary/30" />
+          <div className="flex items-center justify-between">
+            {renderTitle("News", "最新消息")}
+            <Link
+              to="/news"
+              className="text-sm hover:underline hover:underline-offset-4"
             >
-              <Link
-                to={`/news/${_id}`}
-                className="flex flex-wrap items-center justify-between gap-y-2"
+              View all
+            </Link>
+          </div>
+          <ul>
+            {news?.slice(0, 3).map(({ _id, date, category, title }) => (
+              <li
+                key={_id}
+                className="py-4 border-b border-dashed border-primary/80"
               >
-                <p className="text-wrap hover:underline hover:underline-offset-4">
-                  <span className="px-2.5 inline-block py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
-                    {category}
-                  </span>
-                  {title}
-                </p>
-                <p className="text-sm font-light">{formatDate(date)}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+                <Link
+                  to={`/news/${_id}`}
+                  className="flex flex-wrap items-center justify-between gap-y-2"
+                >
+                  <p className="text-wrap hover:underline hover:underline-offset-4">
+                    <span className="px-2.5 inline-block py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
+                      {category}
+                    </span>
+                    {title}
+                  </p>
+                  <p className="text-sm font-light">{formatDate(date)}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </Layout>
   );
 };
