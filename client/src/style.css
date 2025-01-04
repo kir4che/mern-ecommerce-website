@@ -50,15 +50,11 @@ p {
 }
 
 .btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
-  @apply bg-gray-200 border-gray-400 border-solid opacity-25;
+  @apply bg-gray-200 border-gray-300 border-solid opacity-50 cursor-not-allowed;
 }
 
 .btn.btn-disabled, .btn[disabled], .btn:disabled {
   @apply bg-gray-200 border-none;
-}
-
-.btn.btn-disabled svg, .btn[disabled] svg, .btn:disabled svg {
-  @apply opacity-15;
 }
 
 .btn-primary {

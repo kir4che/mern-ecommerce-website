@@ -12,3 +12,13 @@ export const ErrorMessages: Record<string, string> = {
   STORAGE_FAIL: "登入狀態保存失敗，請檢查您的網路或重試。",
   LOGIN_RESPONSE_ERROR: "登入失敗，請稍後再試或聯繫我們。"
 } as const;
+
+export const ProductCategories = [
+  { label: "所有商品", link: "all" },
+  { label: "推薦", link: "recommend" },
+  { label: "熱銷", link: "hot" },
+  { label: "麵包", link: "bread" },
+  { label: "蛋糕", link: "cake" },
+  { label: "餅乾", link: "cookie" },
+  { label: "其他", link: "other" },
+] as const;
