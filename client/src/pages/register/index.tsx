@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
+import { useAxios } from "@/hooks/useAxios";
 import { validateEmail, validatePassword } from "@/utils/validation";
 
 import Layout from "@/layouts/AppLayout";
@@ -21,25 +21,35 @@ const Register = () => {
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
+
+  const { error, isLoading, refresh } = useAxios(
+    "/user/register",
+    { method: "POST" },
+    {
+      immediate: false,
+      onSuccess: () => navigate("/login"),
+    }
+  );
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!email || !password || formError.email || formError.password) return;
-    setError("");
+    
+    // 在提交前重新驗證
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    
+    setFormError({
+      email: emailError,
+      password: passwordError,
+    });
 
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/register`,
-        { email, password },
-        { headers: { "Content-Type": "application/json" } },
-      );
-
-      if (res.status === 201) navigate("/login");
-    } catch (error) {
-      setError("註冊失敗，請再試一次。");
-      console.error(error.message);
+    if (!email || !password || emailError || passwordError) {
+      return;
     }
+
+    await refresh({
+      data: { email, password },
+    });
   };
 
   return (
@@ -58,7 +68,7 @@ const Register = () => {
             setEmail(e.target.value.trim());
             setFormError((prev) => ({
               ...prev,
-              password: validateEmail(e.target.value),
+              email: validateEmail(e.target.value),
             }));
           }}
           error={email && formError.email}
@@ -79,7 +89,7 @@ const Register = () => {
           error={password && formError.password}
           required
         />
-        <Button type="submit" className="mx-auto mt-8 rounded-none w-28">
+        <Button type="submit" className="mx-auto mt-8 rounded-none w-28" disabled={isLoading}>
           註冊
         </Button>
         <p className="text-sm text-center">

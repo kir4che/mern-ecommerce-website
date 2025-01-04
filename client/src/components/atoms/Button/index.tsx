@@ -5,6 +5,7 @@ interface ButtonProps {
   variant?: "primary" | "secondary" | "link" | "icon";
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
   iconPosition?: "start" | "end";
+  iconClassName?: string;
   children?: React.ReactNode;
   onClick?: () => void;
   className?: string;
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   icon: Icon,
   iconPosition = "start",
+  iconClassName = "stroke-current",
   children,
   onClick = () => {},
   className = "",
@@ -34,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
     {...props}
   >
     {Icon && (
-      <Icon className={`w-5 h-5 ${iconPosition && "order-2"}`} />
+      <Icon className={`w-5 h-5 ${iconPosition && "order-2"} ${iconClassName}`} />
     )}
     {children}
   </button>

@@ -1,165 +1,135 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import Breadcrumb from "@/components/molecules/Breadcrumb";
-import NotFound from "@/pages/notFound";
-import Layout from "@/layouts/AppLayout";
-import Loading from "@/components/atoms/Loading";
-import { useGetData } from "@/hooks/useGetData";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { useInView } from 'react-intersection-observer';
 
+import { ProductCategories } from "@/constants/actionTypes";
+import { Product } from '@/types/product';
 import { useCart } from "@/context/CartContext";
+import { useAxios } from "@/hooks/useAxios";
+import { filterProductsByCategory } from '@/utils/productFilters';
+import { linkToCategory } from "@/utils/linkToCategory";
 
-const categories = [
-  {
-    label: "所有商品",
-    link: "all",
-  },
-  {
-    label: "推薦",
-    link: "recommend",
-  },
-  {
-    label: "熱銷",
-    link: "hot",
-  },
-  {
-    label: "麵包",
-    link: "bread",
-  },
-  {
-    label: "蛋糕",
-    link: "cake",
-  },
-  {
-    label: "餅乾",
-    link: "cookie",
-  },
-  {
-    label: "其他",
-    link: "other",
-  },
-];
+import Layout from "@/layouts/AppLayout";
+import NotFound from "@/pages/notFound";
+import PageHeader from '@/components/molecules/PageHeader'
+import Loading from "@/components/atoms/Loading";
+import ProductLinkImg from '@/components/atoms/ProductLinkImg';
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+
+import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
+
+const QUANTITY_RESET_DELAY = 500; // 商品數量重置的延遲時間
+const DEFAULT_QUANTITY = 1; // 預設商品數量
+const ITEMS_PER_PAGE = 10; // 每頁顯示的商品數量
 
 const Collections = () => {
   const navigate = useNavigate();
   const { category } = useParams();
   const { addToCart } = useCart();
-  const { data, loading, error } = useGetData("/products");
-  const products = data?.products;
+  const { data, isLoading, error } = useAxios<{ products: Product[] }>("/products");
+  const products = data?.products || [];
 
-  const [productsByCategory, setProductsByCategory] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(category || "all");
-
-  const handleCategorySelect = (link: string) => {
-    setSelectedCategory(link);
-    navigate(`/collections/${link}`);
-  };
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [quantities, setQuantities] = useState({});
 
-  const handleQuantityChange = (productId, newQuantity) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: newQuantity,
+  // 偵測 DOM 元素是否進入視窗範圍，用以實現無限滾動。
+  const { ref, inView } = useInView({
+    threshold: 0, // 只要有東西進到視窗範圍就會觸發
+    triggerOnce: false, // 可以多次觸發
+    rootMargin: '100px' // 在視窗底部提早 100px 觸發
+  });
+
+  // 處理分類選擇
+  const handleCategorySelect = useCallback((link: string) => {
+    if (link === selectedCategory) return;
+    setSelectedCategory(link);
+    navigate(`/collections/${link}`);
+    setCurrentPage(1); // 重置頁數
+  }, [selectedCategory, navigate]);
+
+  // 處理商品數量變更
+  const handleQuantityChange = useCallback((productId: number, newQuantity: number) => {
+    if (newQuantity < 0) return;
+    const product = products?.find(p => p._id === productId);
+    if (!product) return;
+    
+    // 確保數量不超過庫存
+    const validQuantity = Math.min(newQuantity, product.countInStock);
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: validQuantity
     }));
-  };
+  }, [products]);
 
-  const handleAddToCart = (product) => {
+  // 處理加入購物車
+  const handleAddToCart = useCallback((product: Product) => {
+    if (!product || product.countInStock === 0) return;
+    
+    const quantity = quantities[product._id] || DEFAULT_QUANTITY;
+    
     addToCart({
-      productId: product._id,
-      quantity: quantities[product._id] || 1,
+      product: product._id.toString(),
+      quantity: Math.min(quantity, product.countInStock)
     });
+    
+    // 重置商品數量
     setTimeout(() => {
-      setQuantities((prevQuantities) => ({
-        ...prevQuantities,
-        [product._id]: 1,
+      setQuantities(prev => ({
+        ...prev,
+        [product._id]: DEFAULT_QUANTITY,
       }));
-    }, 500);
-  };
+    }, QUANTITY_RESET_DELAY);
+  }, [addToCart, quantities]);
 
+  // 初始化選擇的分類
   useEffect(() => {
     setSelectedCategory(category || "all");
   }, [category]);
 
-  useEffect(() => {
-    if (!products) return;
-    switch (category) {
-      case "all":
-        setProductsByCategory(
-          products.sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-          ),
-        );
-        break;
-      case "recommend":
-        setProductsByCategory(
-          products
-            .slice(0, 5)
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-            ),
-        );
-        break;
-      case "hot":
-        setProductsByCategory(
-          products.sort((a, b) => b.salesCount - a.salesCount).slice(0, 10),
-        );
-        break;
-      case "bread":
-      case "cake":
-      case "cookie":
-      case "other":
-        setProductsByCategory(
-          products
-            .filter((item) =>
-              item.categories.includes(
-                category === "bread"
-                  ? "麵包"
-                  : category === "cake"
-                    ? "蛋糕"
-                    : category === "cookie"
-                      ? "餅乾"
-                      : "其他",
-              ),
-            )
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
-            ),
-        );
-        break;
-      default:
-        setProductsByCategory(
-          products.sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-          ),
-        );
-        break;
-    }
+  // 篩選商品列表
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    return filterProductsByCategory(products, category || 'all');
   }, [products, category]);
 
-  if (loading) return <Loading />;
+  // 根據當前頁數和每頁顯示的商品數量，計算出當前顯示的商品列表。
+  const displayedProducts = useMemo(() => {
+    return filteredProducts.slice(0, currentPage * ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  // 當商品進入視窗範圍 (inView 為 true) 且有更多商品可加載時，更新 currentPage。
+  useEffect(() => {
+    if (inView && filteredProducts.length > displayedProducts.length) {
+      // 提前加載更多商品
+      const loadMoreProducts = () => {
+        setCurrentPage(prev => prev + 1);
+      };
+
+      // 使用 setTimeout 來延遲加載，讓使用者感覺更順。
+      const timeoutId = setTimeout(loadMoreProducts, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [inView, filteredProducts.length, displayedProducts.length]);
+
   if (error) return <NotFound message={[error]} />;
 
   return (
     <Layout>
-      <section className="px-8 pt-3 h-36 md:min-h-32 md:h-[9.6vw] bg-primary">
-        <Breadcrumb text="商品" textColor="text-secondary" />
-        <h1 className="flex flex-col items-center mx-auto md:gap-2 w-fit text-secondary">
-          <span className="md:text-base font-light text-1.5xl">
-            Collections
-          </span>
-          <span className="text-4xl md:text-xl">商品一覽</span>
-        </h1>
-      </section>
-      <section className="px-[5vw] py-8">
+      <PageHeader 
+        breadcrumbText="商品"
+        titleEn="Collections"
+        titleCh="商品一覽"
+      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="px-5 py-8 md:px-8">
         <div className="flex justify-center gap-4 overflow-x-auto pb-7">
-          {categories.map((category) => (
+          {ProductCategories.map((category) => (
             <button
+              type='button'
               className={`${selectedCategory === category.link ? "border-primary bg-primary text-secondary" : "border-primary/80 text-primary/60 bg-secondary"} px-6 py-2 min-w-fit text-sm border border-dashed rounded-full`}
               onClick={() => handleCategorySelect(category.link)}
               key={category.link}
@@ -168,83 +138,73 @@ const Collections = () => {
             </button>
           ))}
         </div>
-        <hr className="max-w-2xl mx-auto" />
-        <div className="grid w-full grid-cols-1 py-10 gap-y-10 sm:gap-y-12 gap-x-8 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {productsByCategory.map((product) => (
-            <div className="product__item">
-              <Link
-                to={`/products/${product._id}`}
-                className="block -mb-4 product__item__img"
-              >
-                <img
-                  src={product.imageUrl}
-                  height="280px"
-                  width="280px"
-                  alt={product.title}
-                  loading="lazy"
-                />
-                <div className="hidden product__item__img-cover">
-                  <p className="absolute z-10 font-light underline -translate-x-1/2 -translate-y-1/2 text-secondary top-1/2 left-1/2">
-                    查看更多
-                  </p>
-                  <div className="absolute top-0 bottom-0 left-0 right-0 w-full h-full overflow-hidden bg-fixed rounded-full bg-primary/50" />
-                </div>
-              </Link>
-              <div className="product__item__info">
-                <h3 className="relative z-10 px-2 mb-2 text-base sm:-mb-2 w-fit bg-primary text-secondary">
+        <div className="grid w-full grid-cols-1 gap-10 py-10 mx-auto max-w-screen-2xl lg:gap-12 xl:gap-16 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {displayedProducts.map((product) => (
+            <div key={product._id}>
+              <ProductLinkImg product={product} data={data} error={error} className='-mb-12' />
+              <div className="flex flex-col py-0.5 pl-4 border-l-2 border-primary">
+                <h3 className="relative z-10 px-2 mb-1 text-base w-fit bg-primary text-secondary text-nowrap">
                   {product.title}
                 </h3>
-                <div className="mb-2 sm:-mb-2">
+                <ul className="flex items-center gap-1.5">
                   {product.categories.map((category, index) => (
-                    <p
-                      className="py-1 px-2.5 border sm:border-[0.875px] w-fit font-medium rounded-full text-sm bg-secondary border-primary"
+                    <li
                       key={index}
+                      className="z-0 text-xs w-fit bg-secondary"
                     >
-                      #{category}
-                    </p>
+                      <Link to={`/collections/${linkToCategory[category]}`}># {category}</Link>
+                    </li>
                   ))}
-                  <div className="flex items-center gap-2 ml-auto w-fit">
+                </ul>
+                <div className="flex items-center justify-between mt-2 mb-4">
+                  <p className="text-xl font-medium">NT${product.price.toLocaleString()}</p>
+                  <div className="flex items-center gap-2">
                     <label className="w-full pr-3 text-sm border-r border-gray-300 sm:pr-1">
                       數量
                     </label>
-                    <input
+                    <Input
                       type="number"
-                      name="quantity"
-                      id="quantity"
-                      className="py-1 pl-1.5 pr-0 min-w-14 sm:min-w-12 text-sm"
                       min={1}
                       max={product.countInStock}
-                      value={quantities[product._id]}
+                      value={quantities[product._id] || 1}
                       defaultValue={1}
-                      onChange={(e) =>
-                        handleQuantityChange(
-                          product._id,
-                          Number(e.target.value),
-                        )
-                      }
+                      onChange={(e) => handleQuantityChange(
+                        e,
+                        product,
+                        value => setQuantities((prev) => ({ ...prev, [product._id]: value })))}
+                      onKeyDown={preventInvalidInput}
+                      disabled={product.countInStock <= 0}
+                      className="flex items-center gap-2"
+                      labelStyle="border-r border-gray-300 pr-1.5"
                     />
                   </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="text-sm sm:text-xxs min-w-fit">
-                    <p className="text-3xl sm:text-xl">
-                      NT${product.price.toLocaleString()}
-                    </p>
-                  </div>
-                  <button
-                    className="px-3 py-2 text-sm duration-500 border rounded-full border-primary hover:text-primary hover:bg-secondary text-secondary sm:py-1 sm:px-5 bg-primary"
-                    onClick={() => handleAddToCart(product)}
+                  <Button
+                    key={product._id}
+                    icon={product.countInStock !== 0 && CartPlusIcon}
+                    onClick={() => handleAddToCart(
+                      product, 
+                      quantities[product._id],
+                      addToCart, 
+                      (value) => setQuantities((prev) => ({ ...prev, [product._id]: value }))
+                    )}
+                    disabled={product.countInStock <= 0}
+                    className='ml-auto text-sm w-fit h-9 text-primary'
                   >
-                    加入購物車
-                  </button>
+                    {product.countInStock <= 0 ? '補貨中' : '加入購物車'}
+                  </Button>
                 </div>
               </div>
+            ))}
+          </div>
+          {filteredProducts.length > displayedProducts.length && (
+            <div ref={ref} className="flex items-center justify-center w-full h-20 my-4">
+              <Loading />
             </div>
-          ))}
+          )}
         </div>
-      </section>
+      )}
     </Layout>
   );
 };
 
-export default Collections;
+export default memo(Collections);

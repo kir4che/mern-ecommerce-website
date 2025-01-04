@@ -13,6 +13,13 @@ interface InputProperty {
   className?: string;
   labelStyle?: string;
   inputStyle?: string;
+  validation?: {
+    required?: boolean;
+    pattern?: RegExp;
+    minLength?: number;
+    maxLength?: number;
+  };
+  errorMessage?: string;
   [key: string]: any;
 }
 
@@ -26,51 +33,60 @@ const Input: React.FC<InputProperty> = ({
   onChange = () => {},
   required = false,
   error,
-  className,
+  className='flex-col gap-1',
   labelStyle,
   inputStyle,
+  validation,
+  errorMessage,
   ...props
 }) => {
   const [touched, setTouched] = useState(false);
-  const hasError = touched && ((!value && required) || error);
+  const [errorState, setErrorState] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTouched(true);
     onChange(e);
   };
 
+  const handleValidation = (value: string) => {
+    if (validation?.required && !value) {
+      setErrorState('此欄位為必填');
+      return;
+    }
+    // 其他驗證邏輯...
+  }
+
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
+    <div className={`flex ${className}`}>
       {label && (
         <label
           htmlFor={id}
-          className={`text-sm ${hasError && "text-red-500"} ${labelStyle}`}
+          className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}
         >
           {label}
         </label>
       )}
-      <div
-        className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${hasError && "border-red-500 focus-within:border-red-500"} ${inputStyle}`}
-      >
+      <div className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${errorState && "border-red-600 focus-within:border-red-600"} ${inputStyle}`}>
         {Icon && (
-          <Icon
-            className={`w-5 ${hasError ? "stroke-red-400 text-red-400" : "stroke-current"}`}
-          />
+          <Icon className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : "stroke-current"}`} />
         )}
         <input
-          className={`border-none grow ${hasError && "placeholder-red-400 text-red-500"}`}
+          className={`border-none grow ${errorState && "placeholder-red-500 text-red-600"}`}
           type={type}
           id={id}
           value={value}
           placeholder={placeholder}
-          onChange={handleChange}
+          onChange={(e) => {
+            handleValidation(e.target.value);
+            handleChange(e);
+          }}
           onInvalid={() => setTouched(true)}
           required={required}
           {...props}
         />
       </div>
-      {error && touched && (
-        <span className="text-sm text-red-500">{error}</span>
+      {errorState && touched && (
+        <span className="text-sm text-red-600">{errorState}</span>
       )}
     </div>
   );

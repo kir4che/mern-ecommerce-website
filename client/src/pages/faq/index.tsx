@@ -1,17 +1,15 @@
 import { FAQ as faqData } from "@/data";
 
 import Layout from "@/layouts/AppLayout";
-import Breadcrumb from "@/components/molecules/Breadcrumb";
+import PageHeader from "@/components/molecules/PageHeader";
 
 const FAQ = () => (
   <Layout>
-    <div className="px-5 pt-4 md:px-8 min-h-40 bg-primary">
-      <Breadcrumb text="常見問題" textColor="text-secondary" />
-      <h2 className="text-center text-secondary">
-        <span className="block text-lg font-light">FAQ</span>
-        <span className="text-2xl">常見問題</span>
-      </h2>
-    </div>
+    <PageHeader 
+      breadcrumbText="常見問題"
+      titleEn="FAQ"
+      titleCh="常見問題"
+    />
     <div className="max-w-3xl px-5 py-20 mx-auto md:px-8">
       <div className="w-full space-y-4 rounded-none join join-vertical">
         {faqData.map(({ question, answer }) => (

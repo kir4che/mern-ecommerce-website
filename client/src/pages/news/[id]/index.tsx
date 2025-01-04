@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 
-import { useGetData } from "@/hooks/useGetData";
+import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 
 import Layout from "@/layouts/AppLayout";
@@ -12,17 +12,18 @@ import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.i
 
 const New = () => {
   const { id } = useParams();
-  const { data, loading, error } = useGetData(`/news/${id}`);
+  const { data, isLoading, error } = useAxios(`/news/${id}`, { method: "GET" });
+
   const newsItem = data?.newsItem || {};
 
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
   if (error) return <NotFound message={[error]} />;
 
   return (
     <Layout className="max-w-screen-lg px-5 py-10 mx-auto md:px-8">
       <article>
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
-          <time className="font-light">{formatDate(newsItem.date)}</time>
+          <time className="text-base font-light">{formatDate(newsItem.date)}</time>
           <hr className="hidden w-8 h-0.5 rotate-90 bg-primary/30 md:block" />
           <h1>{newsItem.title}</h1>
         </div>
@@ -30,7 +31,6 @@ const New = () => {
           src={newsItem.imageUrl}
           alt={newsItem.title}
           className="object-cover object-center w-full h-80 md:min-h-96 md:h-[24vw]"
-          loading="lazy"
         />
         <ReactMarkdown className="py-8 text-base markdown">
           {newsItem.content}

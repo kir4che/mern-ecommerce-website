@@ -52,7 +52,7 @@ const Alert: React.FC<AlertProps> = ({
       className={`alert ${iconMap[type].style} flex items-center rounded-md gap-2 border-none py-3 transition-opacity duration-500 font-medium ${isVisible ? "opacity-100" : "opacity-0"} ${className}`}
     >
       <Icon className="w-5 stroke-current" />
-      <span>{message}</span>
+      <p className="text-sm font-normal">{message}</p>
     </div>
   );
 };
