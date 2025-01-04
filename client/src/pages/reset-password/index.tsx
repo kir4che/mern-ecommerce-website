@@ -42,7 +42,7 @@ const RequestResetLink: React.FC = () => {
     setError("");
 
     try {
-      const res = await axios.new(
+      const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/user/reset-password`,
         { email },
         {
@@ -79,7 +79,7 @@ const RequestResetLink: React.FC = () => {
         />
         <Button
           type="submit"
-          className="w-40 mx-auto mt-8 rounded-none"
+          className="mx-auto mt-8 rounded-none w-fit"
           disabled={loading || countdown > 0}
           aria-disabled={loading || countdown > 0}
         >

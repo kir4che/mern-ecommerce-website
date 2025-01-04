@@ -62,7 +62,7 @@ const Checkout = () => {
   return (
     <Layout>
       <section className="px-[5vw] p-10">
-        <h3 className="pb-2 mb-4 text-base border-b border-zinc-300">
+        <h3 className="pb-2 mb-4 text-base border-b border-gray-300">
           付款方式
         </h3>
         <div className="space-y-3 text-sm">
@@ -94,7 +94,7 @@ const Checkout = () => {
               />
               <p>
                 <span>信用卡</span>
-                <span className="ml-2 text-sm text-zinc-500">
+                <span className="ml-2 text-sm text-gray-500">
                   (VISA、MasterCard、JCB)
                 </span>
               </p>

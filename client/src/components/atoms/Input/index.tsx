@@ -44,21 +44,21 @@ const Input: React.FC<InputProperty> = ({
       {label && (
         <label
           htmlFor={id}
-          className={`text-sm ${hasError && "text-red-500"} ${labelStyle}`}
+          className={`text-sm ${hasError && "text-red-600"} ${labelStyle}`}
         >
           {label}
         </label>
       )}
       <div
-        className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${hasError && "border-red-500 focus-within:border-red-500"} ${inputStyle}`}
+        className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${hasError && "border-red-600 focus-within:border-red-600"} ${inputStyle}`}
       >
         {Icon && (
           <Icon
-            className={`w-5 ${hasError ? "stroke-red-400 text-red-400" : "stroke-current"}`}
+            className={`w-5 ${hasError ? "stroke-red-500 text-red-500" : "stroke-current"}`}
           />
         )}
         <input
-          className={`border-none grow ${hasError && "placeholder-red-400 text-red-500"}`}
+          className={`border-none grow ${hasError && "placeholder-red-500 text-red-600"}`}
           type={type}
           id={id}
           value={value}
@@ -70,7 +70,7 @@ const Input: React.FC<InputProperty> = ({
         />
       </div>
       {error && touched && (
-        <span className="text-sm text-red-500">{error}</span>
+        <span className="text-sm text-red-600">{error}</span>
       )}
     </div>
   );

@@ -2,7 +2,6 @@ import { createContext, useState, ReactNode, useContext } from "react";
 import axios from "axios";
 
 interface CartItem {
-  id: string;
   product: string;
   quantity: number;
 }

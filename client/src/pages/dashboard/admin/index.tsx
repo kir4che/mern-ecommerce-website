@@ -360,7 +360,7 @@ const AdminDashboard = () => {
             <h3 className="mb-2 text-base font-medium">訂單管理</h3>
             <ul className="p-3 overflow-y-auto border shadow max-h-80">
               <div className="p-2 pb-4 space-y-4 overflow-x-auto">
-                <ul className="w-full pb-3 border-b min-w-fit border-zinc-300">
+                <ul className="w-full pb-3 border-b min-w-fit border-gray-300">
                   <li className="flex text-sm">
                     <p className="min-w-20">訂單編號</p>
                     <p className="min-w-20">訂單狀態</p>
@@ -385,7 +385,7 @@ const AdminDashboard = () => {
                           {new Date(order.createdAt).toLocaleString()}
                         </p>
                         <button
-                          className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-zinc-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-sm`}
+                          className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-gray-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-sm`}
                           onClick={() => handleDeliver(order._id)}
                           disabled={order.status !== "已付款"}
                         >

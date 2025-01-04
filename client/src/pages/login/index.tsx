@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
@@ -14,17 +14,20 @@ import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, error } = useAuth();
+  const { login, user, error } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password, rememberMe);
-    navigate("/");
   };
+
+  useEffect(() => {
+    if (user && !error) navigate("/");
+  }, [user, error, navigate]);
 
   return (
     <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">

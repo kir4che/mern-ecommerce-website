@@ -1,26 +1,14 @@
 import {
   useEffect,
+  useCallback,
   createContext,
   useContext,
   useReducer,
   Dispatch,
+  useMemo,
 } from "react";
-import axios from "axios";
-
-import {
-  LOGIN_REQUEST,
-  LOGIN_SUCCESS,
-  LOGIN_FAIL,
-  LOGOUT,
-  LOGOUT_FAIL,
-} from "@/constants/actionTypes";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "user";
-}
+import { useAxios } from "@/hooks/useAxios";
+import { AuthActionType, ErrorMessages } from "@/constants/actionTypes";
 
 interface AuthState {
   user: User | null;
@@ -28,18 +16,34 @@ interface AuthState {
   error: string | null;
 }
 
-interface AuthContextType extends AuthState {
-  login: (
-    email: string,
-    password: string,
-    rememberMe: boolean,
-  ) => Promise<void>;
-  logout: () => Promise<void>;
-  dispatch: Dispatch<any>;
+interface LoginResponse {
+  user: User;
+  message?: string;
 }
 
+interface User {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly role: "admin" | "user";
+}
+
+interface AuthContextType extends AuthState {
+  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
+  logout: () => Promise<void>;
+  dispatch: Dispatch<AuthAction>;
+}
+
+type AuthAction = 
+  | { type: typeof AuthActionType.LOGIN_REQUEST }
+  | { type: typeof AuthActionType.LOGIN_SUCCESS; payload: User }
+  | { type: typeof AuthActionType.LOGIN_FAIL; payload: string }
+  | { type: typeof AuthActionType.LOGOUT }
+  | { type: typeof AuthActionType.LOGOUT_FAIL; payload: string };
+
+// 初始狀態：從 localStorage 中讀取使用者狀態
 const INITIAL_STATE: AuthContextType = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
+  user: JSON.parse(localStorage.getItem("user") || "null"),
   loading: false,
   error: null,
   login: async () => {
@@ -48,101 +52,167 @@ const INITIAL_STATE: AuthContextType = {
   logout: async () => {
     throw new Error("logout 尚未初始化");
   },
-  dispatch: () => {},
+  dispatch: () => {
+    throw new Error("dispatch 尚未初始化");
+  },
 };
 
-export const AuthContext = createContext(INITIAL_STATE);
+export const AuthContext = createContext<AuthContextType>(INITIAL_STATE);
 
-// 定義行爲 (action) 類型，並宣告這些 action 對 state 的影響。
-const AuthReducer = (state: AuthState, action: any): AuthState => {
+const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
-    case LOGIN_REQUEST:
-      return { ...state, user: null, loading: true, error: null };
-    case LOGIN_SUCCESS:
-      return { ...state, user: action.payload, loading: false, error: null };
-    case LOGIN_FAIL:
-      return { ...state, user: null, loading: false, error: action.payload };
-    case LOGOUT:
-      return { ...state, user: null, loading: false, error: null };
-    case LOGOUT_FAIL:
-      return { ...state, user: null, loading: false, error: action.payload };
-    default:
-      return state;
+    case AuthActionType.LOGIN_REQUEST:
+      return { 
+        ...state, 
+        user: null, 
+        loading: true, 
+        error: null
+      };
+    case AuthActionType.LOGIN_SUCCESS:
+      return { 
+        ...state, 
+        user: action.payload, 
+        loading: false, 
+        error: null
+      };
+    case AuthActionType.LOGIN_FAIL:
+      return { 
+        ...state, 
+        user: null, 
+        loading: false,
+        error: action.payload
+      };
+    case AuthActionType.LOGOUT:
+      return { 
+        ...state, 
+        user: null, 
+        loading: false, 
+        error: null
+      };
+    case AuthActionType.LOGOUT_FAIL:
+      return { 
+        ...state, 
+        user: null, 
+        loading: false, 
+        error: action.payload
+      };
   }
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
 
-  // user 一被更新，就將其存入 localStorage。
+  const { 
+    refresh: loginRequest, 
+    data: loginData,
+    isLoading: isLoginLoading 
+  } = useAxios<LoginResponse>(
+    "/user/login",
+    {
+      method: "POST",
+      withCredentials: true,
+    },
+    {
+      immediate: false,  // 不立即執行請求
+      onError: () => {
+        dispatch({
+          type: AuthActionType.LOGIN_FAIL,
+          payload: ErrorMessages.LOGIN_FAIL
+        });
+      }
+    }
+  );
+
+  const { 
+    refresh: logoutRequest,
+    isLoading: isLogoutLoading 
+  } = useAxios(
+    "/user/logout",
+    {
+      method: "POST",
+      withCredentials: true,
+    },
+    {
+      immediate: false,
+      onError: () => {
+        dispatch({ 
+          type: AuthActionType.LOGOUT_FAIL, 
+          payload: ErrorMessages.LOGOUT_FAIL
+        });
+      }
+    }
+  );
+
+  // 同步用戶狀態到 localStorage
   useEffect(() => {
+    if (!state.user) {
+      localStorage.removeItem("user");
+      return;
+    }
+
     try {
       localStorage.setItem("user", JSON.stringify(state.user));
-    } catch (error) {
-      console.error("無法同步到 localStorage：", error.message);
+    } catch {
+      dispatch({
+        type: AuthActionType.LOGIN_FAIL,
+        payload: ErrorMessages.STORAGE_FAIL
+      });
     }
   }, [state.user]);
 
-  const login = async (
+  // 登入方法
+  const login = useCallback(async (
     email: string,
     password: string,
     rememberMe: boolean,
-  ) => {
-    dispatch({ type: LOGIN_REQUEST });
-    try {
-      const res = await axios.new(
-        `${process.env.REACT_APP_API_URL}/user/login`,
-        { email, password, rememberMe },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        },
-      );
+  ): Promise<void> => {
+    if (isLoginLoading) return;
+    dispatch({ type: AuthActionType.LOGIN_REQUEST });
 
-      if (res.status === 200) {
-        const userInfo = res.data.user;
-        dispatch({ type: LOGIN_SUCCESS, payload: userInfo });
-      } else {
+    try {
+      await loginRequest({
+        data: { email, password, rememberMe }
+      });
+
+      if (loginData?.user) {
         dispatch({
-          type: LOGIN_FAIL,
-          payload: "使用者帳號或密碼不正確，請重新輸入！",
+          type: AuthActionType.LOGIN_SUCCESS,
+          payload: loginData.user
         });
       }
-    } catch (error) {
+    } catch {
       dispatch({
-        type: LOGIN_FAIL,
-        payload: "使用者帳號或密碼不正確，請重新輸入！",
+        type: AuthActionType.LOGIN_FAIL,
+        payload: ErrorMessages.LOGIN_FAIL
       });
-      console.error("登入失敗：", error.message);
     }
-  };
+  }, [loginRequest, loginData, isLoginLoading]);
 
-  const logout = async () => {
-    dispatch({ type: LOGOUT });
+  // 登出方法
+  const logout = useCallback(async (): Promise<void> => {
+    if (isLogoutLoading) return;
+
     try {
-      const res = await axios.new(
-        `${process.env.REACT_APP_API_URL}/user/logout`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        },
-      );
-
-      if (res.status === 200) {
-        localStorage.removeItem("user");
-        dispatch({ type: LOGOUT });
-      } else {
-        dispatch({ type: LOGOUT_FAIL, payload: "登出失敗，請稍後再試！" });
-      }
-    } catch (error) {
-      dispatch({ type: LOGOUT_FAIL, payload: "登出失敗，請稍後再試！" });
-      console.error("登出失敗：", error.message);
+      await logoutRequest();
+      dispatch({ type: AuthActionType.LOGOUT });
+    } catch {
+      dispatch({ 
+        type: AuthActionType.LOGOUT_FAIL, 
+        payload: ErrorMessages.LOGOUT_FAIL
+      });
     }
-  };
+  }, [logoutRequest, isLogoutLoading]);
+
+  // 使用 useMemo 優化，只有當依賴項改變時才重新創建 context 值。
+  const contextValue = useMemo(() => ({
+    ...state,
+    login,
+    logout,
+    dispatch,
+  }), [state, login, logout]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, dispatch }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
