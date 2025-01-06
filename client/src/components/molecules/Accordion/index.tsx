@@ -1,14 +1,9 @@
 interface AccordionProperty {
-  className?: string;
   title: string;
   children: React.ReactNode;
 }
 
-const Accordion: React.FC<AccordionProperty> = ({
-  className,
-  title,
-  children,
-}) => (
+const Accordion: React.FC<AccordionProperty> = ({ title, children }) => (
   <details className="py-5 text-sm border-b border-gray-400 group" open>
     <summary className="flex items-center justify-between cursor-pointer">
       <p className="font-medium">{title}</p>

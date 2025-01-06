@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import { Product } from '@/types/product';
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
+import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
 
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -23,9 +25,9 @@ const ProductSlider = () => {
   const { data, isLoading, error, refresh } = useAxios("/products", {
     method: "GET",
   });
-  const products = data?.products || [];
+  const products = data?.products as Product[];
   
-  const [quantities, setQuantities] = useState({});
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [retryState, setRetryState] = useState({
     count: 0,
     delay: 1000,
@@ -47,21 +49,6 @@ const ProductSlider = () => {
     } finally {
       setIsRetrying(false);
     }
-  };
-
-  const handleAddToCart = (product) => {
-    if (!product.countInStock) {
-      // 如果庫存為 0，顯示提示
-      alert("商品暫時無法購買，請稍後再試");
-      return;
-    }
-
-    addToCart({
-      id: product._id,
-      product,
-      quantity: quantities[product._id] || 1,
-    });
-    setQuantities(prev => ({ ...prev, [product._id]: 1 }));
   };
 
   if (isLoading) {
@@ -129,7 +116,7 @@ const ProductSlider = () => {
         } as React.CSSProperties}
         className={error && 'opacity-70'}
       >
-        {products.map((product) => (
+        {products && products.map((product) => (
           <SwiperSlide key={product._id}>
             <section className={`relative sm:max-w-80 ${error && 'pointer-events-none'}`}>
               <div className="absolute z-10">
@@ -151,25 +138,36 @@ const ProductSlider = () => {
               <div className="flex flex-col gap-6 py-2 pl-4 border-l-2 border-primary">
                 <div className="flex items-center justify-between">
                   <p className="text-2xl font-medium">NT${product.price.toLocaleString()}</p>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm">數量</label>
+                  <div className="flex items-center gap-3">
                     <Input
                       type="number"
+                      label="數量"
                       min={1}
                       max={product.countInStock}
-                      value={quantities[product._id]}
+                      value={quantities[product._id] || 1}
                       defaultValue={1}
-                      disabled={product.countInStock === 0}
-                      onChange={(e) =>
-                        setQuantities(prev => ({ ...prev, [product._id]: Number(e.target.value) }))
-                      }
+                      onChange={(e) => handleQuantityChange(
+                        e,
+                        product,
+                        value => setQuantities((prev) => ({ ...prev, [product._id]: value }))
+                      )}
+                      onKeyDown={preventInvalidInput}
+                      disabled={product.countInStock <= 0}
+                      className="flex items-center gap-2"
                     />
                     <Button
+                      key={product._id}
                       variant="icon"
                       icon={PlusIcon}
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.countInStock === 0}
-                      className='w-6 h-6 stroke-primary hover:stroke-secondary bg-secondary hover:border-primary hover:bg-primary'
+                      onClick={() => handleAddToCart(
+                        product, 
+                        quantities[product._id],
+                        addToCart, 
+                        (value) => setQuantities((prev) => ({ ...prev, [product._id]: value }))
+                      )}
+                      disabled={product.countInStock <= 0}
+                      className='w-6 h-6 bg-secondary hover:border-primary hover:bg-primary'
+                      iconStyle='stroke-primary hover:stroke-secondary'
                     />
                   </div>
                 </div>
