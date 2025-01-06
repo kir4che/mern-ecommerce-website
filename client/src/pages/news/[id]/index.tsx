@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/formatDate";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
+import PageHeader from "@/components/molecules/PageHeader";
 import Loading from "@/components/atoms/Loading";
 
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
@@ -20,8 +21,14 @@ const New = () => {
   if (error) return <NotFound message={[error]} />;
 
   return (
-    <Layout className="max-w-screen-lg px-5 py-10 mx-auto md:px-8">
-      <article>
+    <Layout>
+      <PageHeader 
+        breadcrumbText="最新消息"
+        breadcrumbText2={newsItem.title}
+        titleEn="News"
+        titleCh="最新消息"
+      />
+      <article className="max-w-screen-lg px-5 py-10 mx-auto md:px-8">
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
           <time className="text-base font-light">{formatDate(newsItem.date)}</time>
           <hr className="hidden w-8 h-0.5 rotate-90 bg-primary/30 md:block" />

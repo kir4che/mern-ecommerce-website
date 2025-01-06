@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -15,6 +16,10 @@ import shop5 from "@/assets/images/about/shop5.jpg";
 
 const About = () => {
   const shopImages = [shop1, shop2, shop3, shop4, shop5];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <Layout>

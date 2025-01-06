@@ -79,20 +79,20 @@ const App = () => {
       {news.length > 0 && (
         <section className="px-5 pb-10 md:px-8">
         <div className="flex flex-wrap items-center justify-between mb-2 ">
-          <hr className="w-full border-primary/30" />
+          <hr className="w-full mb-3 border-primary/30" />
           {renderTitle("Campaign & Pickup", "最新活動")}
           <div className="flex items-center gap-2">
             <Button
               variant="icon"
               icon={ArrowLeftIcon}
               onClick={() => swiperRef.current?.slidePrev()}
-              className='border-none stroke-primary hover:opacity-50'
+              className='bg-white border-none h-fit hover:opacity-50'
             />
             <Button
               variant="icon"
               icon={ArrowRightIcon}
               onClick={() => swiperRef.current?.slideNext()}
-              className='border-none stroke-primary hover:opacity-50'
+              className='bg-white border-none h-fit hover:opacity-50'
             />
           </div>
         </div>
