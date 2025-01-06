@@ -16,8 +16,18 @@ const getCart = async (req: AuthRequest, res: Response) => {
     const cart = await CartModel.findOne({ userId }).populate<{
       items: ICartItem[];
     }>("items");
-    if (!cart) return res.status(404).json({ message: "Cart not found." });
 
+    // 如果沒有找到購物車，重新爲該使用者創建一個新的購物車。
+    if (!cart) {
+      const newCart = new CartModel({ userId, items: [] });
+      await newCart.save();
+      return res.status(200).json({
+        message: "New cart created successfully!",
+        cart: [],
+      });
+    }
+
+    // 透過 Promise.all() 方法，將所有的購物車項目進行填入。
     const populatedItems = await Promise.all(
       cart.items.map(async (item: ICartItem) => {
         const product = await ProductModel.findById(item.productId);
@@ -39,9 +49,10 @@ const getCart = async (req: AuthRequest, res: Response) => {
       }),
     );
 
-    res
-      .status(200)
-      .json({ message: "Cart fetched successfully!", cart: populatedItems });
+    res.status(200).json({
+      message: "Cart fetched successfully!",
+      cart: populatedItems
+    });
   } catch (err: any) {
     res.status(401).json({ message: err.message });
   }
