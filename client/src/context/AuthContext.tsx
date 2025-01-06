@@ -1,31 +1,19 @@
-import {
-  useEffect,
-  useCallback,
-  createContext,
-  useContext,
-  useReducer,
-  Dispatch,
-  useMemo,
-} from "react";
-import { useAxios } from "@/hooks/useAxios";
+import { createContext, useContext, useReducer, useEffect, useCallback, useMemo, Dispatch, ReactNode } from "react";
+
 import { AuthActionType, ErrorMessages } from "@/constants/actionTypes";
-
-interface AuthState {
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-}
-
-interface LoginResponse {
-  user: User;
-  message?: string;
-}
+import { useAxios } from "@/hooks/useAxios";
 
 interface User {
   readonly id: string;
   readonly name: string;
   readonly email: string;
   readonly role: "admin" | "user";
+}
+
+interface AuthState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
 }
 
 interface AuthContextType extends AuthState {
@@ -46,16 +34,15 @@ const INITIAL_STATE: AuthContextType = {
   user: JSON.parse(localStorage.getItem("user") || "null"),
   loading: false,
   error: null,
-  login: async () => {
-    throw new Error("login 尚未初始化");
-  },
-  logout: async () => {
-    throw new Error("logout 尚未初始化");
-  },
-  dispatch: () => {
-    throw new Error("dispatch 尚未初始化");
-  },
+  login: () => Promise.resolve(),
+  logout: () => Promise.resolve(),
+  dispatch: () => {}
 };
+
+interface LoginResponse {
+  user: User
+  message?: string;
+}
 
 export const AuthContext = createContext<AuthContextType>(INITIAL_STATE);
 
@@ -96,10 +83,12 @@ const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
         loading: false, 
         error: action.payload
       };
+    default:
+      return state;
   }
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
 
   const { 
@@ -143,37 +132,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   );
 
-  // 同步用戶狀態到 localStorage
   useEffect(() => {
-    if (!state.user) {
+    // 同步用戶狀態到 localStorage
+    if (state.user !== null) {
+      try {
+        localStorage.setItem("user", JSON.stringify(state.user));
+      } catch (error) {
+        dispatch({
+          type: AuthActionType.LOGIN_FAIL,
+          payload: ErrorMessages.STORAGE_FAIL
+        });
+      }
+    } else {
+      // 登出時清除 localStorage
       localStorage.removeItem("user");
-      return;
-    }
-
-    try {
-      localStorage.setItem("user", JSON.stringify(state.user));
-    } catch {
-      dispatch({
-        type: AuthActionType.LOGIN_FAIL,
-        payload: ErrorMessages.STORAGE_FAIL
-      });
     }
   }, [state.user]);
 
   // 登入方法
-  const login = useCallback(async (
-    email: string,
-    password: string,
-    rememberMe: boolean,
-  ): Promise<void> => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean): Promise<void> => {
     if (isLoginLoading) return;
     dispatch({ type: AuthActionType.LOGIN_REQUEST });
-
+  
     try {
       await loginRequest({
         data: { email, password, rememberMe }
       });
-
+  
       if (loginData?.user) {
         dispatch({
           type: AuthActionType.LOGIN_SUCCESS,
@@ -186,7 +171,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         payload: ErrorMessages.LOGIN_FAIL
       });
     }
-  }, [loginRequest, loginData, isLoginLoading]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoginLoading, loginRequest]);
 
   // 登出方法
   const logout = useCallback(async (): Promise<void> => {
@@ -201,14 +187,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         payload: ErrorMessages.LOGOUT_FAIL
       });
     }
-  }, [logoutRequest, isLogoutLoading]);
+  }, [isLogoutLoading, logoutRequest]);
 
-  // 使用 useMemo 優化，只有當依賴項改變時才重新創建 context 值。
-  const contextValue = useMemo(() => ({
+  const contextValue: AuthContextType = useMemo(() => ({
     ...state,
     login,
     logout,
-    dispatch,
+    dispatch
   }), [state, login, logout]);
 
   return (
