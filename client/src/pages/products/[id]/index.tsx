@@ -5,6 +5,7 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
+import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -22,25 +23,7 @@ const ProductPage = () => {
   const { addToCart } = useCart();
   const { data, isLoading, error } = useAxios(`/products/${id}`);
   const product = data?.product as Product;
-
   const [quantity, setQuantity] = useState(1);
-
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number(e.target.value);
-    if (isNaN(newValue)) return;
-    if (newValue < 1) setQuantity(1);
-    else if (product && newValue > product.countInStock) setQuantity(product.countInStock);
-    else setQuantity(newValue);
-  };
-
-  const handleAddToCart = () => {
-    if (!product) return;
-    const validQuantity = Math.min(Math.max(1, quantity), product.countInStock);
-    addToCart({
-      product: product._id.toString(),
-      quantity: validQuantity,
-    });
-  };
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -96,17 +79,27 @@ const ProductPage = () => {
                   max={product.countInStock}
                   value={quantity}
                   defaultValue={1}
-                  onChange={handleQuantityChange}
-                  disabled={product.countInStock === 0}
+                  onChange={(e) => handleQuantityChange(
+                    e,
+                    product,
+                    setQuantity
+                  )}
+                  onKeyDown={preventInvalidInput}
+                  disabled={product.countInStock <= 0}
                   className='items-center gap-2'
                 />
                 <Button
                   icon={product.countInStock !== 0 && CartPlusIcon}
-                  onClick={handleAddToCart}
-                  disabled={product.countInStock === 0}
+                  onClick={() => handleAddToCart(
+                    product,
+                    quantity,
+                    addToCart,
+                    setQuantity
+                  )}
+                  disabled={product.countInStock <= 0}
                   className='h-10'
                 >
-                  {product.countInStock === 0 ? '已售完' : '加入購物車'}
+                  {product.countInStock <= 0 ? '已售完' : '加入購物車'}
                 </Button>
               </div>
             </div>
