@@ -37,13 +37,13 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
   }, [page, totalPages]);
 
   return (
-    <div className="flex justify-center gap-4 py-12">
+    <div className="flex items-center justify-center gap-4 py-12">
       {page !== 1 && (
         <Button
           variant="icon"
           icon={ArrowLeftIcon}
           onClick={() => onPageChange(page - 1)}
-          className='border-none stroke-primary hover:opacity-50'
+          className='bg-white border-none h-fit hover:opacity-50'
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -76,7 +76,7 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
           variant="icon"
           icon={ArrowRightIcon}
           onClick={() => onPageChange(page + 1)}
-          className='border-none stroke-primary hover:opacity-50'
+          className='bg-white border-none h-fit hover:opacity-50'
         />
       )}
     </div>

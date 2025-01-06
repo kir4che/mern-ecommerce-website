@@ -53,29 +53,23 @@ const Input: React.FC<InputProperty> = ({
       setErrorState('此欄位為必填');
       return;
     }
-    // 其他驗證邏輯...
   }
 
   return (
     <div className={`flex ${className}`}>
       {label && (
-        <label
-          htmlFor={id}
-          className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}
-        >
+        <label htmlFor={id} className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}>
           {label}
         </label>
       )}
       <div className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${errorState && "border-red-600 focus-within:border-red-600"} ${inputStyle}`}>
-        {Icon && (
-          <Icon className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : "stroke-current"}`} />
-        )}
+        {Icon && <Icon className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : "stroke-current"}`} />}
         <input
-          className={`border-none grow ${errorState && "placeholder-red-500 text-red-600"}`}
           type={type}
           id={id}
           value={value}
           placeholder={placeholder}
+          className={`border-none grow ${errorState && "placeholder-red-500 text-red-600"}`}
           onChange={(e) => {
             handleValidation(e.target.value);
             handleChange(e);
@@ -85,9 +79,7 @@ const Input: React.FC<InputProperty> = ({
           {...props}
         />
       </div>
-      {errorState && touched && (
-        <span className="text-sm text-red-600">{errorState}</span>
-      )}
+      {errorState && touched && <span className="text-sm text-red-600">{errorState}</span>}
     </div>
   );
 };

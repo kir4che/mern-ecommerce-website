@@ -1,7 +1,7 @@
 interface TooltipProperty {
   isActivated: boolean;
   text: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const Tooltip: React.FC<TooltipProperty> = ({
