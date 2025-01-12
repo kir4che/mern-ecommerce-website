@@ -18,12 +18,8 @@ const ProductLinkImg: React.FC<ProductLinkImgProps> = ({ product, data, error, c
         src={product.imageUrl}
         alt={product.title}
         className={`relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2] opacity-0 ${error && 'opacity-50'}`}
-        onLoad={(e) => {
-          e.currentTarget.style.opacity = '1';
-        }}
-        onError={(e) => {
-          e.currentTarget.src = `https://via.placeholder.com/300x300?text=${product.title}`;
-        }}
+        onLoad={(e) => e.currentTarget.style.opacity = '1'}
+        onError={(e) => e.currentTarget.src = 'https://placehold.co/300x300?text=No Image'}
       />
       {data?.products && (
         <div className="hidden overlay">

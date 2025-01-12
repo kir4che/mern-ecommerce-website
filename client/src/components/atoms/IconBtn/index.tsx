@@ -1,13 +1,13 @@
 import React from "react";
 
-interface IconBtnProperty {
+interface IconBtnProps {
   onClick?: () => void;
   icon: JSX.Element;
   isInMenu: boolean;
   children?: React.ReactNode;
 }
 
-const IconBtn: React.FC<IconBtnProperty> = ({
+const IconBtn: React.FC<IconBtnProps> = ({
   onClick,
   icon,
   isInMenu,

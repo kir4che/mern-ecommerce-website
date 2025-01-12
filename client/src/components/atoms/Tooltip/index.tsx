@@ -1,10 +1,10 @@
-interface TooltipProperty {
+interface TooltipProps {
   isActivated: boolean;
   text: string;
   children?: React.ReactNode;
 }
 
-const Tooltip: React.FC<TooltipProperty> = ({
+const Tooltip: React.FC<TooltipProps> = ({
   isActivated,
   text,
   children,

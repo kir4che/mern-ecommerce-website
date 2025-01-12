@@ -10,7 +10,7 @@ import PageHeader from "@/components/molecules/PageHeader";
 import Pagination from "@/components/molecules/Pagination";
 import Loading from "@/components/atoms/Loading";
 
-interface INewsItem {
+interface NewsItemProps {
   _id: string;
   date: string;
   category: string;
@@ -18,32 +18,24 @@ interface INewsItem {
   content: string;
 }
 
-interface NewsItemProps {
-  news: INewsItem;
-}
-
-const NewsItem = memo(({ news }: NewsItemProps) => {
-  const { _id, date, category, title, content } = news;
-
-  return (
-    <li className="py-4 space-y-4 transition-all border-b border-dashed border-primary/80 hover:bg-gray-50">
-      <time className="inline-block mb-2 text-sm font-light text-gray-600">
-        {formatDate(date)}
-      </time>
-      <Link to={`/news/${_id}`}>
-        <p className="flex items-center text-2xl font-medium group">
-          <span className="px-2.5 text-nowrap py-1 mr-2 text-sm font-light rounded-full self-start bg-primary text-secondary">
-            {category}
-          </span>
-          <span className="transition-all group-hover:underline group-hover:underline-offset-4">
-            {title}
-          </span>
-        </p>
-      </Link>
-      <p className="text-gray-700 line-clamp-3">{content}</p>
-    </li>
-  );
-});
+const NewsItem: React.FC<NewsItemProps> = ({ _id, date, category, title, content }) => (
+  <li className="py-4 space-y-4 transition-all border-b border-dashed border-primary/80 hover:bg-gray-50">
+    <time className="inline-block mb-2 text-sm font-light text-gray-600">
+      {formatDate(date)}
+    </time>
+    <Link to={`/news/${_id}`}>
+      <p className="flex items-center text-2xl font-medium group">
+        <span className="px-2.5 py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
+          {category}
+        </span>
+        <span className="transition-all group-hover:underline group-hover:underline-offset-4">
+          {title}
+        </span>
+      </p>
+    </Link>
+    <p className="text-gray-700 line-clamp-3">{content}</p>
+  </li>
+);
 
 const News = () => {
   const limit = 5; // 每頁顯示的新聞數量
@@ -57,10 +49,11 @@ const News = () => {
   );
 
   // 預加載下一頁數據
+  const shouldSkipPreload = !data || page >= Math.ceil(data.total / limit);
   const { data: nextPageData } = useAxios(
     `/news?page=${page + 1}&limit=${limit}`,
     { method: "GET" },
-    { skip: !data || page >= Math.ceil(data.total / limit) } // 若當前頁是最後一頁，則跳過。
+    { skip: shouldSkipPreload }
   );
 
   // 更新當前頁的新聞數據
@@ -73,19 +66,18 @@ const News = () => {
   // 處理頁碼變更
   const handlePageChange = useCallback(
     (newPage: number) => {
-      if (newPage <= totalPages && newPage > 0) {
-        // 如果是向下一頁移動且已有預加載數據，直接使用預加載數據。
-        if (newPage > page && nextPageData) {
+      if (newPage > 0 && newPage <= totalPages) {
+        // 若有預加載數據且向下一頁移動，直接使用
+        if (newPage === page + 1 && nextPageData) {
           setNewsData(nextPageData);
         }
         setPage(newPage);
-        // 滾動到頁面頂部
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
     [page, nextPageData, totalPages]
   );
-
+ 
   if (error) return <NotFound message={[error]} />;
 
   return (
@@ -103,7 +95,7 @@ const News = () => {
         <>
           <ul className="max-w-screen-xl px-5 pt-10 mx-auto space-y-4 md:px-8">
             {newsData.news.map((news) => (
-              <NewsItem key={news._id} news={news} />
+              <NewsItem key={news._id} {...news} />
             ))}
           </ul>
           {newsData.total > limit && (

@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -25,14 +25,6 @@ const App = () => {
   const { data } = useAxios("/news", {
     method: "GET",
   });
-
-  const news = useMemo(() => {
-    return (
-      data?.news?.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      ) || []
-    );
-  }, [data]);
 
   const renderTitle = (title: string, subtitle: string, className?: string) => (
     <h2 className={`text-xl ${className}`}>
@@ -76,7 +68,7 @@ const App = () => {
         </Link>
       </section>
       {/* Campaign */}
-      {news.length > 0 && (
+      {data?.news.length > 0 && (
         <section className="px-5 pb-10 md:px-8">
         <div className="flex flex-wrap items-center justify-between mb-2 ">
           <hr className="w-full mb-3 border-primary/30" />
@@ -86,13 +78,13 @@ const App = () => {
               variant="icon"
               icon={ArrowLeftIcon}
               onClick={() => swiperRef.current?.slidePrev()}
-              className='bg-white border-none h-fit hover:opacity-50'
+              className='bg-white border-none h-fit'
             />
             <Button
               variant="icon"
               icon={ArrowRightIcon}
               onClick={() => swiperRef.current?.slideNext()}
-              className='bg-white border-none h-fit hover:opacity-50'
+              className='bg-white border-none h-fit'
             />
           </div>
         </div>
@@ -113,7 +105,7 @@ const App = () => {
           }}
           onSwiper={(swiper) => (swiperRef.current = swiper)}
         >
-          {news.slice(0, 8).map((newsItem) => (
+          {data?.news.slice(0, 8).map((newsItem) => (
             <SwiperSlide key={newsItem._id}>
               <Link
                 to={`/news/${newsItem._id}`}
@@ -223,7 +215,7 @@ const App = () => {
         </div>
       </section>
       {/* News */}
-      {news.length > 0 && (
+      {data?.news.length > 0 && (
         <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
           <hr className="w-full border-primary/30" />
           <div className="flex items-center justify-between">
@@ -236,7 +228,7 @@ const App = () => {
             </Link>
           </div>
           <ul>
-            {news?.slice(0, 3).map(({ _id, date, category, title }) => (
+            {data?.news?.slice(0, 3).map(({ _id, date, category, title }) => (
               <li
                 key={_id}
                 className="py-4 border-b border-dashed border-primary/80"

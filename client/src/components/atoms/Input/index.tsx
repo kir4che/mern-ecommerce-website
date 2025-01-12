@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 
-interface InputProperty {
+interface InputProps {
   value: string | number;
   label?: string;
   type?: "text" | "number" | "email" | "password";
@@ -23,7 +23,7 @@ interface InputProperty {
   [key: string]: any;
 }
 
-const Input: React.FC<InputProperty> = ({
+const Input: React.FC<InputProps> = ({
   value,
   label,
   type = "text",
