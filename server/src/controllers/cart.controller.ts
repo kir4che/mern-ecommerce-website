@@ -60,6 +60,7 @@ const getCart = async (req: AuthRequest, res: Response) => {
 
 const addToCart = async (req: AuthRequest, res: Response) => {
   const { productId, quantity } = req.body;
+  if (!productId || !quantity) return res.status(400).json({ message: "Please provide all fields." });
 
   try {
     const userId = req.userId;
@@ -88,7 +89,10 @@ const addToCart = async (req: AuthRequest, res: Response) => {
       await cart.save();
     }
 
-    res.status(200).json({ message: "Item added to cart successfully!", cart });
+    res.status(200).json({
+      message: "Item added to cart successfully!",
+      cart
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -103,13 +107,15 @@ const removeFromCart = async (req: AuthRequest, res: Response) => {
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
     const cartItem = await CartItemModel.findById(itemId);
-    if (!cartItem)
+    if (!cartItem) {
       return res.status(404).json({ message: "Item not found in the cart." });
+    }
 
     await cartItem.deleteOne({ _id: itemId });
-    res
-      .status(200)
-      .json({ message: "Selected items removed successfully!", cart });
+    res.status(200).json({
+      message: "Selected items removed successfully!",
+      cart
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -121,10 +127,7 @@ const changeQuantity = async (req: AuthRequest, res: Response) => {
     const cart = await CartModel.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found." });
 
-    const cartItem = await CartItemModel.findOne({
-      cartId: cart._id,
-      productId: req.params.id,
-    });
+    const cartItem = await CartItemModel.findById(req.params.id);
     if (!cartItem)
       return res.status(404).json({ message: "Item not found in the cart." });
 

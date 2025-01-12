@@ -12,7 +12,7 @@ const getNew = async (req: Request, res: Response) => {
     const news = await NewModel.find()
       .skip(skip)
       .limit(limit)
-      .sort({ date: -1 });
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       message: "News fetched successfully!",
