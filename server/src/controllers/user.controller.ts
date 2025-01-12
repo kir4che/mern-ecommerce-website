@@ -26,7 +26,6 @@ interface AuthRequest extends Request {
 const getUserData = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
-    console.log("Received userId in getUserData:", userId); // 調試用
     const user = await UserModel.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found!" });
 
