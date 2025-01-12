@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 
-interface CheckboxProperty {
+interface CheckboxProps {
   id: string;
   label: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -9,7 +9,7 @@ interface CheckboxProperty {
   [key: string]: any;
 }
 
-const Checkbox: React.FC<CheckboxProperty> = ({
+const Checkbox: React.FC<CheckboxProps> = ({
   id,
   label,
   onChange = () => {},

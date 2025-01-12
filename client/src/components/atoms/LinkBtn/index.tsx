@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 
-interface LinkBtnProperty {
+interface LinkBtnProps {
   to: string;
   isInMenu?: boolean;
   className?: string;
   text: string;
 }
 
-const LinkBtn: React.FC<LinkBtnProperty> = ({
+const LinkBtn: React.FC<LinkBtnProps> = ({
   to,
   isInMenu,
   className,

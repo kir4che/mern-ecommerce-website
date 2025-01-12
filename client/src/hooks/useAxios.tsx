@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -16,11 +16,11 @@ interface UseAxiosResult<T> {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
-  refresh: (config?: Partial<AxiosRequestConfig>) => Promise<void>;
+  refresh: (params?: Record<string, any>, config?: Partial<AxiosRequestConfig>) => Promise<void>;
 }
 
 export function useAxios<T = any>(
-  url: string,
+  url: string | ((params?: Record<string, any>) => string),
   config: AxiosRequestConfig = {},
   options: UseAxiosOptions<T> = {}
 ): UseAxiosResult<T> {
@@ -28,22 +28,24 @@ export function useAxios<T = any>(
   const [status, setStatus] = useState<RequestStatus>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    immediate = true,  // 預設為立即發送請求
-    skip = false,
-    onSuccess,
-    onError
-  } = options;
+  const { immediate = true, skip = false, onSuccess, onError } = options;
 
-  async function fetchData(newConfig?: Partial<AxiosRequestConfig>) {
-    if (skip) return;  // 如果 skip 為 true，則不發送請求。
+  const resolveUrl = useCallback((params?: Record<string, any>) => {
+    const baseUrl = process.env.REACT_APP_API_URL || '';
+    return typeof url === 'function' ? `${baseUrl}${url(params)}` : `${baseUrl}${url}`;
+  }, [url]);
+
+  async function fetchData(params?: Record<string, any>, newConfig?: Partial<AxiosRequestConfig>) {
+    if (skip || status === 'loading') return;
 
     try {
       setStatus('loading');
       setError(null);
 
       const response: AxiosResponse<T> = await axios({
-        url: `${process.env.REACT_APP_API_URL}${url}`,
+        url: resolveUrl(params),
+        method: newConfig?.method || config.method || 'GET',
+        data: { ...params?.data },
         ...config,
         ...newConfig,
         headers: {
@@ -53,9 +55,8 @@ export function useAxios<T = any>(
         },
       });
 
-      setData(response.data);
-      setStatus('success'); 
-
+      setData((prevData) => response.data);
+      setStatus((prevStatus) => 'success');
       onSuccess?.(response.data);
     } catch (err) {
       let errorMessage = '取得資料失敗，請稍後再試！';
@@ -67,7 +68,6 @@ export function useAxios<T = any>(
 
       setError(errorMessage);
       setStatus('error');
-
       onError?.(errorMessage);
     }
   }
@@ -75,7 +75,7 @@ export function useAxios<T = any>(
   useEffect(() => {
     if (immediate && !skip) fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, skip, url]);
+  }, [immediate, skip]);
 
   return {
     data,

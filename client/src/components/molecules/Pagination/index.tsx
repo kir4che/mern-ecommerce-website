@@ -5,7 +5,13 @@ import Button from "@/components/atoms/Button";
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
 import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
 
-const Pagination = ({ page, totalPages, onPageChange }) => {
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange }) => {
   // 使用 useMemo 計算頁碼，避免不必要的重渲染。
   const pageNumbers = useMemo(() => {
     const pages = [];

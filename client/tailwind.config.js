@@ -7,9 +7,6 @@ module.exports = {
         xs: "490px",
         sm: "652px",
       },
-      minHeight: {
-        screenwithh: "calc(100vh - 4rem)",
-      },
       maxWidth: {
         100: "25rem",
       },

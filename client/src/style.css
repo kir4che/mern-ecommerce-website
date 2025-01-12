@@ -46,7 +46,7 @@ p {
 }
 
 .btn-icon {
-  @apply p-0 shadow-none border-primary hover:shadow-none hover:bg-transparent;
+  @apply p-0 shadow-none hover:shadow-none hover:bg-transparent;
 }
 
 .btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
@@ -61,12 +61,17 @@ p {
 	@apply px-4 min-w-fit xl:px-5 py-1 xl:py-1.5 transition duration-300 ease-in-out border-2 rounded-full outline-none;
 }
 
+input:-webkit-autofill {
+  box-shadow: inset 0 0 0 2000px white;
+}
+
 input[type='number']::-webkit-inner-spin-button {
 	@apply opacity-100;
 }
 
-input:-webkit-autofill {
-  box-shadow: inset 0 0 0 2000px white;
+.noInnerSpin input[type="number"]::-webkit-inner-spin-button,
+.noInnerSpin input[type="number"]::-webkit-outer-spin-button, .noInnerSpin input[type="number"] {
+  @apply appearance-none;
 }
 
 .input:has(input[type='number']) {

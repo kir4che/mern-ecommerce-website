@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from 'react-router-dom';
-import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
 
 import { Product } from '@/types/product';
 import { useCart } from "@/context/CartContext";
@@ -116,7 +116,7 @@ const ProductSlider = () => {
         } as React.CSSProperties}
         className={error && 'opacity-70'}
       >
-        {products && products.map((product) => (
+        {products && products.filter(item => item.tags.includes('推薦')).map((product) => (
           <SwiperSlide key={product._id}>
             <section className={`relative sm:max-w-80 ${error && 'pointer-events-none'}`}>
               <div className="absolute z-10">
@@ -125,10 +125,7 @@ const ProductSlider = () => {
                 </h3>
                 <ul className="flex items-center gap-1.5">
                   {product.categories.map((category, index) => (
-                    <li
-                      key={index}
-                      className="px-2 py-1 text-sm border rounded-full w-fit bg-secondary border-primary"
-                    >
+                    <li key={index} className="px-2 py-1 text-sm border rounded-full w-fit bg-secondary border-primary">
                       <Link to={`/collections/${linkToCategory[category]}`}># {category}</Link>
                     </li>
                   ))}
@@ -166,7 +163,7 @@ const ProductSlider = () => {
                         (value) => setQuantities((prev) => ({ ...prev, [product._id]: value }))
                       )}
                       disabled={product.countInStock <= 0}
-                      className='w-6 h-6 bg-secondary hover:border-primary hover:bg-primary'
+                      className='w-6 h-6 bg-secondary border-primary hover:border-primary hover:bg-primary'
                       iconStyle='stroke-primary hover:stroke-secondary'
                     />
                   </div>

@@ -19,6 +19,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // 尚未實作寄發 Email 功能
     console.log("Form submitted:", form);
   };
 
