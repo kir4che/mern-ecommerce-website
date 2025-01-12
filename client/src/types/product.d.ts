@@ -14,6 +14,7 @@ export interface Product {
   nutrition: string;
   countInStock: number;
   salesCount: number;
+  tags: string[];
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
