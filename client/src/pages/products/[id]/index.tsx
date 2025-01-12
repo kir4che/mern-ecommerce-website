@@ -99,7 +99,7 @@ const ProductPage = () => {
                   disabled={product.countInStock <= 0}
                   className='h-10'
                 >
-                  {product.countInStock <= 0 ? '已售完' : '加入購物車'}
+                  {product.countInStock <= 0 ? '補貨中' : '加入購物車'}
                 </Button>
               </div>
             </div>

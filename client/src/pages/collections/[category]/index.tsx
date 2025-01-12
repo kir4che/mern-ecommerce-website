@@ -132,8 +132,7 @@ const Collections = () => {
                       onChange={(e) => handleQuantityChange(
                         e,
                         product,
-                        value => setQuantities((prev) => ({ ...prev, [product._id]: value }))
-                      )}
+                        value => setQuantities((prev) => ({ ...prev, [product._id]: value })))}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
                       className="flex items-center gap-2"
@@ -152,7 +151,7 @@ const Collections = () => {
                     disabled={product.countInStock <= 0}
                     className='ml-auto text-sm w-fit h-9 text-primary'
                   >
-                    {product.countInStock <= 0 ? '已售完' : '加入購物車'}
+                    {product.countInStock <= 0 ? '補貨中' : '加入購物車'}
                   </Button>
                 </div>
               </div>

@@ -44,7 +44,7 @@ interface LoginResponse {
   message?: string;
 }
 
-export const AuthContext = createContext<AuthContextType>(INITIAL_STATE);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === null) {
     throw new Error("useAuth 必須在 AuthProvider 內被使用！");
   }
   return context;
