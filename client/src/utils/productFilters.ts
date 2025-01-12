@@ -10,26 +10,19 @@ export const CATEGORY_MAP = {
 type CategoryKey = keyof typeof CATEGORY_MAP;
 type CategoryFilter = (products: Product[]) => Product[];
 
-// 依照日期排序商品
-const sortByDate = (a: Product, b: Product) => 
-  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-
 // 建立分類篩選器
 const createCategoryFilter = (cat: CategoryKey): CategoryFilter => 
   (products: Product[]) => products
     .filter(item => item.categories.includes(CATEGORY_MAP[cat]))
-    .sort(sortByDate);
 
 // 根據分類篩選商品
 export const filterProductsByCategory = (products: Product[], category: string): Product[] => {
   if (!products?.length) return [];
 
   const categoryFilters: Record<string, CategoryFilter> = {
-    all: (products) => products.sort(sortByDate),
-    recommend: (products) => products.slice(0, 5).sort(sortByDate),
-    hot: (products) => products
-      .sort((a, b) => b.salesCount - a.salesCount)
-      .slice(0, 10),
+    all: products => products,
+    recommend: products => products.filter(item => item.tags.includes('推薦')),
+    hot: products => products.filter(item => item.tags.includes('熱銷')),
     bread: createCategoryFilter('bread'),
     cake: createCategoryFilter('cake'),
     cookie: createCategoryFilter('cookie'),

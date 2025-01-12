@@ -1,5 +1,8 @@
 import { Schema, Types, model } from "mongoose";
 
+const VALID_TAGS = ["推薦", "熱銷", "新品", "特價"] as const;
+type Tag = typeof VALID_TAGS[number];
+
 export interface IProduct extends Document {
   _id: Types.ObjectId;
   title: string;
@@ -15,7 +18,8 @@ export interface IProduct extends Document {
   ingredients: string; // 成分
   nutrition: string; // 營養成分
   countInStock: number;
-  salesCount: number;
+  salesCount: number; // 銷量
+  tags: Tag[]; // 標籤
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +41,11 @@ const productSchema = new Schema<IProduct>(
     nutrition: { type: String, default: "" },
     countInStock: { type: Number, default: 0 },
     salesCount: { type: Number, default: 0 },
+    tags: {
+      type: [String],
+      enum: VALID_TAGS, // 只允許 VALID_TAGS 中的值
+      default: [],
+    },
     imageUrl: { type: String, required: true },
   },
   {

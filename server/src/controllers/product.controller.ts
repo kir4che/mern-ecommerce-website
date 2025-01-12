@@ -4,10 +4,8 @@ import mongoose from "mongoose";
 
 const getProducts = async (req: Request, res: Response) => {
   try {
-    const products = await ProductModel.find();
-    res
-      .status(200)
-      .json({ message: "Products fetched Successfully!", products });
+    const products = await ProductModel.find().sort({ createdAt: -1 });
+    res.status(200).json({ message: "Products fetched Successfully!", products });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -22,9 +20,7 @@ const getProductById = async (req: Request, res: Response) => {
         .split(",")
         .map((id: string) => new mongoose.Types.ObjectId(id));
       const products = await ProductModel.find({ _id: { $in: objectIds } });
-      return res
-        .status(200)
-        .json({ message: "Products fetched successfully!", products });
+      return res.status(200).json({ message: "Products fetched successfully!", products });
     } else {
       const product = await ProductModel.findById(idOrIds);
       return res
@@ -55,9 +51,7 @@ const updateProduct = async (req: Request, res: Response) => {
 
     const updateData = req.body;
     if (!updateData || Object.keys(updateData).length === 0)
-      return res.status(400).json({
-        message: "Invalid update data. Please provide data to update.",
-      });
+      return res.status(400).json({ message: "Invalid update data. Please provide data to update." });
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       productId,
