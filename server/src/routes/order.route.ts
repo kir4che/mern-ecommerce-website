@@ -10,6 +10,7 @@ import {
 } from "@/controllers/order.controller";
 
 const router = Router();
+router.use(authMiddleware);
 
 router.route("/").get(getOrders);
 router.route("/admin").get(getOrdersForAdmin);
