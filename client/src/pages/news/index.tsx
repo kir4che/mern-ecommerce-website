@@ -64,10 +64,9 @@ const News = () => {
   const totalPages = Math.ceil(newsData.total / limit); // 總頁數
 
   // 處理頁碼變更
-  const handlePageChange = useCallback(
-    (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
       if (newPage > 0 && newPage <= totalPages) {
-        // 若有預加載數據且向下一頁移動，直接使用
+        // 若有預加載數據且向下一頁移動，直接使用。
         if (newPage === page + 1 && nextPageData) {
           setNewsData(nextPageData);
         }
@@ -77,7 +76,7 @@ const News = () => {
     },
     [page, nextPageData, totalPages]
   );
- 
+
   if (error) return <NotFound message={[error]} />;
 
   return (
@@ -94,9 +93,7 @@ const News = () => {
       ) : (
         <>
           <ul className="max-w-screen-xl px-5 pt-10 mx-auto space-y-4 md:px-8">
-            {newsData.news.map((news) => (
-              <NewsItem key={news._id} {...news} />
-            ))}
+            {newsData.news.map(news => <NewsItem key={news._id} {...news} />)}
           </ul>
           {newsData.total > limit && (
             <Pagination
