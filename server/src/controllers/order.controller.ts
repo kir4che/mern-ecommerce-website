@@ -45,16 +45,14 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
 };
 
 const createOrder = async (req: AuthRequest, res: Response) => {
-  const { name, phone, address, orderItems, totalAmount } = req.body;
+  const { orderItems, totalAmount } = req.body;
+
   try {
     const userId = req.userId;
     const order = new OrderModel({
       userId,
-      name,
-      phone,
-      address,
       orderItems,
-      totalAmount,
+      totalAmount: parseInt(totalAmount),
     });
     await order.save();
 
@@ -71,11 +69,8 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
     const order = await OrderModel.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found." });
 
-    if (!order.userId.equals(req.userId)) {
-      return res
-        .status(403)
-        .json({ message: "You are not authorized to update this order." });
-    }
+    if (!order.userId.equals(req.userId))
+      return res.status(403).json({ message: "You are not authorized to update this order." });
 
     // 更新訂單
     const updatedOrder = await OrderModel.findByIdAndUpdate(
@@ -83,9 +78,7 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
       { status, shippingStatus, paymentStatus },
       { new: true },
     );
-    res
-      .status(200)
-      .json({ message: "Order updated successfully!", order: updatedOrder });
+    res.status(200).json({ message: "Order updated successfully!", order: updatedOrder });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
