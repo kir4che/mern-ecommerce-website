@@ -3,13 +3,23 @@ import { createContext, useContext, useEffect, useReducer, useCallback, useMemo,
 import { useAxios } from "@/hooks/useAxios";
 
 interface CartItem {
+  _id?: string;
+  cartId?: string;
+  cartItemId?: string;
   productId: string;
   quantity: number;
+  product?: {
+    title: string;
+    price: number;
+    imageUrl: string;
+    countInStock: number;
+  };
 }
 
 interface CartState {
   cart: CartItem[];
   totalQuantity: number;
+  totalAmount: string;
   loading: boolean;
   error: string | null;
   showTooltip: boolean;
@@ -18,9 +28,9 @@ interface CartState {
 type CartAction =
   | { type: 'SET_LOADING' }
   | { type: 'SET_CART_SUCCESS'; payload: CartItem[] }
-  | { type: 'ADD_ITEM_SUCCESS'; payload: CartItem }
+  | { type: 'ADD_ITEM_SUCCESS'; }
   | { type: 'REMOVE_ITEM_SUCCESS'; payload: string }
-  | { type: 'UPDATE_QUANTITY_SUCCESS'; productId: string; quantity: number }
+  | { type: 'UPDATE_QUANTITY_SUCCESS'; cartItemId: string; quantity: number }
   | { type: 'CLEAR_CART_SUCCESS' }
   | { type: 'SET_FAIL'; payload: string }
   | { type: 'SET_SHOW_TOOLTIP'; payload: boolean };
@@ -29,7 +39,7 @@ interface CartContextType extends CartState {
   getCart: () => Promise<void>;
   addToCart: (product: CartItem) => Promise<void>;
   removeFromCart: (cartItemId: string) => Promise<void>;
-  changeQuantity: (productId: string, quantity: number) => Promise<void>;
+  changeQuantity: (cartItemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
   dispatch: Dispatch<CartAction>;
 }
@@ -37,6 +47,7 @@ interface CartContextType extends CartState {
 const INITIAL_STATE: CartContextType = {
   cart: [],
   totalQuantity: 0,
+  totalAmount: '0',
   loading: false,
   error: null,
   showTooltip: false,
@@ -48,7 +59,7 @@ const INITIAL_STATE: CartContextType = {
   dispatch: () => {}
 };
 
-export const CartContext = createContext<CartContextType>(INITIAL_STATE);
+export const CartContext = createContext<CartContextType | null>(null);
 
 const CartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
@@ -57,14 +68,14 @@ const CartReducer = (state: CartState, action: CartAction): CartState => {
     case 'SET_CART_SUCCESS':
       return { ...state, cart: action.payload, loading: false, error: null };
     case 'ADD_ITEM_SUCCESS':
-      return { ...state, cart: [...state.cart, action.payload], loading: false, error: null };
+      return { ...state, loading: false, error: null };
     case 'REMOVE_ITEM_SUCCESS':
       return { ...state, cart: state.cart.filter(item => item.productId !== action.payload), loading: false, error: null };
     case 'UPDATE_QUANTITY_SUCCESS':
       return {
         ...state,
         cart: state.cart.map(item =>
-          item.productId === action.productId
+          item.cartItemId === action.cartItemId
             ? { ...item, quantity: action.quantity }
             : item
         ),
@@ -91,8 +102,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const { data, refresh: refreshCart } = useCartAxios('/cart', 'GET');
   const { refresh: refreshAddToCart } = useCartAxios('/cart', 'POST');
-  const { refresh: refreshRemoveFromCart } = useCartAxios('', 'DELETE');
-  const { refresh: refreshChangeQuantity } = useCartAxios('', 'PATCH');
+  const { refresh: refreshRemoveFromCart } = useAxios(
+    (params) => `/cart/${params?.id}`,
+    { method: 'DELETE', withCredentials: true },
+    { immediate: false }
+  );
+  const { refresh: refreshChangeQuantity } = useAxios(
+    (params) => `/cart/${params?.id}`,
+    { method: 'PATCH', withCredentials: true },
+    { immediate: false }
+  );
   const { refresh: refreshClearCart } = useCartAxios('/cart', 'DELETE');
 
   // 初始化購物車
@@ -116,11 +135,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [refreshCart]);
 
   // 商品加入購物車
-  const addToCart = useCallback(async (product: CartItem) => {
+  const addToCart = useCallback(async ({ productId, quantity }) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await refreshAddToCart({ data: product });
-      dispatch({ type: 'ADD_ITEM_SUCCESS', payload: product });
+      await refreshAddToCart({ data: { productId, quantity } });
+      dispatch({ type: 'ADD_ITEM_SUCCESS'});
+      await refreshCart();
       dispatch({ type: 'SET_SHOW_TOOLTIP', payload: true });
       setTimeout(() => {
         dispatch({ type: 'SET_SHOW_TOOLTIP', payload: false });
@@ -128,31 +148,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: 'SET_FAIL', payload: error.message });
     }
-  }, [refreshAddToCart]);
+  }, [refreshAddToCart, dispatch, refreshCart]);
 
   // 商品移出購物車
   const removeFromCart = useCallback(async (cartItemId: string) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await refreshRemoveFromCart({ url: `/cart/${cartItemId}` });
+      await refreshRemoveFromCart({ id: cartItemId });
       dispatch({ type: 'REMOVE_ITEM_SUCCESS', payload: cartItemId });
       getCart();
     } catch (error) {
       dispatch({ type: 'SET_FAIL', payload: error.message });
     }
-  }, [refreshRemoveFromCart, getCart]);
+  }, [getCart, refreshRemoveFromCart]);
 
   // 變更商品數量
-  const changeQuantity = useCallback(async (productId: string, quantity: number) => {
+  const changeQuantity = useCallback(async (cartItemId: string, quantity: number) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await refreshChangeQuantity({ url: `/cart/${productId}`, data: { quantity } });
-      dispatch({ type: 'UPDATE_QUANTITY_SUCCESS', productId, quantity });
+      await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
+      dispatch({ type: 'UPDATE_QUANTITY_SUCCESS', cartItemId, quantity });
       getCart();
     } catch (error) {
       dispatch({ type: 'SET_FAIL', payload: error.message });
     }
-  }, [refreshChangeQuantity, getCart]);
+  }, [getCart, refreshChangeQuantity]);
 
   // 清空購物車
   const clearCart = useCallback(async () => {
@@ -164,30 +184,35 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: 'SET_FAIL', payload: error.message });
     }
-  }, [refreshClearCart, getCart]);
+  }, [getCart, refreshClearCart]);
 
   // 計算購物車中商品總數量
   const totalQuantity = useMemo(() => {
     return state.cart.reduce((total, item) => total + item.quantity, 0);
   }, [state.cart]);
 
+  const totalAmount = useMemo(() => {
+    return state.cart.reduce((total, { product, quantity }) => total + product.price * quantity, 0).toLocaleString();
+  }, [state.cart]);
+
   const contextValue: CartContextType = useMemo(() => ({
     ...state,
     totalQuantity,
+    totalAmount,
     getCart,
     addToCart,
     removeFromCart,
     changeQuantity,
     clearCart,
     dispatch
-  }), [state, totalQuantity, getCart, addToCart, removeFromCart, changeQuantity, clearCart]);
+  }), [state, totalQuantity, totalAmount, getCart, addToCart, removeFromCart, changeQuantity, clearCart]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };
 
 export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
-  if (!context) {
+  if (context === null) {
     throw new Error("useCart 必須在 CartProvider 內被使用！");
   }
   return context;

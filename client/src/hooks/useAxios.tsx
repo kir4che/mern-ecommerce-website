@@ -55,8 +55,8 @@ export function useAxios<T = any>(
         },
       });
 
-      setData((prevData) => response.data);
-      setStatus((prevStatus) => 'success');
+      setData(() => response.data);
+      setStatus(() => 'success');
       onSuccess?.(response.data);
     } catch (err) {
       let errorMessage = '取得資料失敗，請稍後再試！';
