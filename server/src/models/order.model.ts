@@ -13,15 +13,6 @@ export interface IOrderItem {
   imageUrl?: string;
 }
 
-export const orderItemSchema = new Schema<IOrderItem>({
-  productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true },
-  amount: { type: Number, required: true },
-  title: { type: String, required: true },
-  imageUrl: { type: String, default: undefined },
-});
-
 export interface IOrder extends Document {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
@@ -32,7 +23,7 @@ export interface IOrder extends Document {
   subtotal: number;
   shippingFee: number;
   couponCode?: string;
-  discount: number; // 折扣金額
+  discount?: number; // 折扣金額
   totalAmount: number; // 最終應付金額（商品金額 + 運費 - 折扣）
   status: string;
   shippingStatus: string;
@@ -42,13 +33,22 @@ export interface IOrder extends Document {
   updatedAt: Date;
 }
 
+const orderItemSchema = new Schema<IOrderItem>({
+  productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+  title: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true },
+  amount: { type: Number, required: true },
+  imageUrl: { type: String },
+});
+
 const orderSchema = new Schema<IOrder>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String },
     phone: { type: String },
     address: { type: String },
-    orderItems: [{ type: Schema.Types.ObjectId, ref: "OrderItem" }],
+    orderItems: [orderItemSchema],
     subtotal: { type: Number, required: true },
     shippingFee: { type: Number, default: 60 },
     couponCode: { type: String },

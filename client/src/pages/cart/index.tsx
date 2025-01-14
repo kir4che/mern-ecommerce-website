@@ -49,7 +49,7 @@ const Cart = () => {
   
   const handleCheckout = () => {
     setError(null);
-  
+
     const orderItems = cart.map(item => ({
       productId: item.productId,
       title: item.product.title,
@@ -220,7 +220,7 @@ const Cart = () => {
             >
               {products.filter(item => item.tags.includes('推薦')).map(product => (
                 <SwiperSlide className="block min-w-40" key={product._id}>
-                  <Link to={`/products/${product._id}`} className="flex flex-col items-center gap-2" target="_blank">
+                  <Link to={`/products/${product._id}`} className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`} target="_blank">
                     <img
                       src={product.imageUrl}
                       alt={product.title}
@@ -234,9 +234,10 @@ const Cart = () => {
                   <Button
                     key={product._id}
                     onClick={() => handleAddToCart(product, 1, addToCart)}
-                    className='w-full h-8 mt-4 text-sm rounded-sm text-primary'
+                    className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
+                    disabled={product.countInStock <= 0}
                   >
-                    我要加購
+                    {product.countInStock <= 0 ? '補貨中' : '我要加購'}
                   </Button>
                 </SwiperSlide>
               ))}
