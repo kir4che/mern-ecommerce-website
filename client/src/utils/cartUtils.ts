@@ -1,7 +1,8 @@
 import { Product } from '@/types/product';
 
 export const preventInvalidInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (['.', ',', '-', 'e'].includes(e.key)) {
+  const invalidKeys = new Set<string>(['.', ',', '-', 'e']);
+  if (invalidKeys.has(e.key)) {
     e.preventDefault();
   }
 };
@@ -18,19 +19,14 @@ export const handleQuantityChange = (
   if (typeof value === 'number') {
     inputValue = value.toString();
   } else {
-    inputValue = value.target.value.replace(/^0+(?!$)/, '');
+    inputValue = value.target.value.replace(/^0+(?!$)/, ''); // 去掉前綴的零
     value.target.value = inputValue; // 更新輸入框的值
   }
 
-  let newQuantity = parseInt(inputValue, 10);
-  if (isNaN(newQuantity)) return;
-
-  if (newQuantity < 1) newQuantity = 1;
-  else if (newQuantity > (product?.countInStock || Infinity)) {
-    newQuantity = product?.countInStock || 1;
+  const newQuantity = Math.max(1, Math.min(parseInt(inputValue, 10), product?.countInStock || Infinity));
+  if (!isNaN(newQuantity)) {
+    setQuantity(newQuantity);
   }
-
-  setQuantity(newQuantity);
 };
 
 interface AddToCartParams {
@@ -49,8 +45,7 @@ export const handleAddToCart = async (
 
   try {
     await addToCart({ productId: product._id, quantity: quantity ?? 1 });
-    if (product.countInStock > 0) setQuantity?.(1);
-    else setQuantity?.(0);
+    setQuantity?.(product.countInStock > 0 ? 1 : 0);
   } catch (error) {
     console.error('Failed to add to cart:', error);
   }
@@ -64,30 +59,36 @@ export const handleRemoveFromCart = async (
   try {
     await removeFromCart(productId);
   } catch (error) {
-    console.error('Failed to remove from cart:', error);
+    console.error(`Failed to remove product with ID ${productId} from cart:`, error);
   }
 };
 
+interface CartItem {
+  product: { price: number };
+  quantity: number;
+}
+
 // 計算購物車總金額
-export const calculateTotal = (cart) => {
+export const calculateTotal = (cart: CartItem[]): number => {
   return cart.reduce((total, { product: { price }, quantity }) => total + price * quantity, 0);
+};
+
+interface FreeShippingInfo {
+  isFreeShipping: boolean;
+  shippingFee: number;
+  message: string;
 }
 
 // 計算免運門檻
 export const calculateFreeShipping = (
   cartTotal: number,
-  shippingThreshold: number = 500
-): { message: string; isFreeShipping: boolean } => {
-  if (cartTotal >= shippingThreshold) {
-    return {
-      isFreeShipping: true,
-      message: `已達 NT$${shippingThreshold} 最低免運門檻！`,
-    };
-  } else {
-    const remainingAmount = shippingThreshold - cartTotal;
-    return {
-      isFreeShipping: false,
-      message: `再湊 NT$${remainingAmount} 元即可享免運費！`,
-    };
-  }
+  threshold: number = 500
+): FreeShippingInfo => {
+  const isFreeShipping = cartTotal >= threshold;
+  const shippingFee = isFreeShipping ? 0 : 60;
+  const message = isFreeShipping
+    ? `已達 NT$${threshold} 最低免運門檻！`
+    : `再湊 NT$${threshold - cartTotal} 元即可享免運費！`;
+
+  return { isFreeShipping, shippingFee, message };
 };

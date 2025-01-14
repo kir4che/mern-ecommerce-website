@@ -13,6 +13,7 @@ import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Alert from "@/components/atoms/Alert";
+import Loading from "@/components/atoms/Loading";
 
 import { ReactComponent as CartImg } from "@/assets/images/ecommerce-cart-illustration.inline.svg";
 import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
@@ -26,7 +27,7 @@ import "swiper/css";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cart, error: cartError, totalAmount, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
+  const { cart, loading, error: cartError, totalAmount, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
   const { data } = useAxios<{ products: Product[] }>("/products");
   const products = data?.products as Product[];
 
@@ -34,55 +35,51 @@ const Cart = () => {
   const [error, setError] = useState<string | null>(null);
   const swiperRef = useRef(null);
 
-  const { refresh: createOrder } = useAxios("/orders",
-    {
-      method: "POST",
-      withCredentials: true,
-      data: {
-        orderItems: cart.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.product.price,
-        })),
-        totalAmount
-      },
+  const { refresh: createOrder } = useAxios("/orders", {
+    method: "POST",
+    withCredentials: true,
+  }, {
+    immediate: false,
+    onSuccess: data => {
+      clearCart();
+      navigate(`/checkout/${data.order._id}`);
     },
-    {
-      immediate: false,
-      onSuccess: data => {
-        console.log("order created:", data)
-        clearCart();
-        navigate(`/checkout/${data.order._id}`);
-      },
-      onError: () => {
-        setError("訂單送出失敗，請稍後再試！");
-      }
-    }
-  );
-
+    onError: () => setError("訂單送出失敗，請稍後再試！")
+  });
+  
   const handleCheckout = () => {
     setError(null);
-    createOrder({
-      orderItems: cart.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.product.price,
-      })),
-      totalAmount,
-    });
+  
+    const orderItems = cart.map(item => ({
+      productId: item.productId,
+      title: item.product.title,
+      quantity: item.quantity,
+      price: item.product.price,
+      amount: item.product.price * item.quantity,
+      imageUrl: item.product.imageUrl,
+    }));
+    const shippingFee = calculateFreeShipping(totalAmount).shippingFee;
+
+    createOrder({ orderItems, totalAmount, shippingFee });
   };
 
   if (cartError) return <NotFound message={[cartError]} />;
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
-      <CartImg className="w-full max-w-96 sm:w-96" />
-      <div className="space-y-6 text-center md:text-left">
-        <p className="text-xl">購物車是空的，快去選購吧！</p>
-        <Button onClick={() => navigate("/collections/all")} className="px-10">
-          繼續購物
-        </Button>
-      </div>
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <CartImg className="w-full max-w-96 sm:w-96" />
+          <div className="space-y-6 text-center md:text-left">
+            <p className="text-xl">購物車是空的，快去選購吧！</p>
+            <Button onClick={() => navigate("/collections/all")} className="px-10">
+              繼續購物
+            </Button>
+          </div>
+        </>
+      )}
     </Layout>
   ) : (
     <Layout className="relative flex flex-col w-full max-w-screen-xl px-5 py-8 mx-auto bg-secondary xl:px-0 md:flex-row gap-x-12">
@@ -131,7 +128,7 @@ const Cart = () => {
                       onClick={() => removeFromCart(item._id)}
                     />
                   </div>
-                  <p className={`text-sm ${item.product.countInStock <= 0 ? "text-gray-400" : ""}`}>
+                  <p className={`text-sm ${item.product.countInStock <= 0 && "text-gray-400"}`}>
                     NT${item.product.price.toLocaleString()}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
@@ -192,7 +189,7 @@ const Cart = () => {
           {/* 免運門檻通知 */}
           <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${calculateFreeShipping(totalAmount).isFreeShipping && ' text-orange-500'}`}>
             <DeliveryTrunkIcon className="w-6 h-6" />
-            {calculateFreeShipping(parseInt(totalAmount)).message}
+            {calculateFreeShipping(totalAmount).message}
           </p>
         </div>
         {/* 推薦商品區塊 */}
@@ -254,11 +251,11 @@ const Cart = () => {
         </h3>
         <p className="flex justify-between">
           <span className="font-medium">商品金額</span>
-          <span>NT${totalAmount}</span>
+          <span>NT${totalAmount.toLocaleString()}</span>
         </p>
         <p className="flex justify-between pt-2 pb-10 mt-6 font-medium border-t border-gray-400">
           <span>小計</span>
-          <span className="font-semibold">NT${totalAmount}</span>
+          <span className="font-semibold">NT${totalAmount.toLocaleString()}</span>
         </p>
         <Button className="w-full" onClick={handleCheckout} disabled={cart.length === 0}>
           前往付款
