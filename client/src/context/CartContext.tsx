@@ -19,7 +19,7 @@ interface CartItem {
 interface CartState {
   cart: CartItem[];
   totalQuantity: number;
-  totalAmount: number;
+  subtotal: number;
   loading: boolean;
   error: string | null;
   showTooltip: boolean;
@@ -47,7 +47,7 @@ interface CartContextType extends CartState {
 const INITIAL_STATE: CartContextType = {
   cart: [],
   totalQuantity: 0,
-  totalAmount: 0,
+  subtotal: 0,
   loading: false,
   error: null,
   showTooltip: false,
@@ -191,21 +191,21 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return state.cart.reduce((total, item) => total + item.quantity, 0);
   }, [state.cart]);
 
-  const totalAmount = useMemo(() => {
+  const subtotal = useMemo(() => {
     return state.cart.reduce((total, { product, quantity }) => total + product.price * quantity, 0);
   }, [state.cart]);
 
   const contextValue: CartContextType = useMemo(() => ({
     ...state,
     totalQuantity,
-    totalAmount,
+    subtotal,
     getCart,
     addToCart,
     removeFromCart,
     changeQuantity,
     clearCart,
     dispatch
-  }), [state, totalQuantity, totalAmount, getCart, addToCart, removeFromCart, changeQuantity, clearCart]);
+  }), [state, totalQuantity, subtotal, getCart, addToCart, removeFromCart, changeQuantity, clearCart]);
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;
 };

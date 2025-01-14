@@ -29,10 +29,11 @@ export interface IOrder extends Document {
   phone: string;
   address: string;
   orderItems: IOrderItem[];
-  totalAmount: number;
+  subtotal: number;
   shippingFee: number;
   couponCode?: string;
-  discountAmount: number;
+  discount: number; // 折扣金額
+  totalAmount: number; // 最終應付金額（商品金額 + 運費 - 折扣）
   status: string;
   shippingStatus: string;
   paymentStatus: string;
@@ -48,10 +49,11 @@ const orderSchema = new Schema<IOrder>(
     phone: { type: String },
     address: { type: String },
     orderItems: [{ type: Schema.Types.ObjectId, ref: "OrderItem" }],
-    totalAmount: { type: Number, required: true },
+    subtotal: { type: Number, required: true },
     shippingFee: { type: Number, default: 60 },
     couponCode: { type: String },
-    discountAmount: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+    totalAmount: { type: Number },
     status: { type: String, enum: ORDER_STATUS, default: "已成立" },
     shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "尚未寄件" },
     paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "尚未付款" },
