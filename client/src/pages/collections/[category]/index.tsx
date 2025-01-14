@@ -9,6 +9,7 @@ import { useAxios } from "@/hooks/useAxios";
 import { filterProductsByCategory } from '@/utils/productFilters';
 import { linkToCategory } from "@/utils/linkToCategory";
 import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
+import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -121,7 +122,7 @@ const Collections = () => {
                     ))}
                   </ul>
                   <div className="flex items-center justify-between mt-2 mb-4">
-                    <p className="text-xl font-medium">NT${product.price.toLocaleString()}</p>
+                    <p className="text-xl font-medium">NT$ {addComma(product.price)}</p>
                     <Input
                       type="number"
                       label="數量"
