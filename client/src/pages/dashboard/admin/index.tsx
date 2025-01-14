@@ -379,7 +379,7 @@ const AdminDashboard = () => {
                         <p className="min-w-20">{order.shippingStatus}</p>
                         <p className="min-w-20">{order.paymentStatus}</p>
                         <p className="min-w-20">
-                          {order.totalAmount.toLocaleString()}
+                          {order.subtotal.toLocaleString()}
                         </p>
                         <p className="min-w-44">
                           {new Date(order.createdAt).toLocaleString()}
