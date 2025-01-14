@@ -43,13 +43,8 @@ const Register = () => {
       password: passwordError,
     });
 
-    if (!email || !password || emailError || passwordError) {
-      return;
-    }
-
-    await refresh({
-      data: { email, password },
-    });
+    if (!email || !password || emailError || passwordError) return;
+    await refresh({ email, password });
   };
 
   return (

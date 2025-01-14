@@ -19,7 +19,7 @@ interface CartItem {
 interface CartState {
   cart: CartItem[];
   totalQuantity: number;
-  totalAmount: string;
+  totalAmount: number;
   loading: boolean;
   error: string | null;
   showTooltip: boolean;
@@ -47,7 +47,7 @@ interface CartContextType extends CartState {
 const INITIAL_STATE: CartContextType = {
   cart: [],
   totalQuantity: 0,
-  totalAmount: '0',
+  totalAmount: 0,
   loading: false,
   error: null,
   showTooltip: false,
@@ -103,12 +103,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { data, refresh: refreshCart } = useCartAxios('/cart', 'GET');
   const { refresh: refreshAddToCart } = useCartAxios('/cart', 'POST');
   const { refresh: refreshRemoveFromCart } = useAxios(
-    (params) => `/cart/${params?.id}`,
+    params => `/cart/${params?.id}`,
     { method: 'DELETE', withCredentials: true },
     { immediate: false }
   );
   const { refresh: refreshChangeQuantity } = useAxios(
-    (params) => `/cart/${params?.id}`,
+    params => `/cart/${params?.id}`,
     { method: 'PATCH', withCredentials: true },
     { immediate: false }
   );
@@ -138,7 +138,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addToCart = useCallback(async ({ productId, quantity }) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await refreshAddToCart({ data: { productId, quantity } });
+      await refreshAddToCart({ productId, quantity });
       dispatch({ type: 'ADD_ITEM_SUCCESS'});
       await refreshCart();
       dispatch({ type: 'SET_SHOW_TOOLTIP', payload: true });
@@ -166,7 +166,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const changeQuantity = useCallback(async (cartItemId: string, quantity: number) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
+      await refreshChangeQuantity({ id: cartItemId, quantity });
       dispatch({ type: 'UPDATE_QUANTITY_SUCCESS', cartItemId, quantity });
       getCart();
     } catch (error) {
@@ -192,7 +192,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [state.cart]);
 
   const totalAmount = useMemo(() => {
-    return state.cart.reduce((total, { product, quantity }) => total + product.price * quantity, 0).toLocaleString();
+    return state.cart.reduce((total, { product, quantity }) => total + product.price * quantity, 0);
   }, [state.cart]);
 
   const contextValue: CartContextType = useMemo(() => ({
