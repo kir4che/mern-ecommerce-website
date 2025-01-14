@@ -155,9 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: AuthActionType.LOGIN_REQUEST });
   
     try {
-      await loginRequest({
-        data: { email, password, rememberMe }
-      });
+      await loginRequest({ email, password, rememberMe });
   
       if (loginData?.user) {
         dispatch({

@@ -45,7 +45,7 @@ export function useAxios<T = any>(
       const response: AxiosResponse<T> = await axios({
         url: resolveUrl(params),
         method: newConfig?.method || config.method || 'GET',
-        data: { ...params?.data },
+        data: params,
         ...config,
         ...newConfig,
         headers: {

@@ -45,14 +45,15 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
 };
 
 const createOrder = async (req: AuthRequest, res: Response) => {
-  const { orderItems, totalAmount } = req.body;
+  const { orderItems, totalAmount, shippingFee } = req.body;
 
   try {
     const userId = req.userId;
     const order = new OrderModel({
       userId,
       orderItems,
-      totalAmount: parseInt(totalAmount),
+      totalAmount,
+      shippingFee
     });
     await order.save();
 
