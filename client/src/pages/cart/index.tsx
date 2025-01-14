@@ -27,7 +27,7 @@ import "swiper/css";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cart, loading, error: cartError, totalAmount, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
+  const { cart, loading, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
   const { data } = useAxios<{ products: Product[] }>("/products");
   const products = data?.products as Product[];
 
@@ -49,7 +49,7 @@ const Cart = () => {
   
   const handleCheckout = () => {
     setError(null);
-  
+
     const orderItems = cart.map(item => ({
       productId: item.productId,
       title: item.product.title,
@@ -58,9 +58,9 @@ const Cart = () => {
       amount: item.product.price * item.quantity,
       imageUrl: item.product.imageUrl,
     }));
-    const shippingFee = calculateFreeShipping(totalAmount).shippingFee;
+    const shippingFee = calculateFreeShipping(subtotal).shippingFee;
 
-    createOrder({ orderItems, totalAmount, shippingFee });
+    createOrder({ orderItems, subtotal, shippingFee });
   };
 
   if (cartError) return <NotFound message={[cartError]} />;
@@ -187,9 +187,9 @@ const Cart = () => {
             ))}
           </ul>
           {/* 免運門檻通知 */}
-          <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${calculateFreeShipping(totalAmount).isFreeShipping && ' text-orange-500'}`}>
+          <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${calculateFreeShipping(subtotal).isFreeShipping && ' text-orange-500'}`}>
             <DeliveryTrunkIcon className="w-6 h-6" />
-            {calculateFreeShipping(totalAmount).message}
+            {calculateFreeShipping(subtotal).message}
           </p>
         </div>
         {/* 推薦商品區塊 */}
@@ -220,7 +220,7 @@ const Cart = () => {
             >
               {products.filter(item => item.tags.includes('推薦')).map(product => (
                 <SwiperSlide className="block min-w-40" key={product._id}>
-                  <Link to={`/products/${product._id}`} className="flex flex-col items-center gap-2" target="_blank">
+                  <Link to={`/products/${product._id}`} className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`} target="_blank">
                     <img
                       src={product.imageUrl}
                       alt={product.title}
@@ -234,9 +234,10 @@ const Cart = () => {
                   <Button
                     key={product._id}
                     onClick={() => handleAddToCart(product, 1, addToCart)}
-                    className='w-full h-8 mt-4 text-sm rounded-sm text-primary'
+                    className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
+                    disabled={product.countInStock <= 0}
                   >
-                    我要加購
+                    {product.countInStock <= 0 ? '補貨中' : '我要加購'}
                   </Button>
                 </SwiperSlide>
               ))}
@@ -251,11 +252,11 @@ const Cart = () => {
         </h3>
         <p className="flex justify-between">
           <span className="font-medium">商品金額</span>
-          <span>NT${totalAmount.toLocaleString()}</span>
+          <span>NT${subtotal.toLocaleString()}</span>
         </p>
         <p className="flex justify-between pt-2 pb-10 mt-6 font-medium border-t border-gray-400">
           <span>小計</span>
-          <span className="font-semibold">NT${totalAmount.toLocaleString()}</span>
+          <span className="font-semibold">NT${subtotal.toLocaleString()}</span>
         </p>
         <Button className="w-full" onClick={handleCheckout} disabled={cart.length === 0}>
           前往付款

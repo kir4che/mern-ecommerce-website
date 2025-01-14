@@ -63,16 +63,6 @@ export const handleRemoveFromCart = async (
   }
 };
 
-interface CartItem {
-  product: { price: number };
-  quantity: number;
-}
-
-// 計算購物車總金額
-export const calculateTotal = (cart: CartItem[]): number => {
-  return cart.reduce((total, { product: { price }, quantity }) => total + price * quantity, 0);
-};
-
 interface FreeShippingInfo {
   isFreeShipping: boolean;
   shippingFee: number;
