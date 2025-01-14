@@ -6,6 +6,7 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { preventInvalidInput, handleQuantityChange, handleAddToCart, calculateFreeShipping } from "@/utils/cartUtils";
+import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -129,7 +130,7 @@ const Cart = () => {
                     />
                   </div>
                   <p className={`text-sm ${item.product.countInStock <= 0 && "text-gray-400"}`}>
-                    NT${item.product.price.toLocaleString()}
+                    NT${addComma(item.product.price)}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
                     {item.product.countInStock <= 0 ? (
@@ -179,7 +180,7 @@ const Cart = () => {
                       </div>
                     )}
                     <p className={`text-lg font-semibold ${item.product.countInStock <= 0 && "text-gray-400"}`}>
-                      NT${(item.product.price * item.quantity).toLocaleString()}
+                      NT${addComma((item.product.price * item.quantity))}
                     </p>
                   </div>
                 </div>
@@ -229,7 +230,7 @@ const Cart = () => {
                       loading="lazy"
                     />
                     <p className="text-sm">{product.title}</p>
-                    <p className="text-sm">NT${product.price.toLocaleString()}</p>
+                    <p className="text-sm">NT${addComma(product.price)}</p>
                   </Link>
                   <Button
                     key={product._id}
@@ -252,11 +253,11 @@ const Cart = () => {
         </h3>
         <p className="flex justify-between">
           <span className="font-medium">商品金額</span>
-          <span>NT${subtotal.toLocaleString()}</span>
+          <span>NT${addComma(subtotal)}</span>
         </p>
         <p className="flex justify-between pt-2 pb-10 mt-6 font-medium border-t border-gray-400">
           <span>小計</span>
-          <span className="font-semibold">NT${subtotal.toLocaleString()}</span>
+          <span className="font-semibold">NT${addComma(subtotal)}</span>
         </p>
         <Button className="w-full" onClick={handleCheckout} disabled={cart.length === 0}>
           前往付款

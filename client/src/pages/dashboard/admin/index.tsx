@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useGetData } from "@/hooks/useGetData";
 
 import { useAuth } from "@/context/AuthContext";
+import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -360,7 +361,7 @@ const AdminDashboard = () => {
             <h3 className="mb-2 text-base font-medium">訂單管理</h3>
             <ul className="p-3 overflow-y-auto border shadow max-h-80">
               <div className="p-2 pb-4 space-y-4 overflow-x-auto">
-                <ul className="w-full pb-3 border-b min-w-fit border-gray-300">
+                <ul className="w-full pb-3 border-b border-gray-300 min-w-fit">
                   <li className="flex text-sm">
                     <p className="min-w-20">訂單編號</p>
                     <p className="min-w-20">訂單狀態</p>
@@ -379,10 +380,10 @@ const AdminDashboard = () => {
                         <p className="min-w-20">{order.shippingStatus}</p>
                         <p className="min-w-20">{order.paymentStatus}</p>
                         <p className="min-w-20">
-                          {order.subtotal.toLocaleString()}
+                          {addComma(order.subtotal)}
                         </p>
                         <p className="min-w-44">
-                          {new Date(order.createdAt).toLocaleString()}
+                          {new Date(order.createdAt)}
                         </p>
                         <button
                           className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-gray-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-sm`}
