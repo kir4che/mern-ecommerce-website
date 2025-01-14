@@ -45,7 +45,7 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
 };
 
 const createOrder = async (req: AuthRequest, res: Response) => {
-  const { orderItems, subtotal, shippingFee } = req.body;
+  const { orderItems, subtotal, shippingFee, couponCode, discount, totalAmount } = req.body;
 
   try {
     const userId = req.userId;
@@ -53,7 +53,10 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       userId,
       orderItems,
       subtotal,
-      shippingFee
+      shippingFee,
+      couponCode,
+      discount: discount ?? 0,
+      totalAmount: totalAmount || subtotal + shippingFee - (discount ?? 0), // 同样使用 discount ?? 0
     });
     await order.save();
 

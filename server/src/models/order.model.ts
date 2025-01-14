@@ -49,7 +49,7 @@ const orderSchema = new Schema<IOrder>(
     phone: { type: String },
     address: { type: String },
     orderItems: [orderItemSchema],
-    subtotal: { type: Number, required: true },
+    subtotal: { type: Number, default: 0, required: true },
     shippingFee: { type: Number, default: 60 },
     couponCode: { type: String },
     discount: { type: Number, default: 0 },
