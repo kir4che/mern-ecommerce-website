@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
+import { addComma } from "@/utils/addComma";
 
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -134,7 +135,7 @@ const ProductSlider = () => {
               <ProductLinkImg product={product} data={data} error={error} />
               <div className="flex flex-col gap-6 py-2 pl-4 border-l-2 border-primary">
                 <div className="flex items-center justify-between">
-                  <p className="text-2xl font-medium">NT${product.price.toLocaleString()}</p>
+                  <p className="text-2xl font-medium">NT$ {addComma(product.price)}</p>
                   <div className="flex items-center gap-3">
                     <Input
                       type="number"

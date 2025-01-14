@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
 import { useGetData } from "@/hooks/useGetData";
+import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -11,7 +12,6 @@ import Loading from "@/components/atoms/Loading";
 import Button from "@/components/atoms/Button";
 
 import { ReactComponent as LogoutIcon } from "@/assets/icons/logout.inline.svg";
-import { error } from "console";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -87,10 +87,10 @@ const UserDashboard = () => {
                       <p className="min-w-20">{order.shippingStatus}</p>
                       <p className="min-w-20">{order.paymentStatus}</p>
                       <p className="min-w-20">
-                        {order.subtotal.toLocaleString()}
+                        {addComma(order.subtotal)}
                       </p>
                       <p className="min-w-fit">
-                        {new Date(order.createdAt).toLocaleString()}
+                        {new Date(order.createdAt)}
                       </p>
                       <button
                         className={`${order.shippingStatus !== "已送達" ? "opacity-50" : "hover:bg-gray-100"} px-1 ml-auto py-0.5 text-sm`}
