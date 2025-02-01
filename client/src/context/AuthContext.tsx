@@ -17,6 +17,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
+  isAuthenticated: boolean; // 是否已登入
   login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
   logout: () => Promise<void>;
   dispatch: Dispatch<AuthAction>;
@@ -34,6 +35,7 @@ const INITIAL_STATE: AuthContextType = {
   user: JSON.parse(localStorage.getItem("user") || "null"),
   loading: false,
   error: null,
+  isAuthenticated: false,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   dispatch: () => {}
@@ -189,6 +191,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const contextValue: AuthContextType = useMemo(() => ({
     ...state,
+    isAuthenticated: state.user !== null, // 根據 user 是否存在判斷是否已登入
     login,
     logout,
     dispatch

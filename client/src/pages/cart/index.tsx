@@ -14,7 +14,6 @@ import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Alert from "@/components/atoms/Alert";
-import Loading from "@/components/atoms/Loading";
 
 import { ReactComponent as CartImg } from "@/assets/images/ecommerce-cart-illustration.inline.svg";
 import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
@@ -28,9 +27,12 @@ import "swiper/css";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cart, loading, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
+  const { cart, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
   const { data } = useAxios<{ products: Product[] }>("/products");
   const products = data?.products as Product[];
+
+  const sortedCart = [...cart].sort((a, b) => Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0));
+  const freeShippingInfo = calculateFreeShipping(subtotal);
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,40 +49,32 @@ const Cart = () => {
     },
     onError: () => setError("訂單送出失敗，請稍後再試！")
   });
-  
+
   const handleCheckout = () => {
     setError(null);
-
-    const orderItems = cart.map(item => ({
-      productId: item.productId,
-      title: item.product.title,
-      quantity: item.quantity,
-      price: item.product.price,
-      amount: item.product.price * item.quantity,
-      imageUrl: item.product.imageUrl,
-    }));
-    const shippingFee = calculateFreeShipping(subtotal).shippingFee;
-
-    createOrder({ orderItems, subtotal, shippingFee });
+    createOrder({
+      orderItems: cart.map(({ productId, product, quantity }) => ({
+        productId,
+        ...product,
+        quantity,
+        amount: product.price * quantity,
+      })),
+      subtotal,
+      shippingFee: freeShippingInfo.shippingFee,
+    });
   };
 
   if (cartError) return <NotFound message={[cartError]} />;
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
-      {loading ? (
-        <Loading />
-      ) : (
-        <>
-          <CartImg className="w-full max-w-96 sm:w-96" />
-          <div className="space-y-6 text-center md:text-left">
-            <p className="text-xl">購物車是空的，快去選購吧！</p>
-            <Button onClick={() => navigate("/collections/all")} className="px-10">
-              繼續購物
-            </Button>
-          </div>
-        </>
-      )}
+      <CartImg className="w-full max-w-96 sm:w-96" />
+      <div className="space-y-6 text-center md:text-left">
+        <p className="text-xl">購物車是空的，快去選購吧！</p>
+        <Button onClick={() => navigate("/collections/all")} className="px-10">
+          繼續購物
+        </Button>
+      </div>
     </Layout>
   ) : (
     <Layout className="relative flex flex-col w-full max-w-screen-xl px-5 py-8 mx-auto bg-secondary xl:px-0 md:flex-row gap-x-12">
@@ -92,14 +86,14 @@ const Cart = () => {
           </Button>
           <Modal
             isOpen={isModalOpen}
-            onConfirm={() => clearCart()}
-            onClose={() => setModalOpen(false)}
+            onConfirm={clearCart}
+            onClose={setModalOpen.bind(null, false)}
             title="確定要清空購物車嗎？"
           />
         </div>
         <div className="px-6 bg-white rounded-lg shadow">
           <ul className="flex flex-col py-5 gap-y-6">
-            {cart.sort((a, b) => (b.product.countInStock > 0 ? 1 : -1) - (a.product.countInStock > 0 ? 1 : -1)).map((item) => (
+            {sortedCart.map((item) => (
               <li className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 && "opacity-50"}`} key={item.productId}>
                 <Link
                   to={`/products/${item.productId}`}
@@ -110,7 +104,10 @@ const Cart = () => {
                     src={item.product.imageUrl}
                     alt={item.product.title}
                     className="object-cover rounded aspect-square"
-                    onError={(e) => (e.currentTarget.src = "https://placehold.co/144x144?text=No Image")}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://placehold.co/144x144?text=No Image';
+                    }}
                     loading="lazy"
                   />
                 </Link>
@@ -141,8 +138,7 @@ const Cart = () => {
                           variant="icon"
                           icon={MinusIcon}
                           className="bg-white border-gray-200 rounded-none h-7"
-                          onClick={() =>
-                            handleQuantityChange(item.quantity - 1, {
+                          onClick={() => handleQuantityChange(item.quantity - 1, {
                               _id: item._id,
                               countInStock: item.product.countInStock,
                             }, value => changeQuantity(item._id, value))
@@ -155,8 +151,7 @@ const Cart = () => {
                           max={item.product.countInStock}
                           value={item.quantity}
                           defaultValue={1}
-                          onChange={(e) =>
-                            handleQuantityChange(e, { _id: item._id,
+                          onChange={(e) => handleQuantityChange(e, { _id: item._id,
                               countInStock: item.product.countInStock
                             }, value => changeQuantity(item._id, value))
                           }
@@ -188,9 +183,9 @@ const Cart = () => {
             ))}
           </ul>
           {/* 免運門檻通知 */}
-          <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${calculateFreeShipping(subtotal).isFreeShipping && ' text-orange-500'}`}>
+          <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${freeShippingInfo.isFreeShipping && ' text-orange-500'}`}>
             <DeliveryTrunkIcon className="w-6 h-6" />
-            {calculateFreeShipping(subtotal).message}
+            {freeShippingInfo.message}
           </p>
         </div>
         {/* 推薦商品區塊 */}
@@ -213,14 +208,8 @@ const Cart = () => {
                 />
               </div>
             </div>
-            <Swiper
-              slidesPerView={5}
-              spaceBetween={24}
-              loop
-              onSwiper={(swiper) => (swiperRef.current = swiper)}
-            >
-              {products.filter(item => item.tags.includes('推薦')).map(product => (
-                <SwiperSlide className="block min-w-40" key={product._id}>
+            <Swiper slidesPerView={Math.min(5, products.length)} spaceBetween={24} loop={products.length > 5} onSwiper={(swiper) => (swiperRef.current = swiper)}>              {products.filter(item => item.tags.includes('推薦')).map(product => (
+                <SwiperSlide className="block min-w-28" key={product._id}>
                   <Link to={`/products/${product._id}`} className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`} target="_blank">
                     <img
                       src={product.imageUrl}
@@ -229,11 +218,10 @@ const Cart = () => {
                       onError={(e) => e.currentTarget.src = 'https://placehold.co/144x144?text=No Image'}
                       loading="lazy"
                     />
-                    <p className="text-sm">{product.title}</p>
+                    <p className="text-sm line-clamp-1">{product.title}</p>
                     <p className="text-sm">NT${addComma(product.price)}</p>
                   </Link>
                   <Button
-                    key={product._id}
                     onClick={() => handleAddToCart(product, 1, addToCart)}
                     className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
                     disabled={product.countInStock <= 0}
@@ -259,7 +247,7 @@ const Cart = () => {
           <span>小計</span>
           <span className="font-semibold">NT${addComma(subtotal)}</span>
         </p>
-        <Button className="w-full" onClick={handleCheckout} disabled={cart.length === 0}>
+        <Button className="w-full" onClick={handleCheckout} disabled={!cart?.length}>
           前往付款
         </Button>
       </div>
