@@ -20,9 +20,9 @@ export const useGetData = (
           withCredentials: true, // 支持跨域憑證
         });
         if (isMounted) setData(res.data);
-      } catch (err: any) {
+      } catch (error) {
         if (isMounted)
-          setError(err.response?.data?.message || "取得資料失敗，請稍後再試！");
+          setError(error.response?.data?.message || "取得資料失敗，請稍後再試！");
       } finally {
         if (isMounted) setLoading(false); // 完成後設 loading 為 false
       }
