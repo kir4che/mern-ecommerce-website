@@ -2,7 +2,6 @@ import { useState } from "react";
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
-import { error } from "console";
 
 const Contact = () => {
   const [form, setForm] = useState({

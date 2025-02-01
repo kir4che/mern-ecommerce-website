@@ -54,7 +54,7 @@ const ProductSlider = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center">
         <Loading />
       </div>
     );

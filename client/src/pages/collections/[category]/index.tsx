@@ -159,10 +159,7 @@ const Collections = () => {
             ))}
           </div>
           {filteredProducts.length > displayedProducts.length && (
-            <div 
-              ref={ref} 
-              className="flex items-center justify-center w-full h-20 my-4"
-            >
+            <div ref={ref} className="flex items-center justify-center w-full h-20 my-4">
               <Loading />
             </div>
           )}
