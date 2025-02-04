@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
-import { validateEmail } from "@/utils/validation";
-
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -15,7 +13,6 @@ const RequestResetLink: React.FC = () => {
   const [countdown, setCountdown] = useState<number>(0);
 
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
   const [error, setError] = useState("");
 
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,7 +33,6 @@ const RequestResetLink: React.FC = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || emailError) return;
 
     setLoading(true);
     setError("");
@@ -70,11 +66,11 @@ const RequestResetLink: React.FC = () => {
           type="email"
           placeholder="請輸入您的 Email"
           icon={MailIcon}
-          onChange={(e) => {
-            setEmail(e.target.value.trim());
-            setEmailError(validateEmail(e.target.value));
+          onChange={(e) => setEmail(e.target.value.trim())}
+          pattern={{
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            message: '請輸入有效的 Email 格式'
           }}
-          error={email && emailError}
           required
         />
         <Button
