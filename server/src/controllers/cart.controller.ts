@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 
-import { CartModel } from "@/models/cart.model";
-import { CartItemModel, ICartItem } from "@/models/cartItem.model";
-import { ProductModel } from "@/models/product.model";
+import { CartModel } from "../models/cart.model";
+import { CartItemModel, ICartItem } from "../models/cartItem.model";
+import { ProductModel } from "../models/product.model";
 
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;

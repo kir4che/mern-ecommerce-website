@@ -2,53 +2,71 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
-import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
-import { cartRouter } from "@/routes/cart.route";
-import { newRouter } from "@/routes/new.route";
-import { productRouter } from "@/routes/product.route";
-import { userRouter } from "@/routes/user.route";
-import { orderRouter } from "@/routes/order.route";
+import { cartRouter } from "./routes/cart.route";
+import { newRouter } from "./routes/new.route";
+import { productRouter } from "./routes/product.route";
+import { userRouter } from "./routes/user.route";
+import { orderRouter } from "./routes/order.route";
+
+import { connectDB } from "./config/db";
+
+import { v2 as cloudinary } from "cloudinary";
+
+dotenv.config();
+connectDB();
+
+// Cloudinary 設定
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
-dotenv.config();
 
-app.use(express.json());
-app.use(cookieParser());
+// CORS 設定
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true, // 允許發送 Cookie
-  }),
+  })
 );
+app.options("*", cors());
+app.use(express.json()); // 解析 JSON 格式的 request body
+app.use(cookieParser()); // 解析 cookie
 
+// Session 設定
 app.use(
   session({
-    secret: Math.random().toString(36).substring(2),
+    secret:
+      process.env.SESSION_SECRET ||
+      "Jc+4DnHUNhPkZQgrWz6f9Uo9XCGGMppKZ0fNFQz/Cks=",
     resave: false, // 固定寫法
     saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
     cookie: {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
-      secure: false, // true: 只有 https 才能使用 cookie
+      maxAge: 1000 * 60 * 60 * 24 * 1, // 1 days
+      secure: process.env.NODE_ENV === "production", // true: 只有 https 才能使用 cookie
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // true: 允許跨域請求攜帶 cookie
     },
-  }),
+  })
 );
 
-app.use(express.static("public"));
+// 設定首頁路由，確認後端運作正常。
+app.get("/", (req, res) => res.send("Express on Vercel."));
 
+// 設定 API 路由
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/news", newRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 
-mongoose
-  .connect(process.env.MONGO_URI || "")
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error(err));
-
-app.listen(process.env.PORT || 8080, () => {
-  console.log(`Server started on ${process.env.BACKEND_URL}`);
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}.`);
 });
+
+export default app;
