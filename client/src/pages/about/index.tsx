@@ -24,7 +24,7 @@ const About = () => {
   return (
     <Layout>
       <section className="px-5 pt-4 bg-center bg-no-repeat bg-cover md:px-8 bg-about-cover">
-        <Breadcrumb text={ABOUT.title} textColor="text-secondary" />
+        <Breadcrumb text={ABOUT.title} textColor="text-secondary" link="about" />
         <div className="max-w-6xl py-40 mx-auto space-y-8 text-secondary">
           <div className="space-y-1">
             <p>About us</p>
