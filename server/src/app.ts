@@ -14,15 +14,18 @@ import { orderRouter } from "@/routes/order.route";
 const app = express();
 dotenv.config();
 
-app.use(express.json());
+app.use(express.json()); // 確保可以解析 JSON 格式的 request body
 app.use(cookieParser());
+
+// CORS 設定
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || "https://mern-ecommerce-client-seven.vercel.app",
     credentials: true, // 允許發送 Cookie
   }),
 );
 
+// Session 設定
 app.use(
   session({
     secret: Math.random().toString(36).substring(2),
@@ -38,17 +41,22 @@ app.use(
 
 app.use(express.static("public"));
 
+// 設定 API 路由
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/news", newRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 
+// 連接 MongoDB
 mongoose
   .connect(process.env.MONGO_URI || "")
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error(err));
 
-app.listen(process.env.PORT || 8080, () => {
-  console.log(`Server started on ${process.env.BACKEND_URL}`);
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
+
+export default app;

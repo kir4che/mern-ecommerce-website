@@ -200,11 +200,4 @@ const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  createNewUser,
-  getUserData,
-  loginUser,
-  logoutUser,
-  resetPassword,
-  updatePassword,
-};
+export { createNewUser, getUserData, loginUser, logoutUser, resetPassword, updatePassword, };
