@@ -12,7 +12,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
   const detailsRef = useRef(null);
 
   useEffect(() => {
-    const handleOutsideClick = (event) => {
+    const handleOutsideClick = (event: MouseEvent) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
         detailsRef.current.removeAttribute("open");
       }
