@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 
-import { OrderModel } from "@/models/order.model";
+import { OrderModel } from "../models/order.model";
 
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;

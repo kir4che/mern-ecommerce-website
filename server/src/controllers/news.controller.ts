@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { NewModel } from "@/models/new.model";
+import { NewModel } from "../models/new.model";
 
 const getNew = async (req: Request, res: Response) => {
   try {

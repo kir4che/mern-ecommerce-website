@@ -5,8 +5,8 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
-import { CartModel } from "@/models/cart.model";
-import { UserModel } from "@/models/user.model";
+import { CartModel } from "../models/cart.model";
+import { UserModel } from "../models/user.model";
 
 declare module "express-session" {
   export interface SessionData {
@@ -95,8 +95,8 @@ const loginUser = async (req: Request, res: Response) => {
     res.cookie("token", token, {
       httpOnly: true, // 防止 JavaScript 訪問 token
       secure: process.env.NODE_ENV === "production", // 只有在生產環境中使用 HTTPS
-      maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // 設置過期時間
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      maxAge: 1000 * 60 * 60 * 24 * (rememberMe ? 1 : 5), // 設置過期時間
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     // 儲存用戶資料到 session 中（如果需要使用 session）
@@ -200,11 +200,4 @@ const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  createNewUser,
-  getUserData,
-  loginUser,
-  logoutUser,
-  resetPassword,
-  updatePassword,
-};
+export { createNewUser, getUserData, loginUser, logoutUser, resetPassword, updatePassword, };

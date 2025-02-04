@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ProductModel } from "@/models/product.model";
+import { ProductModel } from "../models/product.model";
 import mongoose from "mongoose";
 
 const getProducts = async (req: Request, res: Response) => {
@@ -84,10 +84,4 @@ const deleteProductById = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  addProduct,
-  deleteProductById,
-  getProductById,
-  getProducts,
-  updateProduct,
-};
+export { addProduct, deleteProductById, getProductById, getProducts, updateProduct };
