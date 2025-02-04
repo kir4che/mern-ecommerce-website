@@ -11,11 +11,10 @@ import { productRouter } from "@/routes/product.route";
 import { userRouter } from "@/routes/user.route";
 import { orderRouter } from "@/routes/order.route";
 
-const app = express();
 dotenv.config();
 
-app.use(express.json()); // 確保可以解析 JSON 格式的 request body
-app.use(cookieParser());
+const app = express();
+const port = process.env.PORT || 8080;
 
 // CORS 設定
 app.use(
@@ -24,6 +23,11 @@ app.use(
     credentials: true, // 允許發送 Cookie
   }),
 );
+app.options("*", cors());
+
+app.use(express.json()); // 確保可以解析 JSON 格式的 request body
+app.use(cookieParser());
+app.use(express.static("public"));
 
 // Session 設定
 app.use(
@@ -39,8 +43,6 @@ app.use(
   }),
 );
 
-app.use(express.static("public"));
-
 // 設定 API 路由
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
@@ -51,12 +53,11 @@ app.use("/api/orders", orderRouter);
 // 連接 MongoDB
 mongoose
   .connect(process.env.MONGO_URI || "")
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => console.log("Connected to MongoDB."))
   .catch((err) => console.error(err));
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});
+  app.listen(port, () => {
+    console.log(`Server started on port ${port}.`);
+  });
 
 export default app;
