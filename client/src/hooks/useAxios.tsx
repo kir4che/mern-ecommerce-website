@@ -78,22 +78,19 @@ export function useAxios<T = any>(
         return;
       }
   
-      setData(response.data);
+      setData(response.data || {} as T);
       setStatus('success');
       onSuccess?.(response.data);
     } catch (error) {
       let errorMessage = '發生未知錯誤，請稍後再試！';
-
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          errorMessage = error.response.data?.message || `伺服器錯誤 (${error.response.status})，請稍後再試！`;
-        } else if (error.request) {
-          errorMessage = '伺服器無回應，請檢查網路連線！';
-        }
+        errorMessage =
+          error.response?.data?.message ||
+          (error.response ? `伺服器錯誤 (${error.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-
+    
       handleError(errorMessage);
     }
   }
