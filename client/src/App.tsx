@@ -215,7 +215,7 @@ const App = () => {
         </div>
       </section>
       {/* News */}
-      {data?.news.length > 0 && (
+      {(data?.news ?? []).length > 0 && (
         <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
           <hr className="w-full border-primary/30" />
           <div className="flex items-center justify-between">
