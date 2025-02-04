@@ -14,7 +14,6 @@ import { orderRouter } from "@/routes/order.route";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8080;
 
 // CORS 設定
 app.use(
@@ -43,6 +42,8 @@ app.use(
   }),
 );
 
+app.get('/', (req, res) => res.send('Express on Vercel.'));
+
 // 設定 API 路由
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
@@ -56,8 +57,11 @@ mongoose
   .then(() => console.log("Connected to MongoDB."))
   .catch((err) => console.error(err));
 
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 8080;
   app.listen(port, () => {
     console.log(`Server started on port ${port}.`);
   });
+}
 
 export default app;
