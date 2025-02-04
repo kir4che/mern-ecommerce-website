@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAxios } from "@/hooks/useAxios";
-import { validateEmail, validatePassword } from "@/utils/validation";
 
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
@@ -17,10 +16,6 @@ const Register = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState({
-    email: "",
-    password: "",
-  });
 
   const { error, isLoading, refresh } = useAxios(
     "/user/register",
@@ -33,17 +28,6 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    
-    // 在提交前重新驗證
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
-    
-    setFormError({
-      email: emailError,
-      password: passwordError,
-    });
-
-    if (!email || !password || emailError || passwordError) return;
     await refresh({ email, password });
   };
 
@@ -59,14 +43,11 @@ const Register = () => {
           type="email"
           placeholder="Email"
           icon={MailIcon}
-          onChange={(e) => {
-            setEmail(e.target.value.trim());
-            setFormError((prev) => ({
-              ...prev,
-              email: validateEmail(e.target.value),
-            }));
+          onChange={(e) => setEmail(e.target.value.trim())}
+          pattern={{
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            message: '請輸入有效的 Email 格式'
           }}
-          error={email && formError.email}
           required
         />
         <Input
@@ -74,14 +55,11 @@ const Register = () => {
           type="password"
           placeholder="密碼"
           icon={LockIcon}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setFormError((prev) => ({
-              ...prev,
-              password: validatePassword(e.target.value),
-            }));
+          onChange={(e) => setPassword(e.target.value)}
+          pattern={{
+            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+            message: '密碼需包含大小寫英文及數字，且至少 8 字元'
           }}
-          error={password && formError.password}
           required
         />
         <Button type="submit" className="mx-auto mt-8 rounded-none w-28" disabled={isLoading}>

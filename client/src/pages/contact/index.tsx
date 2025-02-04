@@ -34,8 +34,8 @@ const Contact = () => {
             value={form.name}
             onChange={handleChange}
             placeholder="姓名"
-            required
             className="flex-1"
+            required
           />
           <Input
             type="email"
@@ -43,8 +43,12 @@ const Contact = () => {
             value={form.email}
             onChange={handleChange}
             placeholder="電子郵件"
-            required
+            pattern={{
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: '請輸入有效的 Email 格式'
+            }}
             className="flex-1"
+            required
           />
         </div>
         <textarea
@@ -53,8 +57,8 @@ const Contact = () => {
           onChange={handleChange}
           rows={4}
           placeholder="內容"
-          required
           className="w-full textarea textarea-bordered"
+          required
         />
         <Button type="submit" className="block w-40 mx-auto rounded-none">
           傳送
