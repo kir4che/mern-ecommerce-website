@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-import { validatePassword } from "@/utils/validation";
-
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
@@ -16,16 +14,14 @@ const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [success, setSuccess] = useState("");
-  const [formError, setFormError] = useState({
-    password: "",
-    confirmPassword: "",
-  });
+  const [isSamePassword, setIsSamePassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formError.password || formError.confirmPassword) return;
+    if (!isSamePassword) return;
+
     setError("");
     setSuccess("");
 
@@ -40,8 +36,8 @@ const ResetPassword: React.FC = () => {
         setSuccess("密碼重設成功，將跳轉至登入頁面。");
         setTimeout(() => navigate("/login"), 3000);
       }
-    } catch (err: any) {
-      if (err.response?.status === 400) {
+    } catch (error) {
+      if (error.response?.status === 400) {
         setError("連結無效或已過期，請重新申請重設密碼。");
       } else setError("發生錯誤，請稍後再試。");
     }
@@ -55,14 +51,7 @@ const ResetPassword: React.FC = () => {
           value={password}
           label="新密碼"
           type="password"
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setFormError((prev) => ({
-              ...prev,
-              password: validatePassword(e.target.value),
-            }));
-          }}
-          error={password && formError.password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <Input
@@ -71,12 +60,9 @@ const ResetPassword: React.FC = () => {
           type="password"
           onChange={(e) => {
             setConfirmPassword(e.target.value);
-            setFormError((prev) => ({
-              ...prev,
-              confirmPassword: password !== e.target.value && "密碼輸入不一致",
-            }));
+            setIsSamePassword(e.target.value === password);
           }}
-          error={confirmPassword && formError.confirmPassword}
+          error={confirmPassword && !isSamePassword && "密碼不一致"}
           required
         />
         <Button type="submit" className="mt-4 rounded-none">
