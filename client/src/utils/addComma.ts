@@ -2,8 +2,10 @@
 export const addComma = (input: string | number | null | undefined): string => {
   if (input == null) return "";
 
-  const str = String(input).trim();
-  if (!/^\d+$/.test(str)) return "";
+  const num = Number(input);
+  if (isNaN(num)) return "";
 
-  return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return new Intl.NumberFormat("zh-TW", {
+    maximumFractionDigits: 0
+  }).format(num);
 };
