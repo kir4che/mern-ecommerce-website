@@ -5,8 +5,8 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
-import { CartModel } from "@/models/cart.model";
-import { UserModel } from "@/models/user.model";
+import { CartModel } from "../models/cart.model";
+import { UserModel } from "../models/user.model";
 
 declare module "express-session" {
   export interface SessionData {

@@ -1,11 +1,7 @@
 import { Router } from "express";
-import {
-  addNew,
-  deleteNewById,
-  getNew,
-  getNewById,
-  updateNew,
-} from "@/controllers/news.controller";
+
+import { addNew, deleteNewById, getNew, getNewById, updateNew } from "../controllers/news.controller";
+
 const router = Router();
 
 router.route("/").get(getNew);

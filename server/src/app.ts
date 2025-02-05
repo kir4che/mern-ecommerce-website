@@ -2,16 +2,18 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
-import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
-import { cartRouter } from "@/routes/cart.route";
-import { newRouter } from "@/routes/new.route";
-import { productRouter } from "@/routes/product.route";
-import { userRouter } from "@/routes/user.route";
-import { orderRouter } from "@/routes/order.route";
+import { cartRouter } from "./routes/cart.route";
+import { newRouter } from "./routes/new.route";
+import { productRouter } from "./routes/product.route";
+import { userRouter } from "./routes/user.route";
+import { orderRouter } from "./routes/order.route";
+
+import { connectDB } from "./config/db";
 
 dotenv.config();
+connectDB();
 
 const app = express();
 
@@ -31,7 +33,7 @@ app.use(express.static("public"));
 // Session 設定
 app.use(
   session({
-    secret: Math.random().toString(36).substring(2),
+    secret: process.env.SESSION_SECRET || "Jc+4DnHUNhPkZQgrWz6f9Uo9XCGGMppKZ0fNFQz/Cks=",
     resave: false, // 固定寫法
     saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
     cookie: {
@@ -50,18 +52,5 @@ app.use("/api/products", productRouter);
 app.use("/api/news", newRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
-
-// 連接 MongoDB
-mongoose
-  .connect(process.env.MONGO_URI || "")
-  .then(() => console.log("Connected to MongoDB."))
-  .catch((err) => console.error(err));
-
-if (!process.env.VERCEL) {
-  const port = process.env.PORT || 8080;
-  app.listen(port, () => {
-    console.log(`Server started on port ${port}.`);
-  });
-}
 
 export default app;

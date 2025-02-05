@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ProductModel } from "@/models/product.model";
+import { ProductModel } from "../models/product.model";
 import mongoose from "mongoose";
 
 const getProducts = async (req: Request, res: Response) => {
