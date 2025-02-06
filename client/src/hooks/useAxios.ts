@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -7,7 +7,7 @@ interface UseAxiosOptions<T> {
   immediate?: boolean;  // 是否在組件掛載後立即發送請求，true 則不需手動觸發，false 則須手動呼叫 refresh 來發送請求。
   skip?: boolean;
   onSuccess?: (data: T) => void;
-  onError?: (error: string) => void;
+  onError?: (error: Error | AxiosError) => void;
 }
 
 interface UseAxiosResult<T> {
@@ -41,10 +41,15 @@ export function useAxios<T = any>(
     return `${baseUrl}${url}`;
   }, [url]);
 
-  function handleError(message: string) {
-    setError(message);
+  const handleError = (err: Error | AxiosError) => {
+    let errorMessage = '發生未知錯誤，請稍後再試！';
+    if (axios.isAxiosError(err)) {
+      errorMessage = err.response?.data?.message || (err.response ? `伺服器錯誤 (${err.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
+    } else errorMessage = err.message;
+
+    setError(errorMessage);
     setStatus('error');
-    onError?.(message);
+    onError?.(err);
   }
 
   async function fetchData(params?: Record<string, any>, newConfig?: Partial<AxiosRequestConfig>) {
@@ -55,7 +60,7 @@ export function useAxios<T = any>(
   
     const requestUrl = resolveUrl(params);
     if (!requestUrl) {
-      handleError('請求 URL 無效，請檢查參數！')
+      handleError(new Error('請求 URL 無效，請檢查參數！'));
       return;
     }
 
@@ -74,7 +79,7 @@ export function useAxios<T = any>(
       });
 
       if (!response?.data) {
-        handleError('伺服器回應資料無效，請稍後再試！');
+        handleError(new Error('伺服器回應資料無效，請稍後再試！'));
         return;
       }
   
@@ -82,16 +87,7 @@ export function useAxios<T = any>(
       setStatus('success');
       onSuccess?.(response.data);
     } catch (error) {
-      let errorMessage = '發生未知錯誤，請稍後再試！';
-      if (axios.isAxiosError(error)) {
-        errorMessage =
-          error.response?.data?.message ||
-          (error.response ? `伺服器錯誤 (${error.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-    
-      handleError(errorMessage);
+      handleError(error as Error | AxiosError);
     }
   }
 

@@ -18,10 +18,11 @@ connectDB();
 const app = express();
 
 // CORS 設定
-app.use(
-  cors({
+app.use(cors({
     origin: process.env.FRONTEND_URL || "https://mern-ecommerce-client-seven.vercel.app",
     credentials: true, // 允許發送 Cookie
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PATCH", "DELETE"],
   }),
 );
 app.options("*", cors());
@@ -38,8 +39,8 @@ app.use(
     saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
     cookie: {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
-      secure: false, // true: 只有 https 才能使用 cookie
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === "production", // true: 只有 https 才能使用 cookie
     },
   }),
 );
