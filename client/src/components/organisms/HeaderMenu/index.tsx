@@ -63,11 +63,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           ) : (
             <div className="flex items-center gap-3">
               <Link to="/login">
-                <UserIcon className={`w-6 h-6 md:hidden ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`}/>
-                <Button
-                  variant="link"
-                  className={`hidden md:block ${isMenuOpen ? "text-secondary" : "text-primary"}`}
-                >
+                <Button variant="link" className={isMenuOpen ? "text-secondary" : "text-primary"}>
                   登入
                 </Button>
               </Link>
