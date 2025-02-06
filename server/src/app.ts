@@ -39,8 +39,9 @@ app.use(
     saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
     cookie: {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 1, // 1 days
       secure: process.env.NODE_ENV === "production", // true: 只有 https 才能使用 cookie
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // true: 允許跨域請求攜帶 cookie
     },
   }),
 );
