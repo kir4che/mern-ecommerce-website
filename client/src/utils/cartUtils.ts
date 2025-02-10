@@ -24,9 +24,7 @@ export const handleQuantityChange = (
   }
 
   const newQuantity = Math.max(1, Math.min(parseInt(inputValue, 10), product?.countInStock || Infinity));
-  if (!isNaN(newQuantity)) {
-    setQuantity(newQuantity);
-  }
+  if (!isNaN(newQuantity)) setQuantity(newQuantity);
 };
 
 interface AddToCartParams {
@@ -70,10 +68,7 @@ interface FreeShippingInfo {
 }
 
 // 計算免運門檻
-export const calculateFreeShipping = (
-  cartTotal: number,
-  threshold: number = 500
-): FreeShippingInfo => {
+export const calculateFreeShipping = (cartTotal: number, threshold: number = 500): FreeShippingInfo => {
   const isFreeShipping = cartTotal >= threshold;
   const shippingFee = isFreeShipping ? 0 : 60;
   const message = isFreeShipping

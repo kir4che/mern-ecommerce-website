@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useReducer, useCallback, useMemo, ReactNode, Dispatch } from "react";
+import { createContext, useContext, useState, useEffect, useReducer, useCallback, useMemo, ReactNode, Dispatch } from "react";
 import axios from "axios";
+import { debounce } from "lodash";
 
 import { useAuth } from "@/context/AuthContext";
 import { useAxios } from "@/hooks/useAxios";
@@ -141,8 +142,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // 初始化購物車
   useEffect(() => {
     if (isAuthenticated) getCart();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+    else {
+      const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (localCart.length === 0) localStorage.setItem("cart", JSON.stringify([]));
+      else dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
+    }
+  }, [isAuthenticated, getCart]);
 
   // 更新購物車資料
   useEffect(() => {
@@ -150,7 +155,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [data]);
 
   // 商品加入購物車
-  const addToCart = useCallback(async ({ productId, quantity }: CartItem) => {
+  const addToCartDebounced = debounce(async ({ productId, quantity }: CartItem) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
@@ -177,7 +182,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       dispatch({ type: "SET_FAIL", payload: handleError(error) });
     }
-  }, [isAuthenticated, refreshAddToCart, getCart]);
+  }, 500);
+
+  const addToCart = useCallback(({ productId, quantity }: CartItem) => {
+    addToCartDebounced({ productId, quantity });
+  }, [addToCartDebounced]);
 
   // 後續登入，需同步本地購物車至後端。
   const syncLocalCartToServer = useCallback(async () => {
