@@ -19,17 +19,12 @@ const app = express();
 
 // CORS 設定
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "https://mern-ecommerce-client-seven.vercel.app",
-    credentials: true, // 允許發送 Cookie
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-  }),
-);
+  origin: process.env.FRONTEND_URL || "https://mern-ecommerce-client-seven.vercel.app",
+  credentials: true, // 允許發送 Cookie
+}));
 app.options("*", cors());
-
-app.use(express.json()); // 確保可以解析 JSON 格式的 request body
-app.use(cookieParser());
-app.use(express.static("public"));
+app.use(express.json()); // 解析 JSON 格式的 request body
+app.use(cookieParser()); // 解析 cookie
 
 // Session 設定
 app.use(
@@ -46,6 +41,7 @@ app.use(
   }),
 );
 
+// 設定首頁路由，確認後端運作正常。
 app.get('/', (req, res) => res.send('Express on Vercel.'));
 
 // 設定 API 路由
@@ -54,5 +50,10 @@ app.use("/api/products", productRouter);
 app.use("/api/news", newRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
+
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}.`);
+});
 
 export default app;

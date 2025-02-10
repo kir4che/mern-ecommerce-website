@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node dist/api/index.js",
     "dev": "nodemon --ext ts --exec ts-node api/index.ts",
-    "build": "tsc",
-    "vercel-build": "npm run build"
+    "build": "tsc"
   },
   "engines": {
     "node": "18.x"
@@ -24,6 +23,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "ecpay_aio_nodejs": "^1.2.2",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
