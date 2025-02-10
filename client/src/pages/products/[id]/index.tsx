@@ -18,31 +18,34 @@ import BlurImage from "@/components/atoms/BlurImage";
 
 import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
+const ProductInfo = ({ label, value }: { label: string, value: string | string[] }) => (
+  <p className="text-sm">
+    <span className="inline-block py-1 mr-4 text-center bg-gray-200 rounded min-w-24">
+      {label}
+    </span>
+    {Array.isArray(value) ? value.join('、') : value}
+  </p>
+);
+
 const ProductPage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const { data, isLoading, error } = useAxios(`/products/${id}`);
+  const { data, isLoading, error, refresh } = useAxios(`/products/${id}`);
   const product = data?.product as Product;
+  const isOutOfStock = product?.countInStock <= 0;
+
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
+    if (id) refresh();
   }, [id]);
 
-  const renderProductInfo = (label: string, value: string | string[]) => (
-    <p className="text-sm">
-      <span className="inline-block py-1 mr-4 text-center bg-gray-200 rounded min-w-24">
-        {label}
-      </span>
-      {Array.isArray(value) ? value.join('、') : value}
-    </p>
-  );
-
-  if (error) return <NotFound message={[error]} />;
+  if (!isLoading && (error || !product)) return <NotFound message={[error]} />;
 
   return (
     <Layout className='px-5 md:px-8'>
-      {isLoading || !product ? (
+      {isLoading ? (
         <Loading />
       ) : (
         <div className="flex flex-col justify-between pt-8 pb-16 mx-auto max-w-screen-2xl gap-x-12 gap-y-4 md:flex-row">
@@ -70,7 +73,7 @@ const ProductPage = () => {
               {product.description}
             </p>
             <div className="flex items-center justify-between">
-              <p className="text-3xl">NT${product.price}</p>
+              <p className="text-3xl">NT$ {product.price}</p>
               <div className="flex items-center gap-3">
                 <Input
                   type="number"
@@ -85,7 +88,7 @@ const ProductPage = () => {
                     setQuantity
                   )}
                   onKeyDown={preventInvalidInput}
-                  disabled={product.countInStock <= 0}
+                  disabled={isOutOfStock}
                   className='items-center gap-2'
                 />
                 <Button
@@ -96,21 +99,21 @@ const ProductPage = () => {
                     addToCart,
                     setQuantity
                   )}
-                  disabled={product.countInStock <= 0}
+                  disabled={isOutOfStock}
                   className='h-10'
                 >
-                  {product.countInStock <= 0 ? '補貨中' : '加入購物車'}
+                  {isOutOfStock ? '補貨中' : '加入購物車'}
                 </Button>
               </div>
             </div>
             <Accordion title="製作材料">{product.ingredients}</Accordion>
             <Accordion title="營養成分表示">{product.nutrition}</Accordion>
             <div className="py-8 space-y-2 border-b border-gray-400">
-              {renderProductInfo("內容", product.content)}
-              {renderProductInfo("過敏原標示", product.allergens)}
-              {renderProductInfo("配送方法", product.delivery)}
-              {renderProductInfo("保存期限", product.expiryDate)}
-              {renderProductInfo("保存方法", product.storage)}
+              <ProductInfo label="內容" value={product.content} />
+              <ProductInfo label="過敏原標示" value={product.allergens} />
+              <ProductInfo label="配送方法" value={product.delivery} />
+              <ProductInfo label="保存期限" value={product.expiryDate} />
+              <ProductInfo label="保存方法" value={product.storage} />
             </div>
           </div>
         </div>
