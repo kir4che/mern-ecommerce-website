@@ -35,7 +35,7 @@ const Cart = () => {
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
   const [isModalOpen, setModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const swiperRef = useRef(null);
 
   const { refresh: createOrder } = useAxios("/orders", {
@@ -47,11 +47,11 @@ const Cart = () => {
       clearCart();
       navigate(`/checkout/${data.order._id}`);
     },
-    onError: () => setError("訂單送出失敗，請稍後再試！")
+    onError: () => setErrorMessage("訂單送出失敗，請稍後再試！")
   });
 
   const handleCheckout = () => {
-    setError(null);
+    setErrorMessage(null);
     createOrder({
       orderItems: cart.map(({ productId, product, quantity }) => ({
         productId,
@@ -104,10 +104,7 @@ const Cart = () => {
                     src={item.product.imageUrl}
                     alt={item.product.title}
                     className="object-cover rounded aspect-square"
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = 'https://placehold.co/144x144?text=No Image';
-                    }}
+                    onError={(e) => (e.currentTarget.src = 'https://placehold.co/144x144?text=No Image')}
                     loading="lazy"
                   />
                 </Link>
@@ -127,7 +124,7 @@ const Cart = () => {
                     />
                   </div>
                   <p className={`text-sm ${item.product.countInStock <= 0 && "text-gray-400"}`}>
-                    NT${addComma(item.product.price)}
+                    NT$ {addComma(item.product.price)}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
                     {item.product.countInStock <= 0 ? (
@@ -175,7 +172,7 @@ const Cart = () => {
                       </div>
                     )}
                     <p className={`text-lg font-semibold ${item.product.countInStock <= 0 && "text-gray-400"}`}>
-                      NT${addComma((item.product.price * item.quantity))}
+                      NT$ {addComma((item.product.price * item.quantity))}
                     </p>
                   </div>
                 </div>
@@ -219,7 +216,7 @@ const Cart = () => {
                       loading="lazy"
                     />
                     <p className="text-sm line-clamp-1">{product.title}</p>
-                    <p className="text-sm">NT${addComma(product.price)}</p>
+                    <p className="text-sm">NT$ {addComma(product.price)}</p>
                   </Link>
                   <Button
                     onClick={() => handleAddToCart(product, 1, addToCart)}
@@ -241,17 +238,17 @@ const Cart = () => {
         </h3>
         <p className="flex justify-between">
           <span className="font-medium">商品金額</span>
-          <span>NT${addComma(subtotal)}</span>
+          <span>NT$ {addComma(subtotal)}</span>
         </p>
         <p className="flex justify-between pt-2 pb-10 mt-6 font-medium border-t border-gray-400">
           <span>小計</span>
-          <span className="font-semibold">NT${addComma(subtotal)}</span>
+          <span className="font-semibold">NT$ {addComma(subtotal)}</span>
         </p>
         <Button className="w-full" onClick={handleCheckout} disabled={!cart?.length}>
           前往付款
         </Button>
       </div>
-      {error && <Alert type="error" message="訂單送出失敗，請稍後再試！" className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
+      {errorMessage && <Alert type="error" message="訂單送出失敗，請稍後再試！" className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
     </Layout>
   );
 };
