@@ -26,6 +26,8 @@ const Login = () => {
   };
 
   useEffect(() => {
+    console.log("user", user);
+    console.log("error", error);
     if (user && !error) navigate("/");
   }, [user, error, navigate]);
 
@@ -66,7 +68,7 @@ const Login = () => {
         <Button type="submit" className="mx-auto mt-8 rounded-none w-28">
           登入
         </Button>
-        <p className="text-sm text-center">
+        <p className="text-center">
           還沒有帳號？
           <Link to="/register" className="text-center hover:underline">
             立即註冊

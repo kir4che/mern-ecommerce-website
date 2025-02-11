@@ -92,8 +92,8 @@ const Input: React.FC<InputProps> = ({
           />
         </div>
       </div>
-      {helperText && !errorState && <p className="text-sm text-gray-400">{helperText}</p>}
-      {errorState && touched && <p className="text-sm text-red-600">{errorState}</p>}
+      {helperText && !errorState && <p className="text-gray-400">{helperText}</p>}
+      {errorState && touched && <p className="text-red-600">{errorState}</p>}
     </div>
   );
 };

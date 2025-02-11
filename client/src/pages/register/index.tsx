@@ -65,7 +65,7 @@ const Register = () => {
         <Button type="submit" className="mx-auto mt-8 rounded-none w-28" disabled={isLoading}>
           註冊
         </Button>
-        <p className="text-sm text-center">
+        <p className="text-center">
           已經有帳號了？
           <Link to="/login" className="hover:underline">
             點此登入

@@ -20,7 +20,7 @@ const FAQ = () => (
             <input type="radio" name="faq" />
             <h3 className="px-0 text-base collapse-title">{question}</h3>
             <div className="px-0 collapse-content">
-              <p className="text-sm">{answer}</p>
+              <p>{answer}</p>
             </div>
           </div>
         ))}

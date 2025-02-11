@@ -191,7 +191,7 @@ const App = () => {
                 loading="lazy"
               />
               <div className="space-y-2">
-                <p className="font-medium">
+                <p className="text-base font-medium">
                   {shop.name}
                   <span className="ml-1.5 text-sm font-normal text-primary/45">
                     {shop.alias}
@@ -220,10 +220,7 @@ const App = () => {
           <hr className="w-full border-primary/30" />
           <div className="flex items-center justify-between">
             {renderTitle("News", "最新消息")}
-            <Link
-              to="/news"
-              className="text-sm hover:underline hover:underline-offset-4"
-            >
+            <Link to="/news" className="text-sm hover:underline hover:underline-offset-4">
               View all
             </Link>
           </div>
@@ -238,12 +235,12 @@ const App = () => {
                   className="flex flex-wrap items-center justify-between gap-y-2"
                 >
                   <p className="text-wrap hover:underline hover:underline-offset-4">
-                    <span className="px-2.5 inline-block py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
+                    <span className="px-2.5 inline-block py-1 mr-2 text-xs font-light rounded-full bg-primary text-secondary">
                       {category}
                     </span>
                     {title}
                   </p>
-                  <p className="text-sm font-light">{formatDate(date)}</p>
+                  <p className="font-light">{formatDate(date)}</p>
                 </Link>
               </li>
             ))}

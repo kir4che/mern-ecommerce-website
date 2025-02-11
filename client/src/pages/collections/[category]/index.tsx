@@ -122,7 +122,7 @@ const Collections = () => {
                     ))}
                   </ul>
                   <div className="flex items-center justify-between mt-2 mb-4">
-                    <p className="text-xl font-medium">NT$ {addComma(product.price)}</p>
+                    <p className="text-xl font-semibold">NT$ {addComma(product.price)}</p>
                     <Input
                       type="number"
                       label="數量"
