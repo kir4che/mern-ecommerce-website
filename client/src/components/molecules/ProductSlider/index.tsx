@@ -78,7 +78,7 @@ const ProductSlider = () => {
           {isRetrying ? "重試中..." : "重新載入"}
         </Button>
         {retryState.count >= 3 && (
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-gray-500">
             您可以：
             <br />
             1. 檢查網路連線
@@ -135,7 +135,7 @@ const ProductSlider = () => {
               <ProductLinkImg product={product} data={data} error={error} />
               <div className="flex flex-col gap-6 py-2 pl-4 border-l-2 border-primary">
                 <div className="flex items-center justify-between">
-                  <p className="text-2xl font-medium">NT$ {addComma(product.price)}</p>
+                  <p className="text-2xl font-semibold">NT$ {addComma(product.price)}</p>
                   <div className="flex items-center gap-3">
                     <Input
                       type="number"
@@ -169,12 +169,12 @@ const ProductSlider = () => {
                     />
                   </div>
                 </div>
-                <p className="mb-6 overflow-hidden line-clamp-3 text-ellipsis min-h-24">
+                <p className="mb-6 overflow-hidden line-clamp-3 text-ellipsis">
                   {product.description}
                 </p>
                 <div className="flex justify-between text-nowrap">
-                  <p className="text-sm text-gray-400">過敏原標示</p>
-                  <p className="text-sm">{product.allergens.join(", ")}</p>
+                  <p className="text-xs text-gray-400">過敏原標示</p>
+                  <p className="text-xs">{product.allergens.join(", ")}</p>
                 </div>
               </div>
             </section>

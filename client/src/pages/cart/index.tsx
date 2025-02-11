@@ -123,7 +123,7 @@ const Cart = () => {
                       onClick={() => removeFromCart(item._id)}
                     />
                   </div>
-                  <p className={`text-sm ${item.product.countInStock <= 0 && "text-gray-400"}`}>
+                  <p className={item.product.countInStock <= 0 && "text-gray-400"}>
                     NT$ {addComma(item.product.price)}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
@@ -180,7 +180,7 @@ const Cart = () => {
             ))}
           </ul>
           {/* 免運門檻通知 */}
-          <p className={`flex font-medium items-center gap-2 py-3 text-sm border-t ${freeShippingInfo.isFreeShipping && ' text-orange-500'}`}>
+          <p className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping && ' text-orange-500'}`}>
             <DeliveryTrunkIcon className="w-6 h-6" />
             {freeShippingInfo.message}
           </p>
@@ -215,8 +215,8 @@ const Cart = () => {
                       onError={(e) => e.currentTarget.src = 'https://placehold.co/144x144?text=No Image'}
                       loading="lazy"
                     />
-                    <p className="text-sm line-clamp-1">{product.title}</p>
-                    <p className="text-sm">NT$ {addComma(product.price)}</p>
+                    <p className="line-clamp-1">{product.title}</p>
+                    <p>NT$ {addComma(product.price)}</p>
                   </Link>
                   <Button
                     onClick={() => handleAddToCart(product, 1, addToCart)}
