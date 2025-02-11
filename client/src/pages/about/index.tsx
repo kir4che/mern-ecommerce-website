@@ -27,11 +27,10 @@ const About = () => {
         <Breadcrumb text={ABOUT.title} textColor="text-secondary" link="about" />
         <div className="max-w-6xl py-40 mx-auto space-y-8 text-secondary">
           <div className="space-y-1">
-            <p>About us</p>
+            <p className="text-base">About us</p>
             <h2 className="text-4xl leading-normal">{ABOUT.title}</h2>
           </div>
-          <p
-            dangerouslySetInnerHTML={{
+          <p dangerouslySetInnerHTML={{
               __html: ABOUT.description2.replace(/\n/g, "<br/>"),
             }}
             className="sm:max-w-md drop-shadow"
@@ -40,12 +39,9 @@ const About = () => {
       </section>
       <section className="py-12">
         {ABOUT.details.map((detail, index) => (
-          <section
-            key={index}
-            className="px-5 pt-4 pb-12 border-t border-primary md:px-8"
-          >
+          <section key={index} className="px-5 pt-4 pb-12 border-t border-primary md:px-8">
             <h2 className="mb-3 text-lg md:text-sm md:mb-0">
-              <span className="mr-2 text-xl font-light">{`0${index + 1}`}</span>
+              <span className="mr-2 text-2xl font-light">{`0${index + 1}`}</span>
               {detail.title}
             </h2>
             <div className="flex flex-col-reverse gap-6 mx-auto md:items-center md:justify-between md:max-w-6xl md:flex-row">
@@ -95,13 +91,10 @@ const About = () => {
       <section className="max-w-5xl px-5 py-12 mx-auto space-y-6 md:px-8">
         <div>
           <h2 className="text-4xl">Store Info</h2>
-          <p>店家資訊</p>
+          <p className="text-base">店家資訊</p>
         </div>
         {SHOP_LIST.map((shop) => (
-          <div
-            key={shop.name}
-            className="flex flex-col justify-between md:flex-row gap-y-6 gap-x-10"
-          >
+          <div key={shop.name} className="flex flex-col justify-between md:flex-row gap-y-6 gap-x-10">
             <div className="flex-1 max-w-xl">
               <img
                 src={shop.imageUrl}
@@ -121,7 +114,7 @@ const About = () => {
                 {shop.info && Object.keys(shop.info).length > 0 ? (
                   Object.entries(shop.info).map(([key, value]) => (
                     <li key={key} className="py-2">
-                      <span className="px-2 py-1 mr-2 font-medium rounded bg-primary/10">
+                      <span className="px-2 py-1 mr-3 text-sm font-medium rounded bg-primary/10">
                         {SHOP_INFO[key]}
                       </span>
                       {value}

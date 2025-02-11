@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
+import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
@@ -19,12 +20,12 @@ import BlurImage from "@/components/atoms/BlurImage";
 import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
 const ProductInfo = ({ label, value }: { label: string, value: string | string[] }) => (
-  <p className="text-sm">
-    <span className="inline-block py-1 mr-4 text-center bg-gray-200 rounded min-w-24">
+  <li className="text-sm list-none">
+    <span className="inline-block py-1 mr-3 text-xs text-center bg-gray-200 rounded min-w-20">
       {label}
     </span>
     {Array.isArray(value) ? value.join('、') : value}
-  </p>
+  </li>
 );
 
 const ProductPage = () => {
@@ -48,16 +49,16 @@ const ProductPage = () => {
       {isLoading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-between pt-8 pb-16 mx-auto max-w-screen-2xl gap-x-12 gap-y-4 md:flex-row">
+        <div className="flex flex-col justify-between pt-8 pb-16 mx-auto max-w-screen-2xl gap-x-12 gap-y-4 lg:flex-row">
           <div className="flex-1">
             <BlurImage
               src={product.imageUrl}
               alt={product.title}
-              className='w-full h-full rounded-md'
+              className='object-cover w-full h-full rounded-md max-h-96'
             />
           </div>
           <div className="flex-1">
-            <p className="mb-1 text-sm">{product.tagline}</p>
+            <p className="mb-1">{product.tagline}</p>
             <h1 className="mb-2 text-3xl font-medium">{product.title}</h1>
             <ul className="flex items-center gap-1.5">
               {product.categories.map((category, index) => (
@@ -72,8 +73,8 @@ const ProductPage = () => {
             <p className="py-6 mt-4 border-t-[1.25px] border-gray-400 border-dashed">
               {product.description}
             </p>
-            <div className="flex items-center justify-between">
-              <p className="text-3xl">NT$ {product.price}</p>
+            <div className="flex items-center justify-between mb-8">
+              <p className="text-3xl font-semibold">NT$ {addComma(product.price)}</p>
               <div className="flex items-center gap-3">
                 <Input
                   type="number"
@@ -82,23 +83,14 @@ const ProductPage = () => {
                   max={product.countInStock}
                   value={quantity}
                   defaultValue={1}
-                  onChange={(e) => handleQuantityChange(
-                    e,
-                    product,
-                    setQuantity
-                  )}
+                  onChange={(e) => handleQuantityChange(e, product, setQuantity)}
                   onKeyDown={preventInvalidInput}
                   disabled={isOutOfStock}
                   className='items-center gap-2'
                 />
                 <Button
                   icon={product.countInStock !== 0 && CartPlusIcon}
-                  onClick={() => handleAddToCart(
-                    product,
-                    quantity,
-                    addToCart,
-                    setQuantity
-                  )}
+                  onClick={() => handleAddToCart(product, quantity, addToCart, setQuantity)}
                   disabled={isOutOfStock}
                   className='h-10'
                 >
@@ -108,13 +100,13 @@ const ProductPage = () => {
             </div>
             <Accordion title="製作材料">{product.ingredients}</Accordion>
             <Accordion title="營養成分表示">{product.nutrition}</Accordion>
-            <div className="py-8 space-y-2 border-b border-gray-400">
+            <ul className="py-8 space-y-2 border-b border-gray-400">
               <ProductInfo label="內容" value={product.content} />
-              <ProductInfo label="過敏原標示" value={product.allergens} />
+              <ProductInfo label="過敏原" value={product.allergens} />
               <ProductInfo label="配送方法" value={product.delivery} />
               <ProductInfo label="保存期限" value={product.expiryDate} />
               <ProductInfo label="保存方法" value={product.storage} />
-            </div>
+            </ul>
           </div>
         </div>
       )}
