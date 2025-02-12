@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useReducer, useCallback, useMemo, ReactNode, Dispatch } from "react";
+import { createContext, useContext, useEffect, useReducer, useCallback, useMemo, ReactNode, Dispatch } from "react";
 import axios from "axios";
 import { debounce } from "lodash";
 
@@ -119,9 +119,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { refresh: refreshClearCart } = useCartAxios('/cart', 'DELETE');
 
   const handleError = (error: unknown) => {
-    if (axios.isAxiosError(error)) {
+    if (axios.isAxiosError(error))
       return error.response?.data?.message || "發生錯誤，請稍後再試";
-    }
     return "未知錯誤";
   };
 
@@ -147,45 +146,57 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (localCart.length === 0) localStorage.setItem("cart", JSON.stringify([]));
       else dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
     }
-  }, [isAuthenticated, getCart]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // 更新購物車資料
   useEffect(() => {
     if (data?.cart) dispatch({ type: "SET_CART_SUCCESS", payload: data.cart });
   }, [data]);
-
-  // 商品加入購物車
-  const addToCartDebounced = debounce(async ({ productId, quantity }: CartItem) => {
+  
+  const addToCartLogic = async (productId: string, quantity: number) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
-
+  
       if (!isAuthenticated) {
         // 未登入：將商品加入本地購物車
         const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
         // 檢查商品是否已存在，若存在則更新數量。
         const existingItemIndex = localCart.findIndex(item => item.productId === productId);
-
+  
         if (existingItemIndex !== -1) localCart[existingItemIndex].quantity += quantity;
         else localCart.push({ productId, quantity });
-
+  
         localStorage.setItem("cart", JSON.stringify(localCart));
-        
+  
         dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
       } else {
         // 已登入：發送 API 新增商品至後端
         await refreshAddToCart({ productId, quantity });
         await getCart();
       }
-
+  
       dispatch({ type: "SET_SHOW_TOOLTIP", payload: true });
       setTimeout(() => dispatch({ type: "SET_SHOW_TOOLTIP", payload: false }), 2000);
     } catch (error) {
       dispatch({ type: "SET_FAIL", payload: handleError(error) });
     }
+  };
+
+  // 商品加入購物車
+  const addToCartDebounced = debounce(async ({ productId, quantity }: CartItem) => {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        await addToCartLogic(productId, quantity);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
   }, 500);
 
-  const addToCart = useCallback(({ productId, quantity }: CartItem) => {
-    addToCartDebounced({ productId, quantity });
+  const addToCart = useCallback(async ({ productId, quantity }: CartItem) => {
+    await addToCartDebounced({ productId, quantity });
   }, [addToCartDebounced]);
 
   // 後續登入，需同步本地購物車至後端。
@@ -213,8 +224,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // 當使用者登入時，自動同步本地購物車
   useEffect(() => {
-    if (isAuthenticated) syncLocalCartToServer();
-  }, [isAuthenticated, syncLocalCartToServer]);
+    if (isAuthenticated) {
+      syncLocalCartToServer();
+      getCart();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // 商品移出購物車
   const removeFromCart = useCallback(async (cartItemId: string) => {
@@ -254,8 +269,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [refreshClearCart, getCart]);
 
-  // 計算購物車中商品總數量、小計
-  const totalQuantity = useMemo(() => state.cart.reduce((total, item) => total + item.quantity, 0), [state.cart]);
+  // 計算購物車中商品總數量
+  const totalQuantity = useMemo(() => {
+    if (!isAuthenticated) {
+      const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
+      return localCart.reduce((total, item) => total + item.quantity, 0);
+    }
+    return state.cart.reduce((total, item) => total + item.quantity, 0);
+  }, [isAuthenticated, state.cart]);
+  
+  // 計算購物車中商品總金額
   const subtotal = useMemo(() => state.cart.reduce((total, { product, quantity }) => total + (product?.price ?? 0) * quantity, 0), [state.cart]);
 
   const contextValue: CartContextType = { ...state, totalQuantity, subtotal, getCart, addToCart, removeFromCart, changeQuantity, clearCart, dispatch };
