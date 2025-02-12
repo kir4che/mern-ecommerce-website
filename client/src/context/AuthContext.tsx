@@ -93,12 +93,7 @@ const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
 
-  const { 
-    refresh: loginRequest, 
-    data: loginData,
-    isLoading: isLoginLoading 
-  } = useAxios<LoginResponse>(
-    "/user/login",
+  const { refresh: loginRequest, data: loginData, isLoading: isLoginLoading } = useAxios<LoginResponse>("/user/login",
     {
       method: "POST",
       withCredentials: true,
@@ -114,11 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   );
 
-  const { 
-    refresh: logoutRequest,
-    isLoading: isLogoutLoading 
-  } = useAxios(
-    "/user/logout",
+  const { refresh: logoutRequest, isLoading: isLogoutLoading } = useAxios("/user/logout",
     {
       method: "POST",
       withCredentials: true,
@@ -158,13 +149,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
     try {
       await loginRequest({ email, password, rememberMe });
-  
-      if (loginData?.user) {
-        dispatch({
-          type: AuthActionType.LOGIN_SUCCESS,
-          payload: loginData.user
-        });
-      }
     } catch {
       dispatch({
         type: AuthActionType.LOGIN_FAIL,
@@ -173,6 +157,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoginLoading, loginRequest]);
+
+  useEffect(() => {
+    if (loginData?.user) {
+      dispatch({
+        type: AuthActionType.LOGIN_SUCCESS,
+        payload: loginData.user
+      });
+    }
+  }, [loginData]);
 
   // 登出方法
   const logout = useCallback(async (): Promise<void> => {
