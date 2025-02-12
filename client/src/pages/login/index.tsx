@@ -23,13 +23,8 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password, rememberMe);
-  };
-
-  useEffect(() => {
-    console.log("user", user);
-    console.log("error", error);
     if (user && !error) navigate("/");
-  }, [user, error, navigate]);
+  };
 
   return (
     <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
