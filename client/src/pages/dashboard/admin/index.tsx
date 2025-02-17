@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useGetData } from "@/hooks/useGetData";
+import { useAxios } from "@/hooks/useAxios";
 
 import { useAuth } from "@/context/AuthContext";
 import { addComma } from "@/utils/addComma";
@@ -18,182 +18,34 @@ const AdminDashboard = () => {
 
   const {
     data: productsData,
-    loading: productLoading,
     error: productError,
-  } = useGetData("/products");
+    isLoading: productLoading,
+  } = useAxios("/products");
   const {
     data: newsData,
-    loading: newLoading,
     error: newError,
-  } = useGetData("/news");
+    isLoading: newLoading,
+  } = useAxios("/news");
   const {
     data: ordersData,
-    loading: orderLoading,
     error: orderError,
-  } = useGetData("/orders/admin");
+    isLoading: orderLoading,
+  } = useAxios("/orders/admin");
   const products = productsData?.products;
   const news = newsData?.news;
-  const orders = ordersData?.orders;
 
-  const [isAddOrEditProductForm, setIsAddOrEditProductForm] = useState("");
-  const [isAddOrEditNewForm, setIsAddOrEditNewForm] = useState("");
-  const [productForm, setProductForm] = useState({
-    _id: "",
-    title: "",
-    tagline: "",
-    categories: [],
-    description: "",
-    price: 0,
-    content: "",
-    expiryDate: "",
-    allergens: [],
-    delivery: "",
-    storage: "",
-    ingredients: "",
-    nutrition: "",
-    countInStock: 0,
-    imageUrl: "",
-    updatedAt: "",
-  });
-  const [newForm, setNewForm] = useState({
-    _id: "",
-    title: "",
-    category: "",
-    date: "",
-    content: "",
-    imageUrl: "",
-    updatedAt: "",
-  });
+  // 權限檢查
+  useEffect(() => {
+    if (user?.role !== "admin") navigate("/");
+  }, [user, navigate]);
 
-  // useEffect(() => {
-  //   if (role.includes('user')) navigate('/')
-  // }, [role])
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  if (productLoading || newLoading || orderLoading) return <Loading />;
-  if (productError || newError || orderError)
-    return <NotFound message={[productError, newError, orderError]} />;
-
-  const handleFormUpdate = async (item: string, todo: string) => {
-    if (todo === "add") {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/${item}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-          credentials: "include",
-          body: JSON.stringify(
-            item === "products"
-              ? {
-                  title: productForm.title,
-                  tagline: productForm.tagline,
-                  categories: productForm.categories,
-                  description: productForm.description,
-                  price: productForm.price,
-                  content: productForm.content,
-                  expiryDate: productForm.expiryDate,
-                  allergens: productForm.allergens,
-                  delivery: productForm.delivery,
-                  storage: productForm.storage,
-                  ingredients: productForm.ingredients,
-                  nutrition: productForm.nutrition,
-                  countInStock: productForm.countInStock,
-                  imageUrl: productForm.imageUrl,
-                }
-              : {
-                  title: newForm.title,
-                  category: newForm.category,
-                  date: newForm.date,
-                  content: newForm.content,
-                  imageUrl: newForm.imageUrl,
-                },
-          ),
-        });
-        if (res.ok) {
-          if (item === "products") setIsAddOrEditProductForm("");
-          else setIsAddOrEditNewForm("");
-        }
-      } catch (err: any) {
-        console.error(err.message);
-      }
-    } else if (todo === "edit") {
-      if (item === "products")
-        setProductForm({ ...productForm, updatedAt: new Date().toISOString() });
-      else setNewForm({ ...newForm, updatedAt: new Date().toISOString() });
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/${item}/${item === "products" ? productForm._id : newForm._id}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-            credentials: "include",
-            body: JSON.stringify(item === "products" ? productForm : newForm),
-          },
-        );
-        if (res.ok) {
-          if (item === "products") setIsAddOrEditProductForm("");
-          else setIsAddOrEditNewForm("");
-        }
-      } catch (err: any) {
-        console.error(err.message);
-      }
-    }
-    navigate(0);
-  };
-
-  const handleDelete = async (item, id) => {
-    window.confirm("確定要刪除嗎？") && deleteItem(item, id);
-  };
-
-  const deleteItem = async (item, id) => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/${item}/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-          credentials: "include",
-        },
-      );
-      if (res.ok) {
-        alert("刪除成功！");
-        navigate(0); // 重新整理頁面
-      }
-    } catch (err: any) {
-      console.error(err.message);
-    }
-  };
-
-  // 暫時不處理實際出貨流程
-  const handleDeliver = async (id) => {
-    // 更新訂單狀態
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/orders/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-        body: JSON.stringify({
-          status: "已出貨",
-          shippingStatus: "運送中",
-        }),
-      });
-      if (res.ok) {
-        alert("出貨成功！");
-        navigate(0);
-      }
-    } catch (err: any) {
-      console.error(err.message);
-    }
-  };
+  useEffect(() => {
+    if (!productsLoading && !newsLoading && productsData && newsData)
+      setInitialLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productsLoading, newsLoading]);
 
   return (
     <Layout>
@@ -362,7 +214,7 @@ const AdminDashboard = () => {
             <ul className="p-3 overflow-y-auto border shadow max-h-80">
               <div className="p-2 pb-4 space-y-4 overflow-x-auto">
                 <ul className="w-full pb-3 border-b border-gray-300 min-w-fit">
-                  <li className="flex text-sm">
+                  <li className="flex">
                     <p className="min-w-20">訂單編號</p>
                     <p className="min-w-20">訂單狀態</p>
                     <p className="min-w-20">出貨狀態</p>
@@ -374,17 +226,13 @@ const AdminDashboard = () => {
                 {orders.length > 0 ? (
                   <ul className="space-y-4">
                     {orders.map((order, index) => (
-                      <li className="flex text-sm">
+                      <li className="flex">
                         <p className="min-w-20">{index + 1}</p>
                         <p className="min-w-20">{order.status}</p>
                         <p className="min-w-20">{order.shippingStatus}</p>
                         <p className="min-w-20">{order.paymentStatus}</p>
-                        <p className="min-w-20">
-                          {addComma(order.subtotal)}
-                        </p>
-                        <p className="min-w-44">
-                          {new Date(order.createdAt)}
-                        </p>
+                        <p className="min-w-20">{addComma(order.subtotal)}</p>
+                        <p className="min-w-44">{new Date(order.createdAt)}</p>
                         <button
                           className={`${order.status !== "已付款" ? "opacity-50" : "hover:bg-gray-100"} px-1 min-w-fit ml-8 md:ml-auto py-0.5 text-sm`}
                           onClick={() => handleDeliver(order._id)}
@@ -396,7 +244,7 @@ const AdminDashboard = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm">尚未有訂單。</p>
+                  <p>尚未有訂單。</p>
                 )}
               </div>
             </ul>
