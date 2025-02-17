@@ -7,10 +7,13 @@ export interface ICartItem extends Document {
   quantity: number;
 }
 
-const cartItemSchema = new Schema<ICartItem>({
-  cartId: { type: Schema.Types.ObjectId, ref: "Cart", required: true },
-  productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
-  quantity: { type: Number, required: true },
-});
+const cartItemSchema = new Schema<ICartItem>(
+  {
+    cartId: { type: Schema.Types.ObjectId, ref: "Cart", required: true },
+    productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+    quantity: { type: Number, required: true, min: [1, "Quantity cannot be less than 1"] },
+  },
+  { timestamps: true }
+);
 
 export const CartItemModel = model<ICartItem>("CartItem", cartItemSchema);

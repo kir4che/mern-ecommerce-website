@@ -48,9 +48,7 @@ const productSchema = new Schema<IProduct>(
     },
     imageUrl: { type: String, required: true },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 export const ProductModel = model<IProduct>("Product", productSchema);

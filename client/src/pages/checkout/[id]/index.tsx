@@ -57,6 +57,21 @@ const Checkout = () => {
     } catch (err: any) {
       console.error(err.message);
     }
+  );
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // 建立付款單，並導向綠界金流。
+    await createPayment({
+      orderId: id,
+      orderNo: data.order.orderNo,
+      name: buyerInfo.name,
+      phone: buyerInfo.phone,
+      address: buyerInfo.address,
+      note: buyerInfo.note,
+      ChoosePayment: paymentMethod
+    });
   };
 
   return (

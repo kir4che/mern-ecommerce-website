@@ -1,8 +1,46 @@
 import { Schema, Types, model } from "mongoose";
 
-export const ORDER_STATUS = ["已成立", "已付款", "已出貨", "已取消", "已完成", "已退貨"];
-export const SHIPPING_STATUS = ["尚未寄件", "運送中", "已送達"];
-export const PAYMENT_STATUS = ["尚未付款", "已付款"];
+export enum OrderStatus {
+  Created = "created",
+  Paid = "paid",
+  Processing = "processing",
+  Shipped = "shipped",
+  Delivered = "delivered",
+  PickedUp = "picked_up",
+  Completed = "completed",
+  Canceled = "canceled",
+  ReturnRequested = "return_requested",
+  Returned = "returned"
+}
+
+enum PaymentStatus {
+  Unpaid = "unpaid",
+  Paid = "paid",
+  Refunded = "refunded"
+}
+
+enum ShippingStatus {
+  NotShipped = "not_shipped",
+  Pending = "pending",
+  InTransit = "in_transit",
+  Delivered = "delivered",
+  PickedUp = "picked_up",
+  Returning = "returning",
+  Returned = "returned"
+}
+
+const ORDER_STATUS_FLOW: Record<OrderStatus, { paymentStatus: PaymentStatus; shippingStatus: ShippingStatus }> = {
+  [OrderStatus.Created]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.Paid]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.Processing]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Pending },
+  [OrderStatus.Shipped]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.InTransit },
+  [OrderStatus.Delivered]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Delivered },
+  [OrderStatus.PickedUp]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
+  [OrderStatus.Completed]:  { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
+  [OrderStatus.Canceled]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.ReturnRequested]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Returning },
+  [OrderStatus.Returned]: { paymentStatus: PaymentStatus.Refunded, shippingStatus: ShippingStatus.Returned },
+};
 
 export interface IOrderItem {
   productId: Types.ObjectId;
@@ -15,6 +53,7 @@ export interface IOrderItem {
 
 export interface IOrder extends Document {
   _id: Types.ObjectId;
+  orderNo: string;
   userId: Types.ObjectId;
   name: string;
   phone: string;
@@ -26,8 +65,13 @@ export interface IOrder extends Document {
   discount?: number; // 折扣金額
   totalAmount: number; // 最終應付金額（商品金額 + 運費 - 折扣）
   status: string;
-  shippingStatus: string;
   paymentStatus: string;
+  shippingStatus: string;
+  shippingTrackingNo?: string;
+  paymentMethod?: string;
+  paymentDate?: Date;
+  returnReason?: string;
+  returnDate?: Date;
   note?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -44,6 +88,7 @@ const orderItemSchema = new Schema<IOrderItem>({
 
 const orderSchema = new Schema<IOrder>(
   {
+    orderNo: { type: String, required: true, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String },
     phone: { type: String },
@@ -52,14 +97,50 @@ const orderSchema = new Schema<IOrder>(
     subtotal: { type: Number, default: 0, required: true },
     shippingFee: { type: Number, default: 60 },
     couponCode: { type: String },
-    discount: { type: Number, default: 0 },
-    totalAmount: { type: Number },
-    status: { type: String, enum: ORDER_STATUS, default: "已成立" },
-    shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "尚未寄件" },
-    paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "尚未付款" },
-    note: { type: String, default: undefined },
+    subtotal: { type: Number, default: 0, required: true, min: 0 },
+    shippingFee: { type: Number, default: 60, min: 0 },
+    discount: { type: Number, default: 0, min: 0 },
+    totalAmount: { type: Number, required: true, min: 0 },
+    status: { 
+      type: String, 
+      enum: Object.values(OrderStatus), 
+      default: OrderStatus.Created 
+    },
+    paymentStatus: { 
+      type: String, 
+      enum: Object.values(PaymentStatus), 
+      default: PaymentStatus.Unpaid 
+    },
+    shippingStatus: { 
+      type: String, 
+      enum: Object.values(ShippingStatus), 
+      default: ShippingStatus.NotShipped 
+    },
+    shippingTrackingNo: { type: String, unique: true, sparse: true, default: undefined },
+    paymentMethod: { type: String },
+    paymentDate: { type: Date },
+    returnReason: { type: String },
+    returnDate: { type: Date },
+    note: { type: String, default: "" },
   },
   { timestamps: true },
 );
+
+orderSchema.pre("save", function(next) {
+  const order = this;
+
+  // 根據 status 自動更新 paymentStatus 跟 shippingStatus
+  if (ORDER_STATUS_FLOW[order.status as OrderStatus]) {
+    order.paymentStatus = ORDER_STATUS_FLOW[order.status as OrderStatus].paymentStatus;
+    order.shippingStatus = ORDER_STATUS_FLOW[order.status as OrderStatus].shippingStatus;
+  }
+
+  next();
+});
+
+orderSchema.index({ orderNo: "text" });
+orderSchema.index({ userId: 1 });
+orderSchema.index({ "orderItems.title": "text" });
+orderSchema.index({ status: 1 });
 
 export const OrderModel = model<IOrder>("Order", orderSchema);

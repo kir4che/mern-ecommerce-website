@@ -2,7 +2,6 @@ import { Schema, Types, model } from "mongoose";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
-  name: string;
   email: string;
   password: string;
   role: string;
@@ -14,8 +13,7 @@ export interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
     password: { type: String, required: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     resetToken: { type: String },
