@@ -9,10 +9,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   text,
   children,
 }) => (
-  <p
-    className={`tooltip tooltip-bottom ${isActivated && "tooltip-open"}`}
-    {...(isActivated ? { "data-tip": text } : {})}
-  >
+  <p className={`tooltip tooltip-bottom ${isActivated && "tooltip-open"}`} {...(isActivated ? { "data-tip": text } : {})}>
     {children}
   </p>
 );

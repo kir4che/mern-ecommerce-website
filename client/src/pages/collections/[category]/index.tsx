@@ -27,7 +27,7 @@ const Collections = () => {
   const navigate = useNavigate();
   const { category } = useParams();
   const { addToCart } = useCart();
-  const { data, isLoading, error } = useAxios<{ products: Product[] }>("/products");
+  const { data, error, isLoading, isError } = useAxios<{ products: Product[] }>("/products");
   const products = data?.products as Product[];
 
   const [selectedCategory, setSelectedCategory] = useState(category || "all");
@@ -79,7 +79,7 @@ const Collections = () => {
     }
   }, [inView, filteredProducts.length, displayedProducts.length]);
 
-  if (error) return <NotFound message={[error]} />;
+  if (isError) return <NotFound message={[error]} />;
 
   return (
     <Layout>
@@ -106,7 +106,7 @@ const Collections = () => {
           <div className="grid w-full grid-cols-1 gap-10 py-10 mx-auto max-w-screen-2xl lg:gap-12 xl:gap-16 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {displayedProducts.map((product) => (
               <div key={product._id}>
-                <ProductLinkImg product={product} data={data} error={error} className='-mb-12' />
+                <ProductLinkImg product={product} data={data} isError={isError} className='-mb-12' />
                 <div className="flex flex-col py-0.5 pl-4 border-l-2 border-primary">
                   <h3 className="relative z-10 px-2 mb-1 text-base w-fit bg-primary text-secondary text-nowrap">
                     {product.title}

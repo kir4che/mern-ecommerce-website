@@ -48,8 +48,8 @@ const RequestResetLink: React.FC = () => {
       );
 
       if (res.status === 200) setCountdown(60); // 開始倒數
-    } catch (error) {
-      if (error.response?.status === 404) {
+    } catch (err: any) {
+      if (err.response?.status === 404) {
         setError("該 Email 並不存在。");
       } else setError("發生錯誤，請稍後再試。");
     } finally {

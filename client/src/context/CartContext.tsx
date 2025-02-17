@@ -23,7 +23,6 @@ interface CartState {
   cart: CartItem[];
   isLoading: boolean;
   error: string | null;
-  showTooltip: boolean;
 }
 
 type CartAction =
@@ -32,8 +31,7 @@ type CartAction =
   | { type: "SET_FAIL"; payload: string }
   | { type: "REMOVE_ITEM_SUCCESS"; payload: string }
   | { type: "UPDATE_QUANTITY_SUCCESS"; cartItemId: string; quantity: number }
-  | { type: "CLEAR_CART_SUCCESS" }
-  | { type: "SET_SHOW_TOOLTIP"; payload: boolean };
+  | { type: "CLEAR_CART_SUCCESS" };
 
   interface CartContextType extends CartState {
     totalQuantity: number;
@@ -50,7 +48,6 @@ const INITIAL_STATE: CartState = {
   cart: [],
   isLoading: false,
   error: null,
-  showTooltip: false,
 };
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -74,8 +71,6 @@ const CartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, cart: [] };
     case "SET_FAIL":
       return { ...state, error: action.payload };
-    case "SET_SHOW_TOOLTIP":
-      return { ...state, showTooltip: action.payload };
     default:
       return state;
   }
@@ -118,9 +113,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
   const { refresh: refreshClearCart } = useCartAxios('/cart', 'DELETE');
 
-  const handleError = (error: unknown) => {
-    if (axios.isAxiosError(error))
-      return error.response?.data?.message || "發生錯誤，請稍後再試";
+  const handleError = (err: any) => {
+    if (axios.isAxiosError(err))
+      return err.response?.data?.message || "發生錯誤，請稍後再試";
     return "未知錯誤";
   };
 
@@ -131,8 +126,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       dispatch({ type: "SET_FAIL", payload: null });
 
       await refreshCart();
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     } finally {
       dispatch({ type: "SET_IS_LOADING", payload: false });
     }
@@ -157,7 +152,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addToCartLogic = async (productId: string, quantity: number) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
-  
+
       if (!isAuthenticated) {
         // 未登入：將商品加入本地購物車
         const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -168,18 +163,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         else localCart.push({ productId, quantity });
   
         localStorage.setItem("cart", JSON.stringify(localCart));
-  
         dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
       } else {
         // 已登入：發送 API 新增商品至後端
         await refreshAddToCart({ productId, quantity });
         await getCart();
       }
-  
-      dispatch({ type: "SET_SHOW_TOOLTIP", payload: true });
-      setTimeout(() => dispatch({ type: "SET_SHOW_TOOLTIP", payload: false }), 2000);
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
   };
 
@@ -189,8 +180,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       try {
         await addToCartLogic(productId, quantity);
         resolve();
-      } catch (error) {
-        reject(error);
+      } catch (err: any) {
+        reject(err);
       }
     });
   }, 500);
@@ -216,8 +207,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       localStorage.removeItem("cart"); // 清除 localStorage，確保數據已同步
       await getCart();
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
   }, [isAuthenticated, refreshAddToCart, getCart]);
 
@@ -239,8 +230,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await refreshRemoveFromCart({ id: cartItemId });
       await getCart();
       dispatch({ type: "REMOVE_ITEM_SUCCESS", payload: cartItemId });
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
   }, [refreshRemoveFromCart, getCart]);
 
@@ -252,8 +243,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await refreshChangeQuantity({ id: cartItemId, quantity });
       await getCart();
       dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
   }, [refreshChangeQuantity, getCart]);
 
@@ -264,8 +255,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       await refreshClearCart();
       await getCart();
-    } catch (error) {
-      dispatch({ type: "SET_FAIL", payload: handleError(error) });
+    } catch (err: any) {
+      dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
   }, [refreshClearCart, getCart]);
 
