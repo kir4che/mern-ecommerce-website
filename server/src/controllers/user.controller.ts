@@ -11,7 +11,6 @@ import { UserModel } from "../models/user.model";
 declare module "express-session" {
   export interface SessionData {
     user: {
-      id: string;
       name: string;
       email: string;
       role: "user" | "admin";
@@ -26,10 +25,13 @@ interface AuthRequest extends Request {
 const getUserData = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
+    if (!userId) return res.status(401).json({ success: false, message: "User ID not found in request." });
+
     const user = await UserModel.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found!" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found!" });
 
     res.status(200).json({
+      success: true,
       message: "User fetched Successfully!",
       isLogin: true,
       user: {
@@ -40,8 +42,8 @@ const getUserData = async (req: AuthRequest, res: Response) => {
     });
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token has expired." });
-    } else return res.status(401).json({ message: "Unauthorized!" });
+      return res.status(401).json({ success: false, message: "Token has expired." });
+    } else return res.status(401).json({ success: false, message: "Unauthorized!" });
   }
 };
 
@@ -52,7 +54,7 @@ const createNewUser = async (req: Request, res: Response) => {
     // 先確認該 email 是否已經被註冊過
     const isNewUser = await UserModel.findOne({ email });
     if (isNewUser)
-      return res.status(400).json({ message: "User already Exists!" });
+      return res.status(400).json({ success: false, message: "User already Exists!" });
 
     // 將 password 進行 hash
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -63,9 +65,9 @@ const createNewUser = async (req: Request, res: Response) => {
     const newCart = new CartModel({ userId: newUser._id, items: [] });
     await newCart.save();
 
-    res.status(201).json({ message: "User registered Successfully!" });
+    res.status(201).json({ success: true, message: "User registered Successfully!" });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -75,12 +77,12 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     // 確認該 email 是否已經被註冊過
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User doesn't exist!" });
+    if (!user) return res.status(400).json({ success: false, message: "User doesn't exist!" });
 
     // 確認 password 是否正確
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch)
-      return res.status(400).json({ message: "Invalid Password!" });
+      return res.status(400).json({ success: false, message: "Invalid Password!" });
 
     // 設定 JWT 過期時間
     const token = jwt.sign(
@@ -101,7 +103,6 @@ const loginUser = async (req: Request, res: Response) => {
 
     // 儲存用戶資料到 session 中（如果需要使用 session）
     req.session.user = {
-      id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role as "user" | "admin",
@@ -110,12 +111,13 @@ const loginUser = async (req: Request, res: Response) => {
     req.session.save(); // 儲存 session
 
     res.status(200).json({
+      success: true,
       message: "User logged in successfully!",
       isLogin: true, // 回傳登入狀態
       user: req.session.user,
     });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -124,9 +126,9 @@ const logoutUser = async (req: Request, res: Response) => {
     req.session.destroy((err: any) => {
       if (err) throw new Error(err);
     });
-    res.status(200).json({ message: "User logged out Successfully!" });
+    res.status(200).json({ success: true, message: "User logged out Successfully!" });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -135,7 +137,7 @@ const resetPassword = async (req: Request, res: Response) => {
 
   try {
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Email not found!" });
+    if (!user) return res.status(404).json({ success: false, message: "Email not found!" });
 
     // 生成一次性 Token
     const resetToken = crypto.randomBytes(32).toString("hex");
@@ -170,9 +172,9 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ message: "Password reset email sent!" });
+    res.status(200).json({ success: true, message: "Password reset email sent!" });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -186,7 +188,7 @@ const updatePassword = async (req: Request, res: Response) => {
     });
 
     if (!user)
-      return res.status(400).json({ message: "Invalid or expired token!" });
+      return res.status(400).json({ success: false, message: "Invalid or expired token!" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
@@ -194,9 +196,9 @@ const updatePassword = async (req: Request, res: Response) => {
     user.resetTokenExpiration = undefined;
     await user.save();
 
-    res.status(200).json({ message: "Password updated successfully!" });
+    res.status(200).json({ success: true, message: "Password updated successfully!" });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
