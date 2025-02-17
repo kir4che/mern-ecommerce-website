@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, memo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useInView } from 'react-intersection-observer';
 
-import { ProductCategories } from "@/constants/actionTypes";
+import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
 import { Product } from '@/types/product';
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
@@ -93,7 +93,7 @@ const Collections = () => {
       ) : (
         <div className="px-5 py-8 md:px-8">
           <div className="flex justify-center gap-4 overflow-x-auto pb-7">
-            {ProductCategories.map((category) => (
+            {PRODUCT_CATEGORIES.map((category) => (
               <Button
                 key={category.link}
                 className={`px-6 max-h-10 border-dashed ${selectedCategory === category.link ? "border-primary bg-primary text-secondary" : "border-primary/80 text-primary/60 hover:bg-secondary hover:border-primary hover:text-primary"}`}

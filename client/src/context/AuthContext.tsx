@@ -1,11 +1,10 @@
 import { createContext, useContext, useReducer, useEffect, useCallback, useMemo, Dispatch, ReactNode } from "react";
 
-import { AuthActionType, ErrorMessages } from "@/constants/actionTypes";
+import { AUTH_ACTION_TYPE, ERROR_MESSAGES } from "@/constants/actionTypes";
 import { useAxios } from "@/hooks/useAxios";
 
 interface User {
   readonly id: string;
-  readonly name: string;
   readonly email: string;
   readonly role: "admin" | "user";
 }
@@ -24,11 +23,11 @@ interface AuthContextType extends AuthState {
 }
 
 type AuthAction = 
-  | { type: typeof AuthActionType.LOGIN_REQUEST }
-  | { type: typeof AuthActionType.LOGIN_SUCCESS; payload: User }
-  | { type: typeof AuthActionType.LOGIN_FAIL; payload: string }
-  | { type: typeof AuthActionType.LOGOUT }
-  | { type: typeof AuthActionType.LOGOUT_FAIL; payload: string };
+  | { type: typeof AUTH_ACTION_TYPE.LOGIN_REQUEST }
+  | { type: typeof AUTH_ACTION_TYPE.LOGIN_SUCCESS; payload: User }
+  | { type: typeof AUTH_ACTION_TYPE.LOGIN_FAIL; payload: string }
+  | { type: typeof AUTH_ACTION_TYPE.LOGOUT }
+  | { type: typeof AUTH_ACTION_TYPE.LOGOUT_FAIL; payload: string };
 
 // 初始狀態：從 localStorage 中讀取使用者狀態
 const INITIAL_STATE: AuthContextType = {
@@ -50,35 +49,35 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
-    case AuthActionType.LOGIN_REQUEST:
+    case AUTH_ACTION_TYPE.LOGIN_REQUEST:
       return { 
         ...state, 
         user: null, 
         loading: true, 
         error: null
       };
-    case AuthActionType.LOGIN_SUCCESS:
+    case AUTH_ACTION_TYPE.LOGIN_SUCCESS:
       return { 
         ...state, 
         user: action.payload, 
         loading: false, 
         error: null
       };
-    case AuthActionType.LOGIN_FAIL:
+    case AUTH_ACTION_TYPE.LOGIN_FAIL:
       return { 
         ...state, 
         user: null, 
         loading: false,
         error: action.payload
       };
-    case AuthActionType.LOGOUT:
+    case AUTH_ACTION_TYPE.LOGOUT:
       return { 
         ...state, 
         user: null, 
         loading: false, 
         error: null
       };
-    case AuthActionType.LOGOUT_FAIL:
+    case AUTH_ACTION_TYPE.LOGOUT_FAIL:
       return { 
         ...state, 
         user: null, 
@@ -102,8 +101,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       immediate: false,  // 不立即執行請求
       onError: () => {
         dispatch({
-          type: AuthActionType.LOGIN_FAIL,
-          payload: ErrorMessages.LOGIN_FAIL
+          type: AUTH_ACTION_TYPE.LOGIN_FAIL,
+          payload: ERROR_MESSAGES.LOGIN_FAIL
         });
       }
     }
@@ -118,8 +117,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       immediate: false,
       onError: () => {
         dispatch({ 
-          type: AuthActionType.LOGOUT_FAIL, 
-          payload: ErrorMessages.LOGOUT_FAIL
+          type: AUTH_ACTION_TYPE.LOGOUT_FAIL, 
+          payload: ERROR_MESSAGES.LOGOUT_FAIL
         });
       }
     }
@@ -132,8 +131,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("user", JSON.stringify(state.user));
       } catch (err: any) {
         dispatch({
-          type: AuthActionType.LOGIN_FAIL,
-          payload: ErrorMessages.STORAGE_FAIL
+          type: AUTH_ACTION_TYPE.LOGIN_FAIL,
+          payload: ERROR_MESSAGES.STORAGE_FAIL
         });
       }
     } else {
@@ -145,28 +144,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 登入方法
   const login = useCallback(async (email: string, password: string, rememberMe: boolean): Promise<void> => {
     if (isLoginLoading) return;
-    dispatch({ type: AuthActionType.LOGIN_REQUEST });
+    dispatch({ type: AUTH_ACTION_TYPE.LOGIN_REQUEST });
   
     try {
       await loginRequest({ email, password, rememberMe });
+      dispatch({ type: AUTH_ACTION_TYPE.LOGIN_SUCCESS, payload: loginData.user });
       window.location.href = "/"; // 登入成功後重新導向首頁
     } catch {
       dispatch({
-        type: AuthActionType.LOGIN_FAIL,
-        payload: ErrorMessages.LOGIN_FAIL
+        type: AUTH_ACTION_TYPE.LOGIN_FAIL,
+        payload: ERROR_MESSAGES.LOGIN_FAIL
       });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoginLoading, loginRequest]);
-
-  useEffect(() => {
-    if (loginData?.user) {
-      dispatch({
-        type: AuthActionType.LOGIN_SUCCESS,
-        payload: loginData.user
-      });
-    }
-  }, [loginData]);
 
   // 登出方法
   const logout = useCallback(async (): Promise<void> => {
@@ -174,11 +165,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       await logoutRequest();
-      dispatch({ type: AuthActionType.LOGOUT });
+      dispatch({ type: AUTH_ACTION_TYPE.LOGOUT });
+      window.location.href = "/";
     } catch {
       dispatch({ 
-        type: AuthActionType.LOGOUT_FAIL, 
-        payload: ErrorMessages.LOGOUT_FAIL
+        type: AUTH_ACTION_TYPE.LOGOUT_FAIL, 
+        payload: ERROR_MESSAGES.LOGOUT_FAIL
       });
     }
   }, [isLogoutLoading, logoutRequest]);
