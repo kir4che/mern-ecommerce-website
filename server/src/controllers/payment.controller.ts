@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import ShortUniqueId from 'short-unique-id';
 import * as crypto from 'crypto';
 
-import { OrderModel } from "../models/order.model";
+import { OrderModel, OrderStatus } from "../models/order.model";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
   const { orderId, ChoosePayment } = req.body;
@@ -87,11 +87,15 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
   try {
     // 判斷交易結果（1 代表付款成功，其他狀態則為失敗）以及更新訂單狀態
     const updateData = {
-      paymentDate: new Date(PaymentDate).toISOString(),
-      paymentStatus: RtnCode == 1 ? 'paid' : 'unpaid'
+      status: RtnCode == 1 ? OrderStatus.Processing : OrderStatus.Created,
+      paymentDate: new Date(PaymentDate).toISOString()
     };
 
-    await OrderModel.findByIdAndUpdate(CustomField1, updateData, { new: true });
+    const order = await OrderModel.findById(CustomField1);
+    if (!order) return res.status(404).send("Order not found.");
+
+    order.set(updateData);
+    await order.save();
 
     res.status(200).send("1");
   } catch (err: any) {

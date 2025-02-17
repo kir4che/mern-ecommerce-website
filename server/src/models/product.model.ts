@@ -46,10 +46,9 @@ const productSchema = new Schema<IProduct>(
       enum: VALID_TAGS, // 只允許 VALID_TAGS 中的值
       default: [],
     },
-    imageUrl: { type: String, required: true },  },
-  {
-    timestamps: true,
+    imageUrl: { type: String, required: true },
   },
+  { timestamps: true },
 );
 
 productSchema.index({ categories: 1 });

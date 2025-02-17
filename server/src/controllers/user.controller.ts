@@ -11,7 +11,6 @@ import { UserModel } from "../models/user.model";
 declare module "express-session" {
   export interface SessionData {
     user: {
-      name: string;
       email: string;
       role: "user" | "admin";
     };
@@ -35,7 +34,6 @@ const getUserData = async (req: AuthRequest, res: Response) => {
       message: "User fetched Successfully!",
       isLogin: true,
       user: {
-        name: user.name,
         email: user.email,
         role: user.role,
       },
@@ -48,7 +46,7 @@ const getUserData = async (req: AuthRequest, res: Response) => {
 };
 
 const createNewUser = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     // 先確認該 email 是否已經被註冊過
@@ -59,7 +57,7 @@ const createNewUser = async (req: Request, res: Response) => {
     // 將 password 進行 hash
     const hashedPassword = await bcrypt.hash(password, 10);
     // 建立新的 user
-    const newUser = new UserModel({ name, email, password: hashedPassword });
+    const newUser = new UserModel({ email, password: hashedPassword });
     await newUser.save();
 
     const newCart = new CartModel({ userId: newUser._id, items: [] });
@@ -103,7 +101,6 @@ const loginUser = async (req: Request, res: Response) => {
 
     // 儲存用戶資料到 session 中（如果需要使用 session）
     req.session.user = {
-      name: user.name,
       email: user.email,
       role: user.role as "user" | "admin",
     };

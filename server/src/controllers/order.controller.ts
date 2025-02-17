@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 
-import { OrderModel } from "../models/order.model";
+import { OrderModel, OrderStatus } from "../models/order.model";
 
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;
@@ -58,7 +58,7 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       couponCode,
       discount: discount ?? 0,
       totalAmount: totalAmount || subtotal + shippingFee - (discount ?? 0), // 同样使用 discount ?? 0
-      paymentStatus: "unpaid",
+      status: OrderStatus.Created,
     });
     await order.save();
 
@@ -69,7 +69,7 @@ const createOrder = async (req: AuthRequest, res: Response) => {
 };
 
 const updateOrder = async (req: AuthRequest, res: Response) => {
-  const { status, shippingStatus, paymentStatus } = req.body;
+  const { status, shippingTrackingNo } = req.body;
 
   try {
     const order = await OrderModel.findById(req.params.id);
@@ -78,12 +78,11 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
     if (!order.userId.equals(req.userId))
       return res.status(403).json({ success: false, message: "You are not authorized to update this order." });
 
-    // 更新訂單
-    const updatedOrder = await OrderModel.findByIdAndUpdate(
-      req.params.id,
-      { status, shippingStatus, paymentStatus },
-      { new: true },
-    );
+    order.status = status || order.status;
+    order.shippingTrackingNo = shippingTrackingNo || order.shippingTrackingNo;
+    
+    const updatedOrder = await order.save();
+    
     res.status(200).json({ success: true, message: "Order updated successfully!", order: updatedOrder });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
