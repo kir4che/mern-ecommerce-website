@@ -5,10 +5,13 @@ import { getUserData, createNewUser, loginUser, logoutUser, resetPassword, updat
 
 const router = Router();
 
-router.route("/").get(authMiddleware, getUserData);
 router.route("/register").post(createNewUser);
 router.route("/login").post(loginUser);
 router.route("/logout").post(logoutUser);
+
+router.use(authMiddleware);
+
+router.route("/").get(getUserData);
 router.route("/reset-password").post(resetPassword);
 router.route("/update-password").post(updatePassword);
 
