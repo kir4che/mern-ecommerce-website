@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 import { OrderModel, OrderStatus } from "../models/order.model";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
-  const { orderId, ChoosePayment } = req.body;
+  const { orderId, name, phone, address, note, ChoosePayment } = req.body;
 
   if (!Types.ObjectId.isValid(orderId))
     return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
@@ -14,6 +14,10 @@ const createPaymentHandler = async (req: Request, res: Response) => {
   try {
     const order = await OrderModel.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
+    // 先更新訂單的購買人資訊
+    order.set({ name, phone, address, note });
+    await order.save();
 
     const { totalAmount, orderItems } = order;
     const uid = new ShortUniqueId({ length: 20 });
@@ -87,7 +91,7 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
   try {
     // 判斷交易結果（1 代表付款成功，其他狀態則為失敗）以及更新訂單狀態
     const updateData = {
-      status: RtnCode == 1 ? OrderStatus.Processing : OrderStatus.Created,
+      status: RtnCode == 1 ? OrderStatus.Paid : OrderStatus.Created,
       paymentDate: new Date(PaymentDate).toISOString()
     };
 

@@ -22,6 +22,7 @@ const initialBuyerInfo = {
   name: "",
   phone: "",
   address: "",
+  note: ""
 };
 
 const Checkout: React.FC = () => {
@@ -84,6 +85,10 @@ const Checkout: React.FC = () => {
     // 建立付款單，並導向綠界金流。
     await createPayment({
       orderId: id,
+      name: buyerInfo.name,
+      phone: buyerInfo.phone,
+      address: buyerInfo.address,
+      note: buyerInfo.note,
       ChoosePayment: paymentMethod
     });
   };
@@ -99,7 +104,7 @@ const Checkout: React.FC = () => {
   if (!isLoading && (error || !data)) return <NotFound message={["無法加載訂單資料，請稍後再試！"]} />;
 
   return (
-    <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10">
+    <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
       <form className="flex-1 order-2" onSubmit={handleSubmit}>
         {/* 購買人資訊 */}
         <div className="mb-8 space-y-4">
@@ -179,30 +184,41 @@ const Checkout: React.FC = () => {
           </ul>
         </div>
       </form>
-      {/* 購買的商品 */}
-      <ul className="flex flex-col flex-1 mb-8 lg:order-3 gap-y-4">
-        {data?.order?.orderItems?.map((item) => (
-          <li className="flex w-full gap-x-4" key={item.productId}>
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="object-cover w-20 rounded aspect-square"
-              onError={(e) => (e.currentTarget.src = 'https://placehold.co/144x144?text=No Image')}
-              loading="lazy"
-            />
-            <div className="flex items-end justify-between w-full">
-              <div className="flex flex-col justify-between h-full">
-                <p className="font-medium">{item.title}</p>
-                <p>
-                  NT$ {addComma(item.price)}
-                  <span className="ml-2">數量：{item.quantity}</span>
-                </p>
+      <div className="flex flex-col flex-1 lg:order-3">
+        {/* 購買的商品 */}
+        <ul className="mb-8 space-y-4">
+          {data?.order?.orderItems?.map((item) => (
+            <li className="flex w-full gap-x-4" key={item.productId}>
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="object-cover w-20 rounded aspect-square"
+                onError={(e) => (e.currentTarget.src = 'https://placehold.co/144x144?text=No Image')}
+                loading="lazy"
+              />
+              <div className="flex items-end justify-between w-full">
+                <div className="flex flex-col justify-between h-full">
+                  <p className="font-medium">{item.title}</p>
+                  <p>
+                    NT$ {addComma(item.price)}
+                    <span className="ml-2">數量：{item.quantity}</span>
+                  </p>
+                </div>
+                <p className="text-base font-medium">NT$ {addComma(item.amount)}</p>
               </div>
-              <p className="text-base font-medium">NT$ {addComma(item.amount)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+        {/* 備註 */}
+        <label className="mb-2 text-sm">備註</label>
+        <textarea
+          value={buyerInfo.note}
+          placeholder="有任何特殊需求或注意事項嗎？"
+          onChange={(e) => setBuyerInfo({ ...buyerInfo, note: e.target.value })}
+          rows={3}
+          className="textarea textarea-bordered"
+        />
+      </div>
       {errorMessage && <Alert type="error" message={errorMessage} className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
     </Layout>
   );
