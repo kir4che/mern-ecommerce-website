@@ -13,7 +13,7 @@ import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.i
 
 const New = () => {
   const { id } = useParams();
-  const { data, isLoading, error } = useAxios(`/news/${id}`, { method: "GET" });
+  const { data, error, isLoading, isError } = useAxios(`/news/${id}`);
 
   const newsItem = data?.newsItem || {};
 
@@ -25,7 +25,7 @@ const New = () => {
     );
   }
   
-  if (error) return <NotFound message={[error]} />;
+  if (isError) return <NotFound message={[error]} />;
 
   return (
     <Layout>

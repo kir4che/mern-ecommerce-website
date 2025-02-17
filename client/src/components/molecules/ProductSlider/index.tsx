@@ -23,9 +23,7 @@ import "swiper/css/navigation";
 
 const ProductSlider = () => {
   const { addToCart } = useCart();
-  const { data, isLoading, error, refresh } = useAxios("/products", {
-    method: "GET",
-  });
+  const { data, isLoading, isError, refresh } = useAxios("/products");
   const products = data?.products as Product[];
   
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -42,7 +40,7 @@ const ProductSlider = () => {
     try {
       await refresh();
       setRetryState({ count: 0, delay: 1000 });
-    } catch (error) {
+    } catch (err: any) {
       setRetryState((prev) => ({
         count: prev.count + 1,
         delay: prev.delay * 2,
@@ -60,7 +58,7 @@ const ProductSlider = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <p className="mb-4 text-xl text-gray-800">
@@ -115,13 +113,13 @@ const ProductSlider = () => {
           "--swiper-navigation-color": "#252525",
           "--swiper-navigation-size": "2rem",
         } as React.CSSProperties}
-        className={error && 'opacity-70'}
+        className={isError && 'opacity-70'}
       >
         {products && products.filter(item => item.tags.includes('推薦')).map((product) => (
           <SwiperSlide key={product._id}>
-            <section className={`relative sm:max-w-80 ${error && 'pointer-events-none'}`}>
+            <section className={`relative sm:max-w-80 ${isError && 'pointer-events-none'}`}>
               <div className="absolute z-10">
-                <h3 className={`px-2 mb-3 text-xl w-fit bg-primary text-secondary ${error && 'bg-opacity-50'}`}>
+                <h3 className={`px-2 mb-3 text-xl w-fit bg-primary text-secondary ${isError && 'bg-opacity-50'}`}>
                   {product.title}
                 </h3>
                 <ul className="flex items-center gap-1.5">
@@ -132,7 +130,7 @@ const ProductSlider = () => {
                   ))}
                 </ul>
               </div>
-              <ProductLinkImg product={product} data={data} error={error} />
+              <ProductLinkImg product={product} data={data} isError={isError} />
               <div className="flex flex-col gap-6 py-2 pl-4 border-l-2 border-primary">
                 <div className="flex items-center justify-between">
                   <p className="text-2xl font-semibold">NT$ {addComma(product.price)}</p>

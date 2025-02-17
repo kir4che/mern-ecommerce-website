@@ -7,7 +7,7 @@ interface UseAxiosOptions<T> {
   immediate?: boolean;  // 是否在組件掛載後立即發送請求，true 則不需手動觸發，false 則須手動呼叫 refresh 來發送請求。
   skip?: boolean;
   onSuccess?: (data: T) => void;
-  onError?: (error: Error | AxiosError) => void;
+  onError?: (err: Error | AxiosError) => void;
 }
 
 interface UseAxiosResult<T> {
@@ -42,12 +42,12 @@ export function useAxios<T = any>(
   }, [url]);
 
   const handleError = (err: Error | AxiosError) => {
-    let errorMessage = '發生未知錯誤，請稍後再試！';
+    let errMessage = '發生未知錯誤，請稍後再試！';
     if (axios.isAxiosError(err)) {
-      errorMessage = err.response?.data?.message || (err.response ? `伺服器錯誤 (${err.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
-    } else errorMessage = err.message;
+      errMessage = err.response?.data?.message || (err.response ? `伺服器錯誤 (${err.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
+    } else errMessage = err.message;
 
-    setError(errorMessage);
+    setError(errMessage);
     setStatus('error');
     onError?.(err);
   }
@@ -86,15 +86,15 @@ export function useAxios<T = any>(
       setData(response.data || {} as T);
       setStatus('success');
       onSuccess?.(response.data);
-    } catch (error) {
-      handleError(error as Error | AxiosError);
+    } catch (err: any) {
+      handleError(err as Error | AxiosError);
     }
   }
 
   useEffect(() => {
     if (immediate && !skip) fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, skip]);
+  }, [immediate, skip, resolveUrl]);
 
   return {
     data,

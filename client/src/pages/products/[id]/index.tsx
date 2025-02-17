@@ -31,7 +31,7 @@ const ProductInfo = ({ label, value }: { label: string, value: string | string[]
 const ProductPage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const { data, isLoading, error, refresh } = useAxios(`/products/${id}`);
+  const { data, error, isLoading, isError, refresh } = useAxios(`/products/${id}`);
   const product = data?.product as Product;
   const isOutOfStock = product?.countInStock <= 0;
 
@@ -42,7 +42,7 @@ const ProductPage = () => {
     if (id) refresh();
   }, [id]);
 
-  if (!isLoading && (error || !product)) return <NotFound message={[error]} />;
+  if (!isLoading && (isError || !product)) return <NotFound message={[error]} />;
 
   return (
     <Layout className='px-5 md:px-8'>

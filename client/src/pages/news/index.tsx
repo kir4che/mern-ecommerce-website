@@ -43,7 +43,7 @@ const News = () => {
   const [newsData, setNewsData] = useState({ news: [], total: 0 });
 
   // 獲取當前頁數據
-  const { data, isLoading, error } = useAxios(
+  const { data, error, isLoading, isError } = useAxios(
     `/news?page=${page}&limit=${limit}`,
     { method: "GET" }
   );
@@ -77,7 +77,7 @@ const News = () => {
     [page, nextPageData, totalPages]
   );
 
-  if (error) return <NotFound message={[error]} />;
+  if (isError) return <NotFound message={[error]} />;
 
   return (
     <Layout>
