@@ -19,9 +19,9 @@ import { ReactComponent as MasterCardIcon } from "@/assets/icons/mastercard-logo
 import { ReactComponent as JCBIcon } from "@/assets/icons/jcb-logo.inline.svg";
 
 const initialBuyerInfo = {
-  name: "陳大華",
-  phone: "0912345678",
-  address: "台北市中正區信義路123號",
+  name: "",
+  phone: "",
+  address: "",
 };
 
 const Checkout: React.FC = () => {
@@ -51,10 +51,28 @@ const Checkout: React.FC = () => {
     {
       immediate: false,
       onSuccess: (res) => {
-        const formContainer = document.createElement("div");
-        formContainer.innerHTML = res.paymentUrl;
-        document.body.appendChild(formContainer);
-        formContainer.querySelector("form").submit();
+        const form = document.createElement("form");
+        form.action = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
+        form.method = "POST";
+        form.style.display = "none";
+
+        // 使用 FormData 來構建表單資料
+        const formData = new FormData();
+        Object.entries(res.params).forEach(([key, value]) => {
+          formData.append(key, value as string);
+        });
+
+        // 將表單資料加入到表單中
+        formData.forEach((value, key) => {
+          const input = document.createElement("input");
+          input.name = key;
+          input.value = value.toString();
+          form.appendChild(input);
+        });
+
+        // 將表單添加到頁面並提交
+        document.body.appendChild(form);
+        form.submit();
       },
       onError: () => setErrorMessage("付款失敗，請稍後再試！"),
     }
@@ -63,16 +81,10 @@ const Checkout: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const orderItems = data.order.orderItems
-    ?.map(item => `${item.title} x ${item.quantity}`)
-    .join("#");
-
     // 建立付款單，並導向綠界金流。
     await createPayment({
-      TotalAmount: data.order.totalAmount.toString(),
-      TradeDesc: "日出麵包坊",
-      ItemName: orderItems,
-      ChoosePayment: paymentMethod,
+      orderId: id,
+      ChoosePayment: paymentMethod
     });
   };
 
