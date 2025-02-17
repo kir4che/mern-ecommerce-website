@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -13,8 +13,7 @@ import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
 import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login, user, error } = useAuth();
+  const { login, error } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +22,6 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password, rememberMe);
-    if (user && !error) navigate("/");
   };
 
   return (
