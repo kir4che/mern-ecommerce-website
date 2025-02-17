@@ -25,16 +25,21 @@ export const PRODUCT_CATEGORIES = [
 
 export const ORDER_STATUS = {
   created: "已建立",
+  paid: "已付款",
   processing: "處理中",
   shipped: "已出貨",
   delivered: "已送達",
+  picked_up: "已取貨",
   completed: "已完成",
   canceled: "已取消",
+  return_requested: "退貨申請中",
+  returned: "已退貨",
 } as const;
 
 export const PAYMENT_STATUS = {
   unpaid: "未付款",
   paid: "已付款",
+  refunded: "已退款",
 } as const;
 
 export const SHIPPING_STATUS = {
@@ -42,4 +47,7 @@ export const SHIPPING_STATUS = {
   pending: "待出貨",
   in_transit: "配送中",
   delivered: "已送達",
+  picked_up: "已取貨",
+  returning: "退貨中",
+  returned: "已退貨",
 } as const;

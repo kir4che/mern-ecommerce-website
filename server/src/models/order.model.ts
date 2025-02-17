@@ -2,32 +2,44 @@ import { Document, Schema, Types, model } from "mongoose";
 
 export enum OrderStatus {
   Created = "created",
+  Paid = "paid",
   Processing = "processing",
   Shipped = "shipped",
   Delivered = "delivered",
+  PickedUp = "picked_up",
   Completed = "completed",
-  Canceled = "canceled"
+  Canceled = "canceled",
+  ReturnRequested = "return_requested",
+  Returned = "returned"
 }
 
 enum PaymentStatus {
   Unpaid = "unpaid",
-  Paid = "paid"
+  Paid = "paid",
+  Refunded = "refunded"
 }
 
 enum ShippingStatus {
   NotShipped = "not_shipped",
   Pending = "pending",
   InTransit = "in_transit",
-  Delivered = "delivered"
+  Delivered = "delivered",
+  PickedUp = "picked_up",
+  Returning = "returning",
+  Returned = "returned"
 }
 
 const ORDER_STATUS_FLOW: Record<OrderStatus, { paymentStatus: PaymentStatus; shippingStatus: ShippingStatus }> = {
   [OrderStatus.Created]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.Paid]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.NotShipped },
   [OrderStatus.Processing]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Pending },
   [OrderStatus.Shipped]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.InTransit },
   [OrderStatus.Delivered]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Delivered },
-  [OrderStatus.Completed]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Delivered },
-  [OrderStatus.Canceled]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped }
+  [OrderStatus.PickedUp]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
+  [OrderStatus.Completed]:  { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
+  [OrderStatus.Canceled]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.ReturnRequested]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Returning },
+  [OrderStatus.Returned]: { paymentStatus: PaymentStatus.Refunded, shippingStatus: ShippingStatus.Returned },
 };
 
 export interface IOrderItem {
@@ -59,6 +71,8 @@ export interface IOrder extends Document<Types.ObjectId> {
   tradeNo?: string; // 綠界交易編號
   itemName?: string;
   paymentDate?: Date;
+  returnReason?: string;
+  returnDate?: Date;
   note?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -104,6 +118,9 @@ const orderSchema = new Schema<IOrder>(
     paymentMethod: { type: String },
     tradeNo: { type: String, unique: true, sparse: true, default: undefined },
     itemName: { type: String },
+    paymentDate: { type: Date },
+    returnReason: { type: String },
+    returnDate: { type: Date },
     note: { type: String, default: "" },
   },
   { timestamps: true },
