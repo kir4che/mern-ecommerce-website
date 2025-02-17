@@ -22,9 +22,7 @@ import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right
 
 const App = () => {
   const swiperRef = useRef(null);
-  const { data } = useAxios("/news", {
-    method: "GET",
-  });
+  const { data } = useAxios("/news");
 
   const renderTitle = (title: string, subtitle: string, className?: string) => (
     <h2 className={`text-xl ${className}`}>
