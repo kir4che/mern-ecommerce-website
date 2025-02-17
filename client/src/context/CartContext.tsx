@@ -94,12 +94,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(CartReducer, INITIAL_STATE);
   const { logout, isAuthenticated } = useAuth();
 
-  const { data, refresh: refreshCart } = useAxios("/cart",
-    { withCredentials: true },
-    { onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.status === 401) logout();
+  const { data, refresh: refreshCart } = useAxios("/cart", 
+    { withCredentials: true }, 
+    {
+      immediate: false, 
+      onError: (err) => err.statusCode === 401 && logout(),
     }
-  });
+  );
   const { refresh: refreshAddToCart } = useCartAxios('/cart', 'POST');
   const { refresh: refreshRemoveFromCart } = useAxios(
     params => `/cart/${params?.id}`,

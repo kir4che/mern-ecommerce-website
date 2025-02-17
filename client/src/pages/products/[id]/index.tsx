@@ -42,7 +42,7 @@ const ProductPage = () => {
     if (id) refresh();
   }, [id]);
 
-  if (!isLoading && (isError || !product)) return <NotFound message={[error]} />;
+  if (!isLoading && (isError || !product)) return <NotFound message={error?.message} />;
 
   return (
     <Layout className='px-5 md:px-8'>

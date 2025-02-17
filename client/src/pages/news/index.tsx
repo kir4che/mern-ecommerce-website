@@ -77,7 +77,7 @@ const News = () => {
     [page, nextPageData, totalPages]
   );
 
-  if (isError) return <NotFound message={[error]} />;
+  if (isError) return <NotFound message={error?.message} />;
 
   return (
     <Layout>
@@ -99,7 +99,7 @@ const News = () => {
             <Pagination
               page={page}
               totalPages={totalPages}
-              onPageChange={handlePageChange}
+              handlePageChange={handlePageChange}
             />
           )}
         </>

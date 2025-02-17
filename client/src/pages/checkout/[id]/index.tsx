@@ -9,15 +9,7 @@ import Loading from "@/components/atoms/Loading";
 
 const Checkout = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { data, loading } = useGetData(`/orders/${id}`);
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentForm, setPaymentForm] = useState({
-    cardNumber: "",
-    cardDate: "",
-    cardCode: "",
-    cardName: "",
-  });
+  const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, { withCredentials: true });
 
   if (loading) return <Loading />;
   else if (!loading && !data) navigate("/cart");
@@ -52,10 +44,20 @@ const Checkout = () => {
           cardCode: "",
           cardName: "",
         });
-        navigate(`/`);
-      }
-    } catch (err: any) {
-      console.error(err.message);
+
+        // 將表單資料加入到表單中
+        formData.forEach((value, key) => {
+          const input = document.createElement("input");
+          input.name = key;
+          input.value = value.toString();
+          form.appendChild(input);
+        });
+
+        // 將表單添加到頁面並提交
+        document.body.appendChild(form);
+        form.submit();
+      },
+      onError: (err) => setErrorMessage(err.message)
     }
   );
 
@@ -73,6 +75,16 @@ const Checkout = () => {
       ChoosePayment: paymentMethod
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
+  
+  if (!isLoading && (isError || !data)) return <NotFound message={error?.message} />;
 
   return (
     <Layout>

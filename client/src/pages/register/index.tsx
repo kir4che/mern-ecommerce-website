@@ -75,7 +75,7 @@ const Register = () => {
       {isError && (
         <Alert
           type="error"
-          message={error}
+          message={error?.message}
           className="absolute -translate-x-1/2 left-1/2 w-fit top-4 text-nowrap"
         />
       )}

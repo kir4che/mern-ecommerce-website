@@ -1,32 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
 
-interface UseAxiosOptions<T> {
-  immediate?: boolean;  // 是否在組件掛載後立即發送請求，true 則不需手動觸發，false 則須手動呼叫 refresh 來發送請求。
-  skip?: boolean;
-  onSuccess?: (data: T) => void;
-  onError?: (err: Error | AxiosError) => void;
+interface ErrorResponse {
+  message: string;
+  code?: string;
+  statusCode?: number;
+  details?: any;
 }
 
-interface UseAxiosResult<T> {
-  data: T | null;
-  error: string | null;
-  isLoading: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  refresh: (params?: Record<string, any>, config?: Partial<AxiosRequestConfig>) => Promise<void>;
-}
-
-export function useAxios<T = any>(
+export function useAxios(
   url: string | ((params?: Record<string, any>) => string),
   config: AxiosRequestConfig = {},
-  options: UseAxiosOptions<T> = {}
-): UseAxiosResult<T> {
-  const [data, setData] = useState<T | null>(null);
+  options: { 
+    immediate?: boolean; 
+    skip?: boolean; 
+    onSuccess?: (data: any) => void; 
+    onError?: (err: ErrorResponse) => void; 
+  } = {}
+) {
+  const [data, setData] = useState(null);
   const [status, setStatus] = useState<RequestStatus>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorResponse | null>(null);
 
   const { immediate = true, skip = false, onSuccess, onError } = options;
 
@@ -41,17 +37,6 @@ export function useAxios<T = any>(
     return `${baseUrl}${url}`;
   }, [url]);
 
-  const handleError = (err: Error | AxiosError) => {
-    let errMessage = '發生未知錯誤，請稍後再試！';
-    if (axios.isAxiosError(err)) {
-      errMessage = err.response?.data?.message || (err.response ? `伺服器錯誤 (${err.response.status})，請稍後再試！` : '伺服器無回應，請檢查網路連線！');
-    } else errMessage = err.message;
-
-    setError(errMessage);
-    setStatus('error');
-    onError?.(err);
-  }
-
   async function fetchData(params?: Record<string, any>, newConfig?: Partial<AxiosRequestConfig>) {
     if (skip || status === 'loading') return;
   
@@ -60,12 +45,15 @@ export function useAxios<T = any>(
   
     const requestUrl = resolveUrl(params);
     if (!requestUrl) {
-      handleError(new Error('請求 URL 無效，請檢查參數！'));
+      const errorDetails: ErrorResponse = { message: 'The request URL is invalid!' };
+      setError(errorDetails);
+      onError?.(errorDetails);
+      setStatus('error');
       return;
     }
 
     try {
-      const response: AxiosResponse<T> = await axios({
+      const response = await axios({
         url: requestUrl,
         method: newConfig?.method || config.method || 'GET',
         data: params,
@@ -78,16 +66,34 @@ export function useAxios<T = any>(
         },
       });
 
-      if (!response?.data) {
-        handleError(new Error('伺服器回應資料無效，請稍後再試！'));
+      if (!response?.data?.success) {
+        const errorDetails: ErrorResponse = {
+          message: response?.data?.message || 'Request failed!',
+          statusCode: response?.status,
+          details: response?.data?.details,
+        };
+        setError(errorDetails);
+        onError?.(errorDetails);
+        setStatus('error');
         return;
       }
-  
-      setData(response.data || {} as T);
-      setStatus('success');
+
+      setData(response.data || {});
+      
       onSuccess?.(response.data);
+      setStatus('success');
+
+      return response.data;
     } catch (err: any) {
-      handleError(err as Error | AxiosError);
+      const errorDetails: ErrorResponse = {
+        message: err.response?.data?.message || err.message || 'Request failed!',
+        code: err.response?.data?.code,
+        statusCode: err.response?.status,
+        details: err.response?.data?.details,
+      };
+      setError(errorDetails);
+      onError?.(errorDetails);
+      setStatus('error');
     }
   }
 

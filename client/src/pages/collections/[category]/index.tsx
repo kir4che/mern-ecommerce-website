@@ -79,7 +79,7 @@ const Collections = () => {
     }
   }, [inView, filteredProducts.length, displayedProducts.length]);
 
-  if (isError) return <NotFound message={[error]} />;
+  if (isError) return <NotFound message={error?.message} />;
 
   return (
     <Layout>
