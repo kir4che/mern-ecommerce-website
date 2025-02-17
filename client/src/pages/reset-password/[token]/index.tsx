@@ -36,8 +36,8 @@ const ResetPassword: React.FC = () => {
         setSuccess("密碼重設成功，將跳轉至登入頁面。");
         setTimeout(() => navigate("/login"), 3000);
       }
-    } catch (error) {
-      if (error.response?.status === 400) {
+    } catch (err: any) {
+      if (err.response?.status === 400) {
         setError("連結無效或已過期，請重新申請重設密碼。");
       } else setError("發生錯誤，請稍後再試。");
     }

@@ -114,8 +114,8 @@ const AdminDashboard = () => {
           if (item === "products") setIsAddOrEditProductForm("");
           else setIsAddOrEditNewForm("");
         }
-      } catch (error) {
-        console.error(error.message);
+      } catch (err: any) {
+        console.error(err.message);
       }
     } else if (todo === "edit") {
       if (item === "products")
@@ -138,8 +138,8 @@ const AdminDashboard = () => {
           if (item === "products") setIsAddOrEditProductForm("");
           else setIsAddOrEditNewForm("");
         }
-      } catch (error) {
-        console.error(error.message);
+      } catch (err: any) {
+        console.error(err.message);
       }
     }
     navigate(0);
@@ -166,8 +166,8 @@ const AdminDashboard = () => {
         alert("刪除成功！");
         navigate(0); // 重新整理頁面
       }
-    } catch (error) {
-      console.error(error.message);
+    } catch (err: any) {
+      console.error(err.message);
     }
   };
 

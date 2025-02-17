@@ -93,7 +93,7 @@ const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
 
-  const { refresh: loginRequest, data: loginData, isLoading: isLoginLoading } = useAxios<LoginResponse>("/user/login",
+  const { data: loginData, isLoading: isLoginLoading, refresh: loginRequest } = useAxios<LoginResponse>("/user/login",
     {
       method: "POST",
       withCredentials: true,
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   );
 
-  const { refresh: logoutRequest, isLoading: isLogoutLoading } = useAxios("/user/logout",
+  const { isLoading: isLogoutLoading, refresh: logoutRequest } = useAxios("/user/logout",
     {
       method: "POST",
       withCredentials: true,
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (state.user !== null) {
       try {
         localStorage.setItem("user", JSON.stringify(state.user));
-      } catch (error) {
+      } catch (err: any) {
         dispatch({
           type: AuthActionType.LOGIN_FAIL,
           payload: ErrorMessages.STORAGE_FAIL
@@ -149,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
     try {
       await loginRequest({ email, password, rememberMe });
+      window.location.href = "/"; // 登入成功後重新導向首頁
     } catch {
       dispatch({
         type: AuthActionType.LOGIN_FAIL,

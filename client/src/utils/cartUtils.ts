@@ -44,7 +44,7 @@ export const handleAddToCart = async (
   try {
     await addToCart({ productId: product._id, quantity: quantity ?? 1 });
     setQuantity?.(product.countInStock > 0 ? 1 : 0);
-  } catch (error) {
+  } catch (err: any) {
     console.error('Failed to add to cart:', error);
   }
 };
@@ -56,7 +56,7 @@ export const handleRemoveFromCart = async (
 ) => {
   try {
     await removeFromCart(productId);
-  } catch (error) {
+  } catch (err: any) {
     console.error(`Failed to remove product with ID ${productId} from cart:`, error);
   }
 };

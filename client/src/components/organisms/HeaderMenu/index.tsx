@@ -5,7 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 
 import Logo from "@/components/atoms/Logo";
-import Tooltip from "@/components/atoms/Tooltip";
 import Button from "@/components/atoms/Button";
 import Navigation from "@/components/molecules/Navigation";
 
@@ -21,7 +20,7 @@ interface HeaderMenuProps {
 
 const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) => {
   const { user } = useAuth();
-  const { totalQuantity, showTooltip } = useCart();
+  const { totalQuantity } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -74,17 +73,15 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
               </Link>
             </div>
           )}
-          <Tooltip isActivated={showTooltip} text="已加到購物車">
-            <Link to="/cart">
-              <CartIcon className={`w-6 h-6 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`} />
-              <span className={`absolute -top-3 -right-4 rounded-full w-6 h-6 inline-flex text-xs items-center justify-center ${
-                  isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
-                }`}
-              >
-                {totalQuantity}
-              </span>
-            </Link>
-          </Tooltip>
+          <Link to="/cart" className="relative">
+            <CartIcon className={`w-6 h-6 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`} />
+            <span className={`absolute -top-3 -right-4 rounded-full w-[22px] h-[22px] inline-flex text-xs items-center justify-center ${
+                isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
+              }`}
+            >
+              {totalQuantity}
+            </span>
+          </Link>
         </div>
       </header>
       <hr className={`border-primary ${isScrolled && "-mx-8"}`} />

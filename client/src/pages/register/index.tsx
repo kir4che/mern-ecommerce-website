@@ -17,7 +17,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { error, isLoading, refresh } = useAxios(
+  const { error, isLoading, isError, refresh } = useAxios(
     "/user/register",
     { method: "POST" },
     {
@@ -72,7 +72,7 @@ const Register = () => {
           </Link>
         </p>
       </form>
-      {error && (
+      {isError && (
         <Alert
           type="error"
           message={error}
