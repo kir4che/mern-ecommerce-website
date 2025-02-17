@@ -66,9 +66,7 @@ const updateNew = async (req: Request, res: Response) => {
       if (!updatedNew)
         return res.status(404).json({ message: "New not found." });
 
-      res
-        .status(200)
-        .json({ message: "New updated Successfully!", new: updatedNew });
+      res.status(200).json({ message: "New updated Successfully!", new: updatedNew });
     } else res.status(404).json({ message: "New not found!" });
   } catch (err: any) {
     res.status(500).json({ message: err.message });

@@ -1,8 +1,8 @@
-import { Schema, Types, model } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 
-export const ORDER_STATUS = ["已成立", "已付款", "已出貨", "已取消", "已完成", "已退貨"];
-export const SHIPPING_STATUS = ["尚未寄件", "運送中", "已送達"];
-export const PAYMENT_STATUS = ["尚未付款", "已付款"];
+export const ORDER_STATUS = ["created", "paid", "shipped", "canceled", "completed", "returned"] as const;
+export const SHIPPING_STATUS = ["pending", "in_transit", "delivered"] as const;
+export const PAYMENT_STATUS = ['unpaid', 'paid'] as const;
 
 export interface IOrderItem {
   productId: Types.ObjectId;
@@ -13,7 +13,7 @@ export interface IOrderItem {
   imageUrl?: string;
 }
 
-export interface IOrder extends Document {
+export interface IOrder extends Document<Types.ObjectId> {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
   name: string;
@@ -25,9 +25,14 @@ export interface IOrder extends Document {
   couponCode?: string;
   discount?: number; // 折扣金額
   totalAmount: number; // 最終應付金額（商品金額 + 運費 - 折扣）
-  status: string;
-  shippingStatus: string;
-  paymentStatus: string;
+  status: typeof ORDER_STATUS[number];
+  shippingTrackingNo?: string;
+  shippingStatus: typeof SHIPPING_STATUS[number];
+  paymentMethod?: string;
+  tradeNo?: string; // 綠界交易編號
+  itemName?: string;
+  paymentStatus: typeof PAYMENT_STATUS[number];
+  paymentDate?: Date;
   note?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -46,20 +51,28 @@ const orderSchema = new Schema<IOrder>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String },
-    phone: { type: String },
+    phone: { type: String, match: /^09\d{8}$/ },
     address: { type: String },
-    orderItems: [orderItemSchema],
-    subtotal: { type: Number, default: 0, required: true },
-    shippingFee: { type: Number, default: 60 },
+    orderItems: { type: [orderItemSchema], required: true },
     couponCode: { type: String },
-    discount: { type: Number, default: 0 },
-    totalAmount: { type: Number },
-    status: { type: String, enum: ORDER_STATUS, default: "已成立" },
-    shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "尚未寄件" },
-    paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "尚未付款" },
-    note: { type: String, default: undefined },
+    subtotal: { type: Number, default: 0, required: true, min: 0 },
+    shippingFee: { type: Number, default: 60, min: 0 },
+    discount: { type: Number, default: 0, min: 0 },
+    totalAmount: { type: Number, required: true, min: 0 },
+    status: { type: String, enum: ORDER_STATUS, default: "created" },
+    shippingTrackingNo: { type: String, unique: true, sparse: true },
+    shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "pending" },
+    paymentMethod: { type: String },
+    tradeNo: { type: String, unique: true, sparse: true },
+    itemName: { type: String },
+    paymentStatus: { type: String, enum: PAYMENT_STATUS, default: 'unpaid' },    paymentDate: { type: Date },
+    note: { type: String, default: "" },
   },
   { timestamps: true },
 );
+
+orderSchema.index({ userId: 1, createdAt: -1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ tradeNo: 1 }, { unique: true, sparse: true, partialFilterExpression: { paymentStatus: { $in: ['paid', 'refunded'] } } });
 
 export const OrderModel = model<IOrder>("Order", orderSchema);
