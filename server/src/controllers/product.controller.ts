@@ -17,10 +17,8 @@ const getProductById = async (req: Request, res: Response) => {
     const idOrIds = req.params.id;
 
     if (idOrIds.includes(",")) {
-      const objectIds = idOrIds
-        .split(",")
-        .map((id: string) => new mongoose.Types.ObjectId(id));
-      const products = await ProductModel.find({ _id: { $in: objectIds } });
+      const objectIds = idOrIds.split(",").map((id: string) => new mongoose.Types.ObjectId(id));
+      const products = await ProductModel.find({ _id: { $in: objectIds } })
       return res.status(200).json({ success: true, message: "Products fetched successfully!", products });
     } else {
       const product = await ProductModel.findById(idOrIds);

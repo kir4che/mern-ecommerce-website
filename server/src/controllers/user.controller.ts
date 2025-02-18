@@ -26,13 +26,12 @@ const getUserData = async (req: AuthRequest, res: Response) => {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ success: false, message: "User ID not found in request." });
 
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId).select("email role createdAt");
     if (!user) return res.status(404).json({ success: false, message: "User not found!" });
 
     res.status(200).json({
       success: true,
       message: "User fetched Successfully!",
-      isLogin: true,
       user: {
         email: user.email,
         role: user.role,
@@ -84,7 +83,7 @@ const loginUser = async (req: Request, res: Response) => {
 
     // 設定 JWT 過期時間
     const token = jwt.sign(
-      { userId: user._id },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
       {
         expiresIn: rememberMe ? "7d" : "1d",
@@ -110,7 +109,6 @@ const loginUser = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "User logged in successfully!",
-      isLogin: true, // 回傳登入狀態
       user: req.session.user,
     });
   } catch (err: any) {

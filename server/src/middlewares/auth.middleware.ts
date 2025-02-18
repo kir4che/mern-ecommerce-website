@@ -4,7 +4,14 @@ import jwt, { Secret } from "jsonwebtoken";
 
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;
+  role?: string;
 }
+
+export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.userId || req.role !== "admin")
+    return res.status(403).json({ message: "Access denied!" });
+  next();
+};
 
 export const authMiddleware = async (
   req: AuthRequest,
@@ -17,8 +24,11 @@ export const authMiddleware = async (
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as Secret) as {
       userId: Types.ObjectId;
+      role: string;
     };
     req.userId = decoded.userId; // 將 userId 附加到 req 物件上
+    req.role = decoded.role;
+
     next();
   } catch (err: any) {
     if (err.name === "JsonWebTokenError") {

@@ -1,6 +1,5 @@
-import { createContext, useContext, useReducer, useEffect, useCallback, useMemo, Dispatch, ReactNode } from "react";
+import { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from "react";
 
-import { AUTH_ACTION_TYPE, ERROR_MESSAGES } from "@/constants/actionTypes";
 import { useAxios } from "@/hooks/useAxios";
 
 interface User {
@@ -15,176 +14,83 @@ interface AuthState {
   error: string | null;
 }
 
+type AuthAction =
+  | { type: "LOGIN_REQUEST" }
+  | { type: "LOGIN_SUCCESS"; payload: User }
+  | { type: "LOGIN_FAIL"; payload: string }
+  | { type: "LOGOUT_SUCCESS" }
+  | { type: "LOGOUT_FAIL"; payload: string };
+
 interface AuthContextType extends AuthState {
-  isAuthenticated: boolean; // 是否已登入
+  isAuthenticated: boolean;
   login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
   logout: () => Promise<void>;
-  dispatch: Dispatch<AuthAction>;
 }
 
-type AuthAction = 
-  | { type: typeof AUTH_ACTION_TYPE.LOGIN_REQUEST }
-  | { type: typeof AUTH_ACTION_TYPE.LOGIN_SUCCESS; payload: User }
-  | { type: typeof AUTH_ACTION_TYPE.LOGIN_FAIL; payload: string }
-  | { type: typeof AUTH_ACTION_TYPE.LOGOUT }
-  | { type: typeof AUTH_ACTION_TYPE.LOGOUT_FAIL; payload: string };
+const AuthContext = createContext<AuthContextType | null>(null);
 
-// 初始狀態：從 localStorage 中讀取使用者狀態
-const INITIAL_STATE: AuthContextType = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
-  loading: false,
-  error: null,
-  isAuthenticated: false,
-  login: () => Promise.resolve(),
-  logout: () => Promise.resolve(),
-  dispatch: () => {}
-};
 
-interface LoginResponse {
-  user: User
-  message?: string;
-}
-
-export const AuthContext = createContext<AuthContextType | null>(null);
-
-const AuthReducer = (state: AuthState, action: AuthAction): AuthState => {
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
-    case AUTH_ACTION_TYPE.LOGIN_REQUEST:
-      return { 
-        ...state, 
-        user: null, 
-        loading: true, 
-        error: null
-      };
-    case AUTH_ACTION_TYPE.LOGIN_SUCCESS:
-      return { 
-        ...state, 
-        user: action.payload, 
-        loading: false, 
-        error: null
-      };
-    case AUTH_ACTION_TYPE.LOGIN_FAIL:
-      return { 
-        ...state, 
-        user: null, 
-        loading: false,
-        error: action.payload
-      };
-    case AUTH_ACTION_TYPE.LOGOUT:
-      return { 
-        ...state, 
-        user: null, 
-        loading: false, 
-        error: null
-      };
-    case AUTH_ACTION_TYPE.LOGOUT_FAIL:
-      return { 
-        ...state, 
-        user: null, 
-        loading: false, 
-        error: action.payload
-      };
+    case "LOGIN_REQUEST":
+      return { ...state, loading: true, error: null };
+    case "LOGIN_SUCCESS":
+      return { user: action.payload, loading: false, error: null };
+    case "LOGIN_FAIL":
+      return { ...state, loading: false, error: action.payload };
+    case "LOGOUT_SUCCESS":
+      return { user: null, loading: false, error: null };
+    case "LOGOUT_FAIL":
+      return { ...state, loading: false, error: action.payload };
     default:
       return state;
   }
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
+  const initialUser = JSON.parse(localStorage.getItem("user") || "null");
 
-  const { data: loginData, isLoading: isLoginLoading, refresh: loginRequest } = useAxios<LoginResponse>("/user/login",
-    {
-      method: "POST",
-      withCredentials: true,
-    },
-    {
-      immediate: false,  // 不立即執行請求
-      onError: () => {
-        dispatch({
-          type: AUTH_ACTION_TYPE.LOGIN_FAIL,
-          payload: ERROR_MESSAGES.LOGIN_FAIL
-        });
-      }
-    }
-  );
+  const [state, dispatch] = useReducer(authReducer, {
+    user: initialUser,
+    loading: false,
+    error: null,
+  });
 
-  const { isLoading: isLogoutLoading, refresh: logoutRequest } = useAxios("/user/logout",
-    {
-      method: "POST",
-      withCredentials: true,
-    },
-    {
-      immediate: false,
-      onError: () => {
-        dispatch({ 
-          type: AUTH_ACTION_TYPE.LOGOUT_FAIL, 
-          payload: ERROR_MESSAGES.LOGOUT_FAIL
-        });
-      }
-    }
-  );
+  const { refresh: loginRequest } = useAxios("/user/login", { method: "POST", withCredentials: true }, { immediate: false });
+  const { refresh: logoutRequest } = useAxios("/user/logout", { method: "POST" }, { immediate: false });
 
+  // 將 user 存入 localStorage
   useEffect(() => {
-    // 同步用戶狀態到 localStorage
-    if (state.user !== null) {
-      try {
-        localStorage.setItem("user", JSON.stringify(state.user));
-      } catch (err: any) {
-        dispatch({
-          type: AUTH_ACTION_TYPE.LOGIN_FAIL,
-          payload: ERROR_MESSAGES.STORAGE_FAIL
-        });
-      }
-    } else {
-      // 登出時清除 localStorage
-      localStorage.removeItem("user");
-    }
+    if (state.user) localStorage.setItem("user", JSON.stringify(state.user));
+    else localStorage.removeItem("user");
   }, [state.user]);
 
-  // 登入方法
-  const login = useCallback(async (email: string, password: string, rememberMe: boolean): Promise<void> => {
-    if (isLoginLoading) return;
-    dispatch({ type: AUTH_ACTION_TYPE.LOGIN_REQUEST });
-  
+  // 登入
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
+    dispatch({ type: "LOGIN_REQUEST" });
     try {
-      await loginRequest({ email, password, rememberMe });
-      dispatch({ type: AUTH_ACTION_TYPE.LOGIN_SUCCESS, payload: loginData.user });
-      window.location.href = "/"; // 登入成功後重新導向首頁
+      const res = await loginRequest({ email, password, rememberMe });
+      if (res?.success && res?.user) dispatch({ type: "LOGIN_SUCCESS", payload: res.user });
+      else dispatch({ type: "LOGIN_FAIL", payload: res?.message || "登入失敗，請稍後再試。" });
     } catch {
-      dispatch({
-        type: AUTH_ACTION_TYPE.LOGIN_FAIL,
-        payload: ERROR_MESSAGES.LOGIN_FAIL
-      });
+      dispatch({ type: "LOGIN_FAIL", payload: "登入過程中發生錯誤，請稍後再試。" });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoginLoading, loginRequest]);
+  }, [loginRequest]);
 
-  // 登出方法
-  const logout = useCallback(async (): Promise<void> => {
-    if (isLogoutLoading) return;
-
+  // 登出
+  const logout = useCallback(async () => {
+    dispatch({ type: "LOGIN_REQUEST" });
     try {
-      await logoutRequest();
-      dispatch({ type: AUTH_ACTION_TYPE.LOGOUT });
-      window.location.href = "/";
+      const res = await logoutRequest();
+      if (res.success) dispatch({ type: "LOGOUT_SUCCESS" });
+      else dispatch({ type: "LOGOUT_FAIL", payload: res.message });
     } catch {
-      dispatch({ 
-        type: AUTH_ACTION_TYPE.LOGOUT_FAIL, 
-        payload: ERROR_MESSAGES.LOGOUT_FAIL
-      });
+      dispatch({ type: "LOGOUT_FAIL", payload: "登出過程中發生錯誤，請稍後再試。" });
     }
-  }, [isLogoutLoading, logoutRequest]);
-
-  const contextValue: AuthContextType = useMemo(() => ({
-    ...state,
-    isAuthenticated: state.user !== null, // 根據 user 是否存在判斷是否已登入
-    login,
-    logout,
-    dispatch
-  }), [state, login, logout]);
+  }, [logoutRequest]);
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{ ...state, isAuthenticated: Boolean(state.user), login, logout }}>
       {children}
     </AuthContext.Provider>
   );
