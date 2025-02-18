@@ -28,7 +28,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
     <details ref={detailsRef} className="dropdown">
       <summary className="h-10 px-2.5 border text-primary rounded-none btn bg-secondary hover:bg-secondary border-primary focus-within:border-primary">
         {title}
-        <ArrowDownIcon className="w-4 h-4 ml-2 stroke-primary" />
+        <ArrowDownIcon className="w-4 h-4 ml-2" />
       </summary>
       <ul className="flex-col p-2 mt-2 rounded-none shadow menu bg-secondary">
         {list.map(({ label, value }, index) => (

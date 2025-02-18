@@ -119,7 +119,7 @@ const Cart = () => {
                     <Button
                       variant="icon"
                       icon={CloseIcon}
-                      className="bg-white border-none h-fit"
+                      className="border-none h-fit"
                       onClick={() => removeFromCart(item._id)}
                     />
                   </div>
@@ -134,7 +134,7 @@ const Cart = () => {
                         <Button
                           variant="icon"
                           icon={MinusIcon}
-                          className="bg-white border-gray-200 rounded-none h-7"
+                          className="border-gray-200 rounded-none h-7"
                           onClick={() => handleQuantityChange(item.quantity - 1, {
                               _id: item._id,
                               countInStock: item.product.countInStock,
@@ -160,7 +160,7 @@ const Cart = () => {
                         <Button
                           variant="icon"
                           icon={PlusIcon}
-                          className="bg-white border-gray-200 rounded-none h-7"
+                          className="border-gray-200 rounded-none h-7"
                           onClick={() =>
                             handleQuantityChange(item.quantity + 1, {
                               _id: item._id,
@@ -195,13 +195,13 @@ const Cart = () => {
                   variant="icon"
                   icon={ArrowLeftIcon}
                   onClick={() => swiperRef.current?.slidePrev()}
-                  className='bg-white border-none h-fit'
+                  className='border-none h-fit'
                 />
                 <Button
                   variant="icon"
                   icon={ArrowRightIcon}
                   onClick={() => swiperRef.current?.slideNext()}
-                  className='bg-white border-none h-fit'
+                  className='border-none h-fit'
                 />
               </div>
             </div>

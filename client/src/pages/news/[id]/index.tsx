@@ -54,7 +54,7 @@ const New = () => {
           to="/news"
           className="flex items-center justify-end gap-2 text-base hover:underline-offset-4 hover:underline"
         >
-          <ArrowLeftIcon className="w-5 h-5 stroke-primary" />
+          <ArrowLeftIcon className="w-5 h-5" />
           回上一頁
         </Link>
       </div>
