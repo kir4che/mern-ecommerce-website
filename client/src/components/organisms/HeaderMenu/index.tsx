@@ -57,7 +57,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <div className="flex items-center gap-3 mr-3 md:gap-4">
           {user ? (
             <Link to={user.role === "admin" ? "/admin/dashboard" : "/my-account"} className="hidden md:block">
-              <UserIcon className="w-6 h-6 stroke-primary" />
+              <UserIcon className="w-6 h-6" />
             </Link>
           ) : (
             <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       {/* 網站選單 */}
       {isMenuOpen && (
         <div className="overflow-y-auto">
-          <Navigation handleMenuClose={() => setIsMenuOpen(false)} />
+          <Navigation user={user} handleMenuClose={() => setIsMenuOpen(false)} />
         </div>
       )}
     </div>
