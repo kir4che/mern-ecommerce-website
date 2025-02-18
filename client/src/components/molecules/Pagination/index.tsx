@@ -49,7 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
           variant="icon"
           icon={ArrowLeftIcon}
           onClick={() => onPageChange(page - 1)}
-          className='bg-white border-none h-fit hover:opacity-50'
+          className='h-fit hover:opacity-50'
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -82,7 +82,7 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
           variant="icon"
           icon={ArrowRightIcon}
           onClick={() => onPageChange(page + 1)}
-          className='bg-white border-none h-fit hover:opacity-50'
+          className='h-fit hover:opacity-50'
         />
       )}
     </div>

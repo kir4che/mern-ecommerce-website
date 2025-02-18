@@ -70,7 +70,7 @@ const Input: React.FC<InputProps> = ({
           </label>
         )}
         <div className={`flex items-center gap-2 input focus-within:outline-none input-bordered ${errorState && "border-red-600 focus-within:border-red-600"} ${inputStyle}`}>
-          {Icon && <Icon className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : "stroke-current"}`} />}
+          {Icon && <Icon className={`w-5 ${errorState && "stroke-red-500 text-red-500"}`} />}
           <input
             type={type}
             id={id}

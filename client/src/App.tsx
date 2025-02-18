@@ -64,7 +64,7 @@ const App = () => {
           className="flex items-center justify-end gap-2 hover:underline-offset-4 hover:underline"
         >
           商品一覽
-          <ArrowRightIcon className="w-5 h-5 stroke-primary" />
+          <ArrowRightIcon className="w-5 h-5" />
         </Link>
       </section>
       {/* Campaign */}
@@ -78,13 +78,13 @@ const App = () => {
               variant="icon"
               icon={ArrowLeftIcon}
               onClick={() => swiperRef.current?.slidePrev()}
-              className='bg-white border-none h-fit'
+              className='h-fit'
             />
             <Button
               variant="icon"
               icon={ArrowRightIcon}
               onClick={() => swiperRef.current?.slideNext()}
-              className='bg-white border-none h-fit'
+              className='h-fit'
             />
           </div>
         </div>

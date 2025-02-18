@@ -39,24 +39,32 @@ p {
   @apply gap-1 font-medium min-h-fit;
 }
 
-.btn-link {
-  @apply p-0 no-underline hover:underline-offset-4;
-}
-
-.btn-icon {
-  @apply p-0 shadow-none hover:shadow-none hover:bg-transparent;
-}
-
-.btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
-  @apply bg-gray-200 border-gray-300 border-solid opacity-50 cursor-not-allowed;
-}
-
 .btn.btn-disabled, .btn[disabled], .btn:disabled {
   @apply bg-gray-200 border-none;
 }
 
 .btn-primary {
 	@apply px-4 min-w-fit xl:px-5 py-1 xl:py-1.5 transition duration-300 ease-in-out border-2 rounded-full outline-none;
+}
+
+.btn-link {
+  @apply p-0 no-underline hover:underline-offset-4;
+}
+
+.btn-icon {
+  @apply p-0 bg-transparent shadow-none hover:shadow-none hover:bg-transparent;
+}
+
+.btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
+  @apply bg-gray-200 border-gray-300 border-solid opacity-50 cursor-not-allowed;
+}
+
+.btn-text {
+  @apply p-0 font-normal bg-transparent border-0 shadow-none hover:opacity-80 hover:shadow-none hover:bg-transparent;
+}
+
+.btn.btn-disabled.btn-text, .btn[disabled].btn-text, .btn:disabled.btn-text {
+  @apply text-gray-300 bg-transparent cursor-not-allowed;
 }
 
 input:-webkit-autofill {
