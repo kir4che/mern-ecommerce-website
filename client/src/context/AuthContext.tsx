@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     error: null,
   });
 
-  const { refresh: loginRequest } = useAxios("/user/login", { method: "POST" }, { immediate: false });
+  const { refresh: loginRequest } = useAxios("/user/login", { method: "POST", withCredentials: true }, { immediate: false });
   const { refresh: logoutRequest } = useAxios("/user/logout", { method: "POST" }, { immediate: false });
 
   // 將 user 存入 localStorage
