@@ -74,7 +74,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             </div>
           )}
           <Link to="/cart" className="relative">
-            <CartIcon className={`w-6 h-6 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`} />
+            <CartIcon className={`w-6 h-6 ${isMenuOpen && "stroke-secondary"}`} />
             <span className={`absolute -top-3 -right-4 rounded-full w-[22px] h-[22px] inline-flex text-xs items-center justify-center ${
                 isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
               }`}

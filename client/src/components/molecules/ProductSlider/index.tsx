@@ -162,8 +162,8 @@ const ProductSlider = () => {
                         (value) => setQuantities((prev) => ({ ...prev, [product._id]: value }))
                       )}
                       disabled={product.countInStock <= 0}
-                      className='w-6 h-6 bg-secondary border-primary hover:border-primary hover:bg-primary'
-                      iconStyle='stroke-primary hover:stroke-secondary'
+                      className='w-6 h-6 border-primary hover:border-primary hover:bg-primary'
+                      iconStyle='hover:stroke-secondary'
                     />
                   </div>
                 </div>
