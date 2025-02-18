@@ -29,7 +29,10 @@ const ResetPassword: React.FC = () => {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/user/update-password`,
         { resetToken: token, password },
-        { headers: { "Content-Type": "application/json" } },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true
+        },
       );
 
       if (res.status === 200) {
