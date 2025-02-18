@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
+import ShortUniqueId from 'short-unique-id';
 
 import { OrderModel, OrderStatus } from "../models/order.model";
 
@@ -49,9 +50,12 @@ const createOrder = async (req: AuthRequest, res: Response) => {
   const { orderItems, subtotal, shippingFee, couponCode, discount, totalAmount } = req.body;
 
   try {
-    const userId = req.userId;
+    const uid = new ShortUniqueId({ length: 20 });
+    const orderNo = uid.randomUUID();
+
     const order = new OrderModel({
-      userId,
+      orderNo,
+      userId: req.userId,
       orderItems,
       subtotal,
       shippingFee,
@@ -69,7 +73,9 @@ const createOrder = async (req: AuthRequest, res: Response) => {
 };
 
 const updateOrder = async (req: AuthRequest, res: Response) => {
-  const { status, shippingTrackingNo } = req.body;
+  const updateData = req.body;
+
+  console.log(updateData);
 
   try {
     const order = await OrderModel.findById(req.params.id);
@@ -78,9 +84,11 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
     if (!order.userId.equals(req.userId))
       return res.status(403).json({ success: false, message: "You are not authorized to update this order." });
 
-    order.status = status || order.status;
-    order.shippingTrackingNo = shippingTrackingNo || order.shippingTrackingNo;
-    
+    for (const key in updateData) {
+      if (Object.prototype.hasOwnProperty.call(updateData, key))
+        (order as any)[key] = updateData[key];
+    }
+
     const updatedOrder = await order.save();
     
     res.status(200).json({ success: true, message: "Order updated successfully!", order: updatedOrder });

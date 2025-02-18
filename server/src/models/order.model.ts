@@ -53,6 +53,7 @@ export interface IOrderItem {
 
 export interface IOrder extends Document<Types.ObjectId> {
   _id: Types.ObjectId;
+  orderNo: string;
   userId: Types.ObjectId;
   name: string;
   phone: string;
@@ -68,8 +69,6 @@ export interface IOrder extends Document<Types.ObjectId> {
   shippingStatus: string;
   shippingTrackingNo?: string;
   paymentMethod?: string;
-  tradeNo?: string; // 綠界交易編號
-  itemName?: string;
   paymentDate?: Date;
   returnReason?: string;
   returnDate?: Date;
@@ -89,6 +88,7 @@ const orderItemSchema = new Schema<IOrderItem>({
 
 const orderSchema = new Schema<IOrder>(
   {
+    orderNo: { type: String, required: true, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String },
     phone: { type: String, match: /^09\d{8}$/ },
@@ -116,8 +116,6 @@ const orderSchema = new Schema<IOrder>(
     },
     shippingTrackingNo: { type: String, unique: true, sparse: true, default: undefined },
     paymentMethod: { type: String },
-    tradeNo: { type: String, unique: true, sparse: true, default: undefined },
-    itemName: { type: String },
     paymentDate: { type: Date },
     returnReason: { type: String },
     returnDate: { type: Date },

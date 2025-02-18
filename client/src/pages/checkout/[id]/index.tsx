@@ -85,6 +85,7 @@ const Checkout: React.FC = () => {
     // 建立付款單，並導向綠界金流。
     await createPayment({
       orderId: id,
+      orderNo: data.order.orderNo,
       name: buyerInfo.name,
       phone: buyerInfo.phone,
       address: buyerInfo.address,

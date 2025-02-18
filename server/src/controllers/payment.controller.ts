@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import ShortUniqueId from 'short-unique-id';
 import * as crypto from 'crypto';
 
 import { OrderModel, OrderStatus } from "../models/order.model";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
-  const { orderId, name, phone, address, note, ChoosePayment } = req.body;
+  const { orderId, orderNo, name, phone, address, note, ChoosePayment } = req.body;
 
   if (!Types.ObjectId.isValid(orderId))
     return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
@@ -15,13 +14,7 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     const order = await OrderModel.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
-    // 先更新訂單的購買人資訊
-    order.set({ name, phone, address, note });
-    await order.save();
-
     const { totalAmount, orderItems } = order;
-    const uid = new ShortUniqueId({ length: 20 });
-    const tradeNo = uid.randomUUID();
     const MerchantTradeDate = new Date().toLocaleString('zh-TW', {
       year: 'numeric',
       month: '2-digit',
@@ -34,10 +27,20 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     });
     const ItemName = orderItems.map((item: { title: string; quantity: number; }) => `${item.title} x ${item.quantity}`).join("#");
 
+    // 先更新訂單的購買人資訊
+    order.set({
+      name,
+      phone,
+      address,
+      paymentMethod: ChoosePayment,
+      note,
+    });
+    await order.save();
+
     // 建立傳送給綠界的交易參數
     const base_param = {
       MerchantID: process.env.MERCHANT_ID,
-      MerchantTradeNo: tradeNo,
+      MerchantTradeNo: orderNo,
       MerchantTradeDate,
       PaymentType: 'aio',
       TotalAmount: totalAmount,
