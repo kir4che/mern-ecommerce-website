@@ -1,131 +1,95 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
-import { useGetData } from "@/hooks/useGetData";
-import { addComma } from "@/utils/addComma";
+import { useAxios } from "@/hooks/useAxios";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
+import OrderTable from "@/components/organisms/OrderTable";
+import Modal from "@/components/molecules/Modal";
 import Loading from "@/components/atoms/Loading";
 import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
 
 import { ReactComponent as LogoutIcon } from "@/assets/icons/logout.inline.svg";
+import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { data, error: ordersError, isLoading: ordersLoading, refresh: refreshOrders } = useAxios(
+    "/orders",
+    { withCredentials: true }
+  );
+  const orders = data?.orders;
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
+  const { refresh: updateOrder } = useAxios(
+    params => `/orders/${params?.id}`,
+    { method: "PATCH", withCredentials: true },
+    { immediate: false }
+  );
+
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const handleRepayment = async (orderId: string) => {
+    navigate(`/checkout/${orderId}`);
   };
 
-  useEffect(() => {
-    if (user.role === "admin") navigate("/");
-  }, [user.role, navigate]);
-
-  const {
-    data: userData,
-    loading: userLoading,
-    error: userError,
-  } = useGetData("/user");
-  const {
-    data: ordersData,
-    loading: ordersLoading,
-    error: ordersError,
-  } = useGetData("/orders");
-  const orders = ordersData?.orders;
-
-  if (userError || ordersError)
-    return <NotFound message={[userError, ordersError]} />;
-  if (userLoading || ordersLoading) return <Loading />;
-
-  // 暫時不處理實際完成訂單流程
-  const handleComplete = async (id: string) => {
-    // 更新訂單狀態
-    try {
-      const res = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/orders/${id}`,
-        { status: "已完成" },
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-
-      if (res.status === 200) navigate(0); // Reload the page
-    } catch (err: any) {
-      console.error(err.message);
-    }
+  const handleComplete = async (orderId: string) => {
+    await updateOrder({ id: orderId, status: "completed" });
+    refreshOrders();
+    setModalOpen(false);
   };
+
+  const toggleOrderDetails = (orderId: string) => {
+    setExpandedOrderId(expandedOrderId === orderId ? null : orderId); // 切換顯示或隱藏訂單商品
+  };
+
+  if (ordersError) return <NotFound message={[ordersError]} />;
+  if (ordersLoading) return <Loading />;
 
   return (
-    <Layout>
-      {user.role === "user" && (
-        <div className="max-w-6xl space-y-10 px-[5vw] py-8 mx-auto">
-          <h1>帳戶</h1>
-          <div className="justify-between space-y-4 md:space-y-0 md:flex">
-            <div className="w-full max-w-2xl pb-4 space-y-4 overflow-x-auto">
-              <h2>訂單歷史</h2>
-              <ul className="pb-3 border-b border-gray-300">
-                <li className="flex text-sm">
-                  <p className="min-w-20">訂單編號</p>
-                  <p className="min-w-20">訂單狀態</p>
-                  <p className="min-w-20">出貨狀態</p>
-                  <p className="min-w-20">付款狀態</p>
-                  <p className="min-w-20">總金額</p>
-                  <p>成立日期</p>
-                </li>
-              </ul>
-              {orders ? (
-                <ul className="space-y-2">
-                  {orders.map((order, index) => (
-                    <li className="flex text-sm">
-                      <p className="min-w-20">{index + 1}</p>
-                      <p className="min-w-20">{order.status}</p>
-                      <p className="min-w-20">{order.shippingStatus}</p>
-                      <p className="min-w-20">{order.paymentStatus}</p>
-                      <p className="min-w-20">
-                        {addComma(order.subtotal)}
-                      </p>
-                      <p className="min-w-fit">
-                        {new Date(order.createdAt)}
-                      </p>
-                      <button
-                        className={`${order.shippingStatus !== "已送達" ? "opacity-50" : "hover:bg-gray-100"} px-1 ml-auto py-0.5 text-sm`}
-                        onClick={() => handleComplete(order._id)}
-                        disabled={order.shippingStatus !== "已送達"}
-                      >
-                        完成訂單
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm">尚未有訂單。</p>
-              )}
-            </div>
-            {user && (
-              <div className="space-y-4">
-                <h2>詳細資訊</h2>
-                <div className="space-y-2 text-sm">
-                  <p>{user.name}</p>
-                  <p>{user.email}</p>
-                </div>
-                <Button
-                  variant="link"
-                  icon={LogoutIcon}
-                  iconPosition="end"
-                  onClick={handleLogout}
-                >
-                  登出
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
+    <Layout className="w-full max-w-6xl px-5 py-8 mx-auto md:px-8">
+      <h2>帳戶</h2>
+      <div className="flex items-center gap-4 mb-6">
+        <p className="text-base">{user.email}</p>
+        <Button
+          variant="link"
+          icon={LogoutIcon}
+          iconPosition="end"
+          onClick={logout}
+          className="text-primary"
+        >
+          登出
+        </Button>
+      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onConfirm={() => selectedOrderId && handleComplete(selectedOrderId)}
+        onClose={setModalOpen.bind(null, false)}
+        title="確認收到商品無誤，再按下「確定」以完成訂單。"
+      />
+      <h3 className="mb-4">我的訂單</h3>
+      {orders?.length ? (
+        <OrderTable
+          orders={orders}
+          setSelectedOrderId={setSelectedOrderId}
+          setModalOpen={setModalOpen}
+          expandedOrderId={expandedOrderId}
+          toggleOrderDetails={toggleOrderDetails}
+          handleRepayment={handleRepayment}
+        />
+      ) : (
+        <p className="text-base">尚無訂單資訊...</p>
       )}
+      <div className="mt-12 text-right">
+        <Button variant="link" onClick={() => navigate("/contact")} className="text-primary h-9">
+          <span className="font-normal">聯繫客服</span> <ArrowRightIcon className="w-5 h-5" />
+        </Button>
+      </div>
     </Layout>
   );
 };

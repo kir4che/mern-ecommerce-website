@@ -24,7 +24,7 @@ export const PRODUCT_CATEGORIES = [
 ] as const;
 
 export const ORDER_STATUS = {
-  created: "已建立",
+  created: "已成立",
   paid: "已付款",
   processing: "處理中",
   shipped: "已出貨",
