@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useGetData } from "@/hooks/useGetData";
+import { useAxios } from "@/hooks/useAxios";
 
 import { useAuth } from "@/context/AuthContext";
 import { addComma } from "@/utils/addComma";
@@ -17,20 +17,9 @@ const AdminDashboard = () => {
   const { user } = useAuth();
 
   const {
-    data: productsData,
-    loading: productLoading,
-    error: productError,
-  } = useGetData("/products");
-  const {
-    data: newsData,
-    loading: newLoading,
-    error: newError,
-  } = useGetData("/news");
-  const {
-    data: ordersData,
-    loading: orderLoading,
-    error: orderError,
-  } = useGetData("/orders/admin");
+    data: productsData, error: productError, isLoading: productLoading } = useAxios("/products");
+  const { data: newsData, error: newError, isLoading: newLoading } = useAxios("/news");
+  const { data: ordersData, error: orderError, isLoading: orderLoading } = useAxios("/orders/admin");
   const products = productsData?.products;
   const news = newsData?.news;
   const orders = ordersData?.orders;
@@ -362,7 +351,7 @@ const AdminDashboard = () => {
             <ul className="p-3 overflow-y-auto border shadow max-h-80">
               <div className="p-2 pb-4 space-y-4 overflow-x-auto">
                 <ul className="w-full pb-3 border-b border-gray-300 min-w-fit">
-                  <li className="flex text-sm">
+                  <li className="flex">
                     <p className="min-w-20">訂單編號</p>
                     <p className="min-w-20">訂單狀態</p>
                     <p className="min-w-20">出貨狀態</p>
@@ -374,7 +363,7 @@ const AdminDashboard = () => {
                 {orders.length > 0 ? (
                   <ul className="space-y-4">
                     {orders.map((order, index) => (
-                      <li className="flex text-sm">
+                      <li className="flex">
                         <p className="min-w-20">{index + 1}</p>
                         <p className="min-w-20">{order.status}</p>
                         <p className="min-w-20">{order.shippingStatus}</p>
@@ -396,7 +385,7 @@ const AdminDashboard = () => {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm">尚未有訂單。</p>
+                  <p>尚未有訂單。</p>
                 )}
               </div>
             </ul>
