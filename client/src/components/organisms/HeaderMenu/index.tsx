@@ -12,6 +12,7 @@ import { ReactComponent as MenuIcon } from "@/assets/icons/menu.inline.svg";
 import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
 import { ReactComponent as UserIcon } from "@/assets/icons/user-circle.inline.svg";
 import { ReactComponent as CartIcon } from "@/assets/icons/cart.inline.svg";
+import { ReactComponent as DashboardIcon } from "@/assets/icons/dashboard.inline.svg";
 
 interface HeaderMenuProps {
   isMenuOpen: boolean;
@@ -56,9 +57,16 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         )}
         <div className="flex items-center gap-3 mr-3 md:gap-4">
           {user ? (
-            <Link to={user.role === "admin" ? "/admin/dashboard" : "/my-account"} className="hidden md:block">
-              <UserIcon className="w-6 h-6" />
-            </Link>
+            <>
+              <Link to="/my-account" className="hidden sm:block">
+                <UserIcon className="w-6 h-6" />
+              </Link>
+              {user.role === "admin" && (
+                <Link to="/admin/dashboard" className="hidden sm:block">
+                  <DashboardIcon className="w-6 h-6" />
+                </Link>
+              )}
+            </>
           ) : (
             <div className="flex items-center gap-3">
               <Link to="/login">
@@ -76,9 +84,8 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <Link to="/cart" className="relative">
             <CartIcon className={`w-6 h-6 ${isMenuOpen && "stroke-secondary"}`} />
             <span className={`absolute -top-3 -right-4 rounded-full w-[22px] h-[22px] inline-flex text-xs items-center justify-center ${
-                isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
-              }`}
-            >
+              isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
+            }`}>
               {totalQuantity}
             </span>
           </Link>
