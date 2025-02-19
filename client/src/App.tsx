@@ -12,7 +12,7 @@ import Button from "@/components/atoms/Button";
 import Marquee from "@/components/atoms/Marquee";
 import DropdownMenu from "@/components/atoms/DropdownMenu";
 import BlurImage from "@/components/atoms/BlurImage";
-import ProductSlider from "@/components/molecules/ProductSlider";
+import ProductSlider from "@/components/organisms/ProductSlider";
 
 import bg1 from "@/assets/images/about/bg1.jpg";
 import bg2 from "@/assets/images/about/bg2.jpg";

@@ -27,7 +27,7 @@ const Collections = () => {
   const navigate = useNavigate();
   const { category } = useParams();
   const { addToCart } = useCart();
-  const { data, error, isLoading, isError } = useAxios<{ products: Product[] }>("/products");
+  const { data, error, isLoading, isError } = useAxios("/products");
   const products = data?.products as Product[];
 
   const [selectedCategory, setSelectedCategory] = useState(category || "all");
