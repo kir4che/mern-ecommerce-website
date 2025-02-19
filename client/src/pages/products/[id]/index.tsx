@@ -10,7 +10,7 @@ import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
-import ProductSlider from "@/components/molecules/ProductSlider";
+import ProductSlider from "@/components/organisms/ProductSlider";
 import Accordion from "@/components/molecules/Accordion";
 import Loading from "@/components/atoms/Loading";
 import Input from "@/components/atoms/Input";

@@ -28,7 +28,7 @@ import "swiper/css";
 const Cart = () => {
   const navigate = useNavigate();
   const { cart, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
-  const { data } = useAxios<{ products: Product[] }>("/products");
+  const { data } = useAxios("/products");
   const products = data?.products as Product[];
 
   const sortedCart = [...cart].sort((a, b) => Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0));
