@@ -8,10 +8,10 @@ import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right
 interface PaginationProps {
   page: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
+  handlePageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({ page, totalPages, handlePageChange }) => {
   // 使用 useMemo 計算頁碼，避免不必要的重渲染。
   const pageNumbers = useMemo(() => {
     const pages = [];
@@ -48,8 +48,8 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
         <Button
           variant="icon"
           icon={ArrowLeftIcon}
-          onClick={() => onPageChange(page - 1)}
-          className='h-fit hover:opacity-50'
+          onClick={() => handlePageChange(page - 1)}
+          className='h-fit border-none hover:opacity-50'
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -66,7 +66,7 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
           return (
             <li key={pageNum}>
               <Button
-                onClick={() => onPageChange(pageNum)}
+                onClick={() => handlePageChange(pageNum)}
                 className={`h-8 w-8 p-0 text-sm border-none rounded-full ${
                   page === pageNum ? "bg-primary text-secondary" : "bg-white"
                 } ${page !== pageNum && "hover:bg-primary/10 hover:text-primary"}`}
@@ -81,8 +81,8 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange 
         <Button
           variant="icon"
           icon={ArrowRightIcon}
-          onClick={() => onPageChange(page + 1)}
-          className='h-fit hover:opacity-50'
+          onClick={() => handlePageChange(page + 1)}
+          className='h-fit border-none hover:opacity-50'
         />
       )}
     </div>
