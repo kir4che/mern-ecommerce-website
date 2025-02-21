@@ -27,7 +27,7 @@ const initialBuyerInfo = {
 
 const Checkout: React.FC = () => {
   const { id } = useParams();
-  const { data, isLoading, error } = useAxios(`/orders/${id}`, { withCredentials: true });
+  const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, { withCredentials: true });
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [buyerInfo, setBuyerInfo] = useState(initialBuyerInfo);
@@ -75,7 +75,7 @@ const Checkout: React.FC = () => {
         document.body.appendChild(form);
         form.submit();
       },
-      onError: () => setErrorMessage("付款失敗，請稍後再試！"),
+      onError: (err) => setErrorMessage(err.message)
     }
   );
 
@@ -102,7 +102,7 @@ const Checkout: React.FC = () => {
     );
   }
   
-  if (!isLoading && (error || !data)) return <NotFound message={["無法加載訂單資料，請稍後再試！"]} />;
+  if (!isLoading && (isError || !data)) return <NotFound message={error?.message} />;
 
   return (
     <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">

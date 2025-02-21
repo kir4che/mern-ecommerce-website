@@ -98,9 +98,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     { withCredentials: true }, 
     {
       immediate: false, 
-      onError: (error) => {
-        if (axios.isAxiosError(error) && error.response?.status === 401) logout();
-      }
+      onError: (err) => err.statusCode === 401 && logout(),
     }
   );
   const { refresh: refreshAddToCart } = useCartAxios('/cart', 'POST');

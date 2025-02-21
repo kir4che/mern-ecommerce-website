@@ -6,7 +6,7 @@ import { ReactComponent as ErrorIcon } from "@/assets/icons/error.inline.svg";
 
 interface AlertProps {
   type: "info" | "success" | "error";
-  message: string;
+  message: string | string[];
   autoDismiss?: boolean;
   className?: string;
 }
@@ -44,7 +44,11 @@ const Alert: React.FC<AlertProps> = ({
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [autoDismiss]);
+
+  const renderMessage = Array.isArray(message)
+    ? message.map((msg, index) => <p key={index}>{msg}</p>)
+    : message; // 只有一條訊息：直接顯示
 
   return (
     <div
@@ -52,7 +56,7 @@ const Alert: React.FC<AlertProps> = ({
       className={`alert ${iconMap[type].style} flex items-center rounded-md gap-2 border-none py-3 transition-opacity duration-500 font-medium ${isVisible ? "opacity-100" : "opacity-0"} ${className}`}
     >
       <Icon className="w-5 stroke-current" />
-      <p>{message}</p>
+      {renderMessage}
     </div>
   );
 };

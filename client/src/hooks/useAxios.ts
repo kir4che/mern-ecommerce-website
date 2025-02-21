@@ -3,6 +3,13 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
 
+interface ErrorResponse {
+  message: string;
+  code?: string;
+  statusCode?: number;
+  details?: any;
+}
+
 export function useAxios(
   url: string | ((params?: Record<string, any>) => string),
   config: AxiosRequestConfig = {},
@@ -10,12 +17,12 @@ export function useAxios(
     immediate?: boolean; 
     skip?: boolean; 
     onSuccess?: (data: any) => void; 
-    onError?: (err: any) => void; 
+    onError?: (err: ErrorResponse) => void; 
   } = {}
 ) {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState<RequestStatus>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorResponse | null>(null);
 
   const { immediate = true, skip = false, onSuccess, onError } = options;
 
@@ -38,8 +45,10 @@ export function useAxios(
   
     const requestUrl = resolveUrl(params);
     if (!requestUrl) {
-      setError('請求 URL 無效，請檢查參數！');
-      onError?.('請求 URL 無效，請檢查參數！');
+      const errorDetails: ErrorResponse = { message: 'The request URL is invalid!' };
+      setStatus('error');
+      setError(errorDetails);
+      onError?.(errorDetails);
       return;
     }
 
@@ -58,8 +67,15 @@ export function useAxios(
       });
 
       if (!response?.data?.success) {
-        setError(response.data?.message );
-        onError?.(response.data?.message);
+        const errorDetails: ErrorResponse = {
+          message: response?.data?.message || 'Request failed!',
+          code: response?.data?.code,
+          statusCode: response?.status,
+          details: response?.data?.details,
+        };
+        setStatus('error');
+        setError(errorDetails);
+        onError?.(errorDetails);
         return;
       }
 
@@ -70,9 +86,15 @@ export function useAxios(
 
       return response.data;
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || err.message || 'Request failed!';
-      setError(errorMessage);
-      onError?.(errorMessage)
+      const errorDetails: ErrorResponse = {
+        message: err.response?.data?.message || err.message || 'Request failed!',
+        code: err.response?.data?.code,
+        statusCode: err.response?.status,
+        details: err.response?.data?.details,
+      };
+      setStatus('error');
+      setError(errorDetails);
+      onError?.(errorDetails);
     }
   }
 
