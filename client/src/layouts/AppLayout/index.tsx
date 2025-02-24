@@ -15,13 +15,9 @@ const AppLayout = ({ className = "", children }) => {
 
   return (
     <div className="relative flex flex-col min-h-screen">
-      <div
-        className={`top-0  min-h-full bg-secondary z-50 ${isMenuOpen ? "flex fixed flex-col md:flex-row" : " sticky"}`}
-      >
+      <div className={`top-0 min-h-full bg-secondary z-50 ${isMenuOpen ? "flex fixed flex-col md:flex-row" : "sticky"}`}>
         <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-        <div
-          className={`flex-1 xl:basis-96 ${isMenuOpen ? "block" : "hidden"}`}
-        >
+        <div className={`flex-1 xl:basis-96 ${isMenuOpen ? "block" : "hidden"}`}>
           <img
             src={shopImage}
             alt="menu-cover"
