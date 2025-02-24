@@ -37,7 +37,7 @@ export function useAxios(
     return `${baseUrl}${url}`;
   }, [url]);
 
-  async function fetchData(params?: Record<string, any>, newConfig?: Partial<AxiosRequestConfig>) {
+  const fetchData = useCallback(async (params?: Record<string, any>, newConfig?: Partial<AxiosRequestConfig>) => {
     if (skip || status === 'loading') return;
   
     setStatus('loading');
@@ -95,12 +95,13 @@ export function useAxios(
       onError?.(errorDetails);
       setStatus('error');
     }
-  }
+  }, [config, onError, resolveUrl, skip, status, onSuccess]
+);
 
   useEffect(() => {
     if (immediate && !skip) fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, skip, resolveUrl]);
+  }, [immediate, skip, url]);
 
   return {
     data,
