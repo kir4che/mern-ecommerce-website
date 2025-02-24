@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 import Layout from "@/layouts/AppLayout";
-import Modal from "@/components/molecules/Modal";
 import Input from "@/components/atoms/Input";
 import Checkbox from "@/components/atoms/Checkbox";
 import Button from "@/components/atoms/Button";
@@ -20,17 +19,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsModalOpen(true);
     await login(email, password, rememberMe);
   };
 
   useEffect(() => {
     if (user) navigate("/");
-    if (error) setIsModalOpen(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error]);
 
@@ -78,14 +74,6 @@ const Login = () => {
           </Link>
         </p>
       </form>
-      <Modal
-        isOpen={isModalOpen}
-        onConfirm={() => {}}
-        onClose={() => setIsModalOpen(false)}
-        className="py-10 text-center max-w-80"
-        title="登入中"
-        loading={true}
-      />
       {error && (
         <Alert
           type="error"

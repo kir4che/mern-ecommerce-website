@@ -34,7 +34,6 @@ const Cart = () => {
   const sortedCart = [...cart].sort((a, b) => Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0));
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
-  const [isModalOpen, setModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const swiperRef = useRef(null);
 
@@ -81,13 +80,12 @@ const Cart = () => {
       <div className="space-y-4 md:w-3/4">
         <div className="flex items-center justify-between">
           <h2>購物車</h2>
-          <Button variant="link" onClick={() => setModalOpen(true)} className="text-primary">
+          <Button variant="link" onClick={() => (document.getElementById('clearCartModal') as HTMLDialogElement).showModal()} className="text-primary">
             清空購物車
           </Button>
           <Modal
-            isOpen={isModalOpen}
+            id="clearCartModal"
             onConfirm={clearCart}
-            onClose={setModalOpen.bind(null, false)}
             title="確定要清空購物車嗎？"
           />
         </div>

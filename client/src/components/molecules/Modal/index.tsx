@@ -1,67 +1,94 @@
-import React, { useEffect } from "react";
-import ReactDOM from "react-dom";
+import { useState, useEffect, useRef } from "react";
 
 import Button from "@/components/atoms/Button";
 
+import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
+
 interface ModalProps {
-  isOpen: boolean;
+  id: string;
+  onOpen?: () => void;
   onConfirm: () => void;
-  onClose: () => void;
-  className?: string;
   title: string;
-  content?: string;
+  confirmText?: string;
+  width?: string;
+  className?: string;
+  isShowCloseIcon?: boolean;
+  isShowCloseBtn?: boolean;
   loading?: boolean;
-  autoCloseDelay?: number;
+  autoCloseDelay?: number; // 預設 3 秒後自動關閉
+  disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({
-  isOpen,
+  id,
   onConfirm,
-  onClose,
-  className = "",
   title,
-  content,
+  confirmText = "確認",
+  width = "w-96",
+  className = "",
+  isShowCloseIcon = false,
+  isShowCloseBtn = true,
   loading = false,
-  autoCloseDelay = 3000, // 預設 3 秒後自動關閉
+  autoCloseDelay = 3000,
+  disabled = false,
+  children,
 }) => {
-  useEffect(() => {
-    if (loading && isOpen) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, autoCloseDelay);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
+  const closeModal = () => modalRef.current?.close();
+
+  // 若 loading 為 true 且 isOpen 為 true，則開始倒數自動關閉 Modal。
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => closeModal(), autoCloseDelay);
       return () => clearTimeout(timer);
     }
-  }, [loading, isOpen, onClose, autoCloseDelay]);
+  }, [loading, autoCloseDelay]);
 
-  if (!isOpen) return null;
-
-  return ReactDOM.createPortal(
-    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div onClick={(e) => e.stopPropagation()} className={`p-6 bg-white rounded shadow-lg w-96 ${className}`}>
-        <h2 className="mb-4 text-lg font-medium">{title}</h2>
-        {content && <p className="mb-6 text-gray-600">{content}</p>}
+  return (
+    <dialog id={id} ref={modalRef} className="modal">
+      <div className={`modal-box ${width} ${className}`}>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-bold">{title}</h3>
+          {isShowCloseIcon && (
+            <Button
+              variant="icon"
+              icon={CloseIcon}
+              onClick={closeModal}
+              className="border-none"
+            />
+          )}
+        </div>
+        {children}
         {loading ? (
           <span className="loading loading-spinner loading-lg" />
         ) : (
-          <div className="flex justify-end gap-x-3">
+          <div className="modal-action">
             <Button
               onClick={() => {
-                onClose();
                 onConfirm();
+                closeModal();
               }}
-              className="h-10"
+              className="h-9"
+              disabled={disabled}
             >
-              確定
+              {confirmText}
             </Button>
-            <Button variant="secondary" onClick={onClose} className="h-10">
-              取消
-            </Button>
+            {isShowCloseBtn && (
+              <Button variant="secondary" onClick={closeModal} className="h-9">
+                取消
+              </Button>
+            )}
           </div>
         )}
       </div>
-    </div>,
-    document.body
+      {!isShowCloseIcon && (
+        <form method="dialog" className="modal-backdrop">
+          <button />
+        </form>
+      )}
+    </dialog>
   );
 };
 
