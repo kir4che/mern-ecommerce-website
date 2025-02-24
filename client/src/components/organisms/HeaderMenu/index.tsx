@@ -1,4 +1,4 @@
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Link } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
@@ -24,14 +24,31 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const { totalQuantity } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // 滾動時變更 Header 樣式
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) setIsScrolled(true);
-      else setIsScrolled(false);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+  
+    if (document.documentElement.scrollHeight > window.innerHeight)
     window.addEventListener("scroll", handleScroll);
+  
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // 開啟選單時禁止滾動
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+  
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isMenuOpen]);
 
   return (
     <div className={isMenuOpen ? "flex-1 md:overflow-auto bg-primary duration-700" : "bg-secondary"}>
@@ -82,10 +99,11 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             </div>
           )}
           <Link to="/cart" className="relative">
-            <CartIcon className={`w-6 h-6 ${isMenuOpen && "stroke-secondary"}`} />
+            <CartIcon className={`w-6 h-6 transition-colors duration-300 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`} />
             <span className={`absolute -top-3 -right-4 rounded-full w-[22px] h-[22px] inline-flex text-xs items-center justify-center ${
-              isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
-            }`}>
+                isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
+              }`}
+            >
               {totalQuantity}
             </span>
           </Link>
@@ -94,7 +112,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       <hr className={`border-primary ${isScrolled && "-mx-8"}`} />
       {/* 網站選單 */}
       {isMenuOpen && (
-        <div className="overflow-y-auto">
+        <div className="h-screen overflow-y-auto">
           <Navigation user={user} handleMenuClose={() => setIsMenuOpen(false)} />
         </div>
       )}
