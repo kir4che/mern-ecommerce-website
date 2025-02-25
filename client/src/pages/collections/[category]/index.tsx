@@ -136,7 +136,7 @@ const Collections = () => {
                         value => setQuantities((prev) => ({ ...prev, [product._id]: value })))}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
-                      className="flex items-center gap-2"
+                      wrapperStyle="flex items-center gap-2"
                       labelStyle="border-r border-gray-300 pr-1.5"
                     />
                   </div>

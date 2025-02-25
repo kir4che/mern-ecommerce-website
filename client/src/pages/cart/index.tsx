@@ -152,7 +152,7 @@ const Cart = () => {
                           }
                           onKeyDown={preventInvalidInput}
                           disabled={item.product.countInStock <= 0}
-                          className="noInnerSpin"
+                          wrapperStyle="noInnerSpin"
                           inputStyle="min-h-7 border-gray-200"
                         />
                         <Button

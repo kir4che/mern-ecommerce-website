@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 interface InputProps {
   value: string | number;
@@ -10,7 +10,8 @@ interface InputProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   error?: string | null;
-  className?: string;
+  containerStyle?: string;
+  wrapperStyle?: string;
   labelStyle?: string;
   inputStyle?: string;
   helperText?: string;
@@ -32,7 +33,8 @@ const Input: React.FC<InputProps> = ({
   onChange = () => {},
   required = false,
   error,
-  className='flex-col gap-1',
+  containerStyle,
+  wrapperStyle='flex-col gap-1',
   labelStyle,
   inputStyle,
   helperText,
@@ -62,8 +64,8 @@ const Input: React.FC<InputProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className={`flex ${className}`}>
+    <div className={`flex flex-col gap-1 ${containerStyle}`}>
+      <div className={`flex ${wrapperStyle}`}>
         {label && (
           <label htmlFor={id} className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}>
             {label}

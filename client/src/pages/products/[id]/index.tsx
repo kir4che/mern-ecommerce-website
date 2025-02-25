@@ -86,7 +86,7 @@ const ProductPage = () => {
                   onChange={(e) => handleQuantityChange(e, product, setQuantity)}
                   onKeyDown={preventInvalidInput}
                   disabled={isOutOfStock}
-                  className='items-center gap-2'
+                  wrapperStyle='items-center gap-2'
                 />
                 <Button
                   icon={product.countInStock !== 0 && CartPlusIcon}

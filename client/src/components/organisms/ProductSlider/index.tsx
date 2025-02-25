@@ -149,7 +149,7 @@ const ProductSlider = () => {
                       )}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
-                      className="flex items-center gap-2"
+                      wrapperStyle="flex items-center gap-2"
                     />
                     <Button
                       key={product._id}
