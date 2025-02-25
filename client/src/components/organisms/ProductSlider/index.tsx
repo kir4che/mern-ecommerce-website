@@ -143,13 +143,14 @@ const ProductSlider = () => {
                       value={quantities[product._id] || 1}
                       defaultValue={1}
                       onChange={(e) => handleQuantityChange(
-                        e,
+                        Number(e.target.value),
                         product,
                         value => setQuantities((prev) => ({ ...prev, [product._id]: value }))
                       )}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
-                      className="flex items-center gap-2"
+                      wrapperStyle="flex items-center gap-2"
+                      inputStyle="rounded-none"
                     />
                     <Button
                       key={product._id}
@@ -167,13 +168,15 @@ const ProductSlider = () => {
                     />
                   </div>
                 </div>
-                <p className="mb-6 overflow-hidden line-clamp-3 text-ellipsis">
+                <p className={`overflow-hidden line-clamp-3 text-ellipsis ${product.allergens.length > 0 && 'mb-6'}`}>
                   {product.description}
                 </p>
-                <div className="flex justify-between text-nowrap">
-                  <p className="text-xs text-gray-400">過敏原標示</p>
-                  <p className="text-xs">{product.allergens.join(", ")}</p>
-                </div>
+                {product.allergens.length > 0 && (
+                  <div className="flex justify-between text-nowrap">
+                    <p className="text-xs text-gray-400">過敏原標示</p>
+                    <p className="text-xs">{product.allergens.join(", ")}</p>
+                  </div>
+                )}
               </div>
             </section>
           </SwiperSlide>

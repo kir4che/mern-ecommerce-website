@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 import Layout from "@/layouts/AppLayout";
-import OrderTable from "@/components/organisms/OrderTable";
+import OrderTable from "@/components/organisms/OrdersTable";
 import Button from "@/components/atoms/Button";
 
 import { ReactComponent as LogoutIcon } from "@/assets/icons/logout.inline.svg";

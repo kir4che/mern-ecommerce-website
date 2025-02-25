@@ -34,7 +34,7 @@ const Contact = () => {
             value={form.name}
             onChange={handleChange}
             placeholder="姓名"
-            className="flex-1"
+            wrapperStyle="flex-1"
             required
           />
           <Input
@@ -47,7 +47,7 @@ const Contact = () => {
               value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
               message: '請輸入有效的 Email 格式'
             }}
-            className="flex-1"
+            wrapperStyle="flex-1"
             required
           />
         </div>

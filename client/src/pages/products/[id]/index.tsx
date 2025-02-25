@@ -20,12 +20,14 @@ import BlurImage from "@/components/atoms/BlurImage";
 import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
 const ProductInfo = ({ label, value }: { label: string, value: string | string[] }) => (
+  value && value !== "" && value.length !== 0 && (
   <li className="text-sm list-none">
     <span className="inline-block py-1 mr-3 text-xs text-center bg-gray-200 rounded min-w-20">
       {label}
     </span>
     {Array.isArray(value) ? value.join('、') : value}
   </li>
+  )
 );
 
 const ProductPage = () => {
@@ -40,6 +42,7 @@ const ProductPage = () => {
   useEffect(() => {
     window.scrollTo({ top: 0 });
     if (id) refresh();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!isLoading && (isError || !product)) return <NotFound message={error?.message} />;
@@ -83,10 +86,11 @@ const ProductPage = () => {
                   max={product.countInStock}
                   value={quantity}
                   defaultValue={1}
-                  onChange={(e) => handleQuantityChange(e, product, setQuantity)}
+                  onChange={(e) => handleQuantityChange(Number(e.target.value), product, setQuantity)}
                   onKeyDown={preventInvalidInput}
                   disabled={isOutOfStock}
-                  className='items-center gap-2'
+                  wrapperStyle='items-center gap-2'
+                  inputStyle='rounded-none'
                 />
                 <Button
                   icon={product.countInStock !== 0 && CartPlusIcon}
@@ -98,8 +102,8 @@ const ProductPage = () => {
                 </Button>
               </div>
             </div>
-            <Accordion title="製作材料">{product.ingredients}</Accordion>
-            <Accordion title="營養成分表示">{product.nutrition}</Accordion>
+            {product.ingredients && <Accordion title="製作材料">{product.ingredients}</Accordion>}
+            {product.nutrition && <Accordion title="營養成分表示">{product.nutrition}</Accordion>}
             <ul className="py-8 space-y-2 border-b border-gray-400">
               <ProductInfo label="內容" value={product.content} />
               <ProductInfo label="過敏原" value={product.allergens} />

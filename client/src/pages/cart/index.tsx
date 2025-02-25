@@ -146,14 +146,18 @@ const Cart = () => {
                           max={item.product.countInStock}
                           value={item.quantity}
                           defaultValue={1}
-                          onChange={(e) => handleQuantityChange(e, { _id: item._id,
+                          onChange={(e) => handleQuantityChange(
+                            Number(e.target.value),
+                            {
+                              _id: item._id,
                               countInStock: item.product.countInStock
-                            }, value => changeQuantity(item._id, value))
+                            },
+                            value => changeQuantity(item._id, value))
                           }
                           onKeyDown={preventInvalidInput}
                           disabled={item.product.countInStock <= 0}
-                          className="noInnerSpin"
-                          inputStyle="min-h-7 border-gray-200"
+                          wrapperStyle="noInnerSpin"
+                          inputStyle="min-h-7 rounded-none border-gray-200"
                         />
                         <Button
                           variant="icon"
