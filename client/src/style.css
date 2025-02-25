@@ -11,6 +11,8 @@ body {
   font-family: 'PingFang SC', 'Microsoft YaHei', 'Arial', 'Helvetica', 'Noto Sans', sans-serif;
 }
 
+/* 文字樣式 */
+
 h1 {
   @apply text-3xl font-bold;
 }
@@ -34,6 +36,8 @@ h5 {
 p {
   @apply text-sm leading-loose;
 }
+
+/* Button 樣式 */
 
 .btn {
   @apply gap-1 font-medium min-h-fit;
@@ -67,26 +71,20 @@ p {
   @apply text-gray-300 bg-transparent cursor-not-allowed;
 }
 
+/* Input 樣式 */
+
+/* 隱藏 input 在瀏覽器下預設的 autofill 背景色  */
 input:-webkit-autofill {
   box-shadow: inset 0 0 0 2000px white;
 }
 
-input[type='number']::-webkit-inner-spin-button {
-	@apply opacity-100;
-}
-
+/* 隱藏 number input 的 spinner */
 .noInnerSpin input[type="number"]::-webkit-inner-spin-button,
 .noInnerSpin input[type="number"]::-webkit-outer-spin-button, .noInnerSpin input[type="number"] {
   @apply appearance-none;
 }
 
-.input:has(input[type='number']) {
-  @apply pl-2.5 pr-0 rounded-none h-fit;
-}
-
-.select {
-  @apply py-2 pl-3 h-fit min-h-fit;
-}
+/* News 內文 Markdown 樣式 */
 
 .markdown {
   @apply whitespace-pre-line;
@@ -96,11 +94,7 @@ input[type='number']::-webkit-inner-spin-button {
   @apply whitespace-normal list-disc list-inside;
 }
 
-.county-sel,
-.district-sel,
-.zipcode {
-	@apply inline-block mb-3 sm:mb-0 sm:mr-3 max-h-[2.4rem] sm:w-fit;
-}
+/* Image 選擇時的 overlay 樣式 */
 
 .img-with-overlay:hover .overlay {
 	@apply block;
@@ -109,8 +103,3 @@ input[type='number']::-webkit-inner-spin-button {
 .img-with-overlay:hover img {
 	@apply scale-100;
 }
-
-.swiper-wrapper {
-	@apply ease-linear;
-}
-

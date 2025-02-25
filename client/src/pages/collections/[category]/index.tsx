@@ -121,8 +121,8 @@ const Collections = () => {
                       </li>
                     ))}
                   </ul>
-                  <div className="flex items-center justify-between mt-2 mb-4">
-                    <p className="text-xl font-semibold">NT$ {addComma(product.price)}</p>
+                  <div className="flex items-center justify-between mt-2 mb-4 gap-x-2">
+                    <p className="text-xl font-semibold text-nowrap">NT$ {addComma(product.price)}</p>
                     <Input
                       type="number"
                       label="數量"
@@ -131,13 +131,14 @@ const Collections = () => {
                       value={quantities[product._id] || 1}
                       defaultValue={1}
                       onChange={(e) => handleQuantityChange(
-                        e,
+                        Number(e.target.value),
                         product,
                         value => setQuantities((prev) => ({ ...prev, [product._id]: value })))}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
-                      className="flex items-center gap-2"
-                      labelStyle="border-r border-gray-300 pr-1.5"
+                      wrapperStyle="flex items-center gap-2"
+                      inputStyle="rounded-none"
+                      labelStyle="border-r text-xs border-gray-300 pr-1.5"
                     />
                   </div>
                   <Button
