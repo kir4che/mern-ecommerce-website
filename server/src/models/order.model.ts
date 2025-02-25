@@ -136,8 +136,9 @@ orderSchema.pre("save", function(next) {
   next();
 });
 
-orderSchema.index({ userId: 1, createdAt: -1 });
+orderSchema.index({ orderNo: "text" });
+orderSchema.index({ userId: 1 });
+orderSchema.index({ "orderItems.title": "text" });
 orderSchema.index({ status: 1 });
-orderSchema.index({ tradeNo: 1 }, { unique: true, sparse: true, partialFilterExpression: { paymentStatus: { $in: ['paid', 'refunded'] } } });
 
 export const OrderModel = model<IOrder>("Order", orderSchema);
