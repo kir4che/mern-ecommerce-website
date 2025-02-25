@@ -51,3 +51,19 @@ export const SHIPPING_STATUS = {
   returning: "退貨中",
   returned: "已退貨",
 } as const;
+
+export const ORDERS_FILTER_TYPES = {
+  "ALL": 0,
+  "UNPAID": 1,
+  "PENDING": 2,
+  "SHIPPED": 3,
+  "COMPLETED": 4,
+} as const;
+
+export const ORDER_FILTER_TYPE_LABELS = {
+  0: "全部",
+  1: "待付款",
+  2: "待出貨",
+  3: "已出貨",
+  4: "已完成",
+} as const;

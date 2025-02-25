@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import Button from "@/components/atoms/Button";
 
@@ -8,7 +8,7 @@ interface ModalProps {
   id: string;
   onOpen?: () => void;
   onConfirm: () => void;
-  title: string;
+  title?: string;
   confirmText?: string;
   width?: string;
   className?: string;
@@ -50,13 +50,13 @@ const Modal: React.FC<ModalProps> = ({
     <dialog id={id} ref={modalRef} className="modal">
       <div className={`modal-box ${width} ${className}`}>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-bold">{title}</h3>
+          {title && <h3 className="text-lg font-bold">{title}</h3>}
           {isShowCloseIcon && (
             <Button
               variant="icon"
               icon={CloseIcon}
               onClick={closeModal}
-              className="border-none"
+              className={`border-none h-fit ${!title && "ml-auto"}`}
             />
           )}
         </div>
