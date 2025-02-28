@@ -9,7 +9,7 @@ export const preventInvalidInput = (e: React.KeyboardEvent<HTMLInputElement>) =>
 
 // 處理商品數量變更
 export const handleQuantityChange = (
-  value: number | React.ChangeEvent<HTMLInputElement>,
+  value: number,
   product: { _id: string; countInStock: number } | null,
   setQuantity: (value: number) => void
 ) => {
@@ -45,7 +45,7 @@ export const handleAddToCart = async (
     await addToCart({ productId: product._id, quantity: quantity ?? 1 });
     setQuantity?.(product.countInStock > 0 ? 1 : 0);
   } catch (err: any) {
-    console.error('Failed to add to cart:', error);
+    console.error('Failed to add to cart:', err);
   }
 };
 
@@ -57,7 +57,7 @@ export const handleRemoveFromCart = async (
   try {
     await removeFromCart(productId);
   } catch (err: any) {
-    console.error(`Failed to remove product with ID ${productId} from cart:`, error);
+    console.error(`Failed to remove product with ID ${productId} from cart:`, err);
   }
 };
 
