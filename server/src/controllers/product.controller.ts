@@ -43,27 +43,30 @@ const updateProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
 
-    const product = await ProductModel.findById(productId);
-    if (!product) res.status(404).json({ success: false, message: "Product not found!" });
+    if (!mongoose.Types.ObjectId.isValid(productId))
+      return res.status(400).json({ success: false, message: "Invalid product ID format." });
 
     const updateData = req.body;
+
     if (!updateData || Object.keys(updateData).length === 0)
       return res.status(400).json({ success: false, message: "Invalid update data. Please provide data to update." });
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       productId,
-      updateData,
-      { new: true },
+      { $set: updateData }, // 確保只更新特定欄位
+      { new: true } // 回傳更新後的資料
     );
+
     if (!updatedProduct)
       return res.status(404).json({ success: false, message: "Product not found." });
 
-    res.status(200).json({
-      message: "Product updated Successfully!",
+    return res.status(200).json({
+      success: true,
+      message: "Product updated successfully!",
       product: updatedProduct,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 

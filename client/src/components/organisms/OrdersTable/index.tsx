@@ -19,14 +19,14 @@ import { ReactComponent as ArrowUpIcon } from "@/assets/icons/nav-arrow-up.inlin
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
 import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
 
-interface OrderFilterTabProps {
+interface OrdersFilterTabProps {
   label: string;
   filterValue: number;
   activeFilter: number;
   onClick: () => void;
 }
 
-interface OrderActionsProps {
+interface OrdersActionsProps {
   order: Order;
   refreshOrders: () => void;
   isAdmin: boolean;
@@ -35,11 +35,11 @@ interface OrderActionsProps {
   onDeliver: (orderId: string) => void;
 }
 
-interface OrderTableProps {
+interface OrdersTableProps {
   isAdmin: boolean;
 }
 
-const OrderFilterTab = ({ filterValue, activeFilter, onClick }: OrderFilterTabProps) => (
+const OrdersFilterTab = ({ filterValue, activeFilter, onClick }: OrdersFilterTabProps) => (
   <button
     type="button"
     role="tab"
@@ -51,7 +51,7 @@ const OrderFilterTab = ({ filterValue, activeFilter, onClick }: OrderFilterTabPr
   </button>
 );
 
-const OrderActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete, onDeliver }: OrderActionsProps) => {
+const OrdersActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete, onDeliver }: OrdersActionsProps) => {
   const { _id, status, paymentStatus } = order;
 
   const [shippingTrackingNo, setShippingTrackingNo] = useState<string>("");
@@ -124,7 +124,7 @@ const OrderActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete, 
   return null;
 };
 
-const OrderTable: React.FC<OrderTableProps> = ({ isAdmin }) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -178,7 +178,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ isAdmin }) => {
       {/* 篩選 Tabs */}
       <div role="tablist" className="mb-3 rounded bg-amber-100 tabs">
         {Object.entries(ORDERS_FILTER_TYPES).map(([key, value]) => (
-          <OrderFilterTab
+          <OrdersFilterTab
             key={key}
             label={key}
             filterValue={value}
@@ -249,7 +249,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ isAdmin }) => {
                       NT$ {addComma(order.totalAmount)}
                     </td>
                     <td className="flex items-center justify-end gap-x-2">
-                      <OrderActions
+                      <OrdersActions
                         order={order}
                         refreshOrders={refreshOrders}
                         isAdmin={isAdmin}
@@ -324,4 +324,4 @@ const OrderTable: React.FC<OrderTableProps> = ({ isAdmin }) => {
   );
 };
 
-export default OrderTable;
+export default OrdersTable;

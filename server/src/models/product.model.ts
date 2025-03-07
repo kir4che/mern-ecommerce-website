@@ -11,7 +11,7 @@ export interface IProduct extends Document<Types.ObjectId> {
   description: string;
   price: number;
   content: string; // 內容物
-  expiryDate: Date; // 有效期限
+  expiryDate: string; // 有效期限
   allergens: string[]; // 過敏原
   delivery: string; // 配送
   storage: string; // 保存方式
@@ -28,12 +28,12 @@ export interface IProduct extends Document<Types.ObjectId> {
 const productSchema = new Schema<IProduct>(
   {
     title: { type: String, required: true },
-    tagline: { type: String, required: true },
+    tagline: { type: String, default: "" },
     categories: { type: [String], required: true },
-    description: { type: String, default: "" },
-    price: { type: Number, required: true },
-    content: { type: String, required: true },
-    expiryDate: { type: Date, required: true },
+    description: { type: String, default: "", required: true },
+    price: { type: Number, min: 0, required: true },
+    content: { type: String, default: "", required: true },
+    expiryDate: { type: String, default: "" },
     allergens: { type: [String], default: [] },
     delivery: { type: String, default: "常溫宅配" },
     storage: { type: String, default: "請保存於陰涼處，避免高溫或陽光照射。" },
