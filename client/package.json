@@ -28,24 +28,22 @@
     ]
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.18",
     "@tailwindcss/line-clamp": "^0.4.4",
-    "@types/jest": "^27.5.2",
+    "@types/jest": "^29.5.14",
     "@types/node": "^16.18.69",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "axios": "^1.7.7",
-    "framer-motion": "^10.16.16",
+    "framer-motion": "^12.4.10",
     "lodash.debounce": "^4.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-intersection-observer": "^9.14.1",
     "react-markdown": "^9.0.1",
-    "react-router-dom": "^6.21.1",
+    "react-router-dom": "^7.3.0",
     "react-scripts": "^5.0.1",
     "resolve-url-loader": "^5.0.0",
-    "swiper": "^11.0.5",
-    "typescript": "^4.9.5"
+    "swiper": "^11.0.5"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -56,6 +54,7 @@
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "tailwindcss": "^3.4.0",
+    "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.7"
   },
   "overrides": {
