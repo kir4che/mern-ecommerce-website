@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
+import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 import { preventInvalidInput, handleQuantityChange, handleAddToCart, calculateFreeShipping } from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
@@ -13,7 +14,6 @@ import NotFound from "@/pages/notFound";
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
-import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as CartImg } from "@/assets/images/ecommerce-cart-illustration.inline.svg";
 import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
@@ -28,29 +28,34 @@ import "swiper/css";
 const Cart = () => {
   const navigate = useNavigate();
   const { cart, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
-  const { data } = useAxios("/products");
-  const products = data?.products as Product[];
+  const { showAlert } = useAlert();
+  const swiperRef = useRef(null);
 
   const sortedCart = [...cart].sort((a, b) => Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0));
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const swiperRef = useRef(null);
+  const { data } = useAxios("/products");
+  const products = data?.products as Product[];
 
-  const { refresh: createOrder } = useAxios("/orders", {
-    method: "POST",
-    withCredentials: true,
-  }, {
-    immediate: false,
-    onSuccess: data => {
-      clearCart();
-      navigate(`/checkout/${data.order._id}`);
+  const { refresh: createOrder } = useAxios("/orders",
+    {
+      method: "POST",
+      withCredentials: true,
     },
-    onError: () => setErrorMessage("訂單送出失敗，請稍後再試！")
-  });
+    {
+      immediate: false,
+      onSuccess: data => {
+        clearCart();
+        navigate(`/checkout/${data.order._id}`);
+      },
+      onError: () => showAlert({
+        variant: "error",
+        message: "訂單送出失敗，請稍後再試！",
+      })
+    }
+  );
 
   const handleCheckout = () => {
-    setErrorMessage(null);
     createOrder({
       orderItems: cart.map(({ productId, product, quantity }) => ({
         productId,
@@ -63,7 +68,7 @@ const Cart = () => {
     });
   };
 
-  if (cartError) return <NotFound message={[cartError]} />;
+  if (cartError) return <NotFound message={cartError} />;
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
@@ -250,7 +255,6 @@ const Cart = () => {
           前往付款
         </Button>
       </div>
-      {errorMessage && <Alert type="error" message="訂單送出失敗，請稍後再試！" className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
     </Layout>
   );
 };

@@ -9,7 +9,6 @@ import NotFound from "@/pages/notFound";
 import Loading from "@/components/atoms/Loading";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import Alert from "@/components/atoms/Alert";
 import PriceRow from "@/components/atoms/PriceRow";
 
 import { ReactComponent as CheckIcon } from "@/assets/icons/check-circle.inline.svg";
@@ -22,14 +21,13 @@ const initialBuyerInfo = {
   name: "",
   phone: "",
   address: "",
-  note: ""
+  note: "",
 };
 
 const Checkout: React.FC = () => {
   const { id } = useParams();
   const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, { withCredentials: true });
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [buyerInfo, setBuyerInfo] = useState(initialBuyerInfo);
   const [paymentMethod, setPaymentMethod] = useState("ATM");
 
@@ -74,8 +72,7 @@ const Checkout: React.FC = () => {
         // 將表單添加到頁面並提交
         document.body.appendChild(form);
         form.submit();
-      },
-      onError: (err) => setErrorMessage(err.message)
+      }
     }
   );
 
@@ -220,7 +217,6 @@ const Checkout: React.FC = () => {
           className="textarea textarea-bordered"
         />
       </div>
-      {errorMessage && <Alert type="error" message={errorMessage} className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
     </Layout>
   );
 };

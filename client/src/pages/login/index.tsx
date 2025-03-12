@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/context/AuthContext";
+import { useAlert } from "@/context/AlertContext";
 
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Checkbox from "@/components/atoms/Checkbox";
 import Button from "@/components/atoms/Button";
-import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
 import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
@@ -15,6 +15,7 @@ import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
 const Login = () => {
   const navigate = useNavigate();
   const { user, error, login } = useAuth();
+  const { showAlert } = useAlert();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +29,15 @@ const Login = () => {
   useEffect(() => {
     if (user) navigate("/");
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, error]);
+  }, [user]);
+
+  useEffect(() => {
+    if (error) showAlert({
+      variant: "error",
+      message: error,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
 
   return (
     <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
@@ -74,13 +83,6 @@ const Login = () => {
           </Link>
         </p>
       </form>
-      {error && (
-        <Alert
-          type="error"
-          message={error}
-          className="absolute -translate-x-1/2 left-1/2 w-fit top-4 text-nowrap"
-        />
-      )}
     </Layout>
   );
 };
