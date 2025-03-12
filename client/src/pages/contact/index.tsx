@@ -1,9 +1,13 @@
 import { useState } from "react";
+
+import { useAlert } from "@/context/AlertContext";
+
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 
 const Contact = () => {
+  const { showAlert } = useAlert();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -17,10 +21,21 @@ const Contact = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 尚未實作寄發 Email 功能
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 尚未實作寄發 Email 功能
-    console.log("Form submitted:", form);
+
+    showAlert({
+      variant: "success",
+      message: "訊息已送出，我們會盡快回覆您。",
+      top: "top-28",
+    });
+
+    setForm({
+      name: "",
+      email: "",
+      content: "",
+    });
   };
 
   return (

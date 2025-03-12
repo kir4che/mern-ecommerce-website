@@ -1,28 +1,33 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
 import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { error, isLoading, isError, refresh } = useAxios(
+  const { isLoading, refresh } = useAxios(
     "/user/register",
     { method: "POST" },
     {
       immediate: false,
       onSuccess: () => navigate("/login"),
+      onError: (err) => showAlert({
+        variant: "error",
+        message: err.message,
+      })
     }
   );
 
@@ -72,13 +77,6 @@ const Register = () => {
           </Link>
         </p>
       </form>
-      {isError && (
-        <Alert
-          type="error"
-          message={error?.message}
-          className="absolute -translate-x-1/2 left-1/2 w-fit top-4 text-nowrap"
-        />
-      )}
     </Layout>
   );
 };

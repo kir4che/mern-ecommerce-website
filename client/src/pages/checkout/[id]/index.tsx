@@ -6,13 +6,29 @@ import { useGetData } from "@/hooks/useGetData";
 
 import Layout from "@/layouts/AppLayout";
 import Loading from "@/components/atoms/Loading";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import PriceRow from "@/components/atoms/PriceRow";
 
-const Checkout = () => {
+import { ReactComponent as CheckIcon } from "@/assets/icons/check-circle.inline.svg";
+import { ReactComponent as UncheckIcon } from "@/assets/icons/uncheck-circle.inline.svg";
+import { ReactComponent as VisaIcon } from "@/assets/icons/visa-logo.inline.svg";
+import { ReactComponent as MasterCardIcon } from "@/assets/icons/mastercard-logo.inline.svg";
+import { ReactComponent as JCBIcon } from "@/assets/icons/jcb-logo.inline.svg";
+
+const initialBuyerInfo = {
+  name: "",
+  phone: "",
+  address: "",
+  note: "",
+};
+
+const Checkout: React.FC = () => {
   const { id } = useParams();
   const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, { withCredentials: true });
 
-  if (loading) return <Loading />;
-  else if (!loading && !data) navigate("/cart");
+  const [buyerInfo, setBuyerInfo] = useState(initialBuyerInfo);
+  const [paymentMethod, setPaymentMethod] = useState("ATM");
 
   // 暫時不串接金流，直接設定付款成功
   const handlePay = async () => {
@@ -56,8 +72,7 @@ const Checkout = () => {
         // 將表單添加到頁面並提交
         document.body.appendChild(form);
         form.submit();
-      },
-      onError: (err) => setErrorMessage(err.message)
+      }
     }
   );
 
@@ -104,99 +119,29 @@ const Checkout = () => {
                 src="https://img.icons8.com/ios-glyphs/30/ok--v1.png"
                 alt="checked"
               />
-            ) : (
-              <img
-                width="30"
-                height="30"
-                src="https://img.icons8.com/ios-glyphs/30/circled.png"
-                alt="unchecked"
-              />
-            )}
-            <div className="flex items-center gap-1">
-              <img
-                width="36"
-                height="36"
-                src="https://img.icons8.com/ios/50/bank-card-back-side--v1.png"
-                alt="credit-card"
-              />
-              <p>
-                <span>信用卡</span>
-                <span className="ml-2 text-sm text-gray-500">
-                  (VISA、MasterCard、JCB)
-                </span>
-              </p>
-            </div>
-          </button>
-          <label className="block">
-            卡號
-            <input
-              type="text"
-              name="cardNumber"
-              value={paymentForm.cardNumber}
-              minLength={16}
-              maxLength={16}
-              onChange={(e) =>
-                setPaymentForm({ ...paymentForm, cardNumber: e.target.value })
-              }
-              placeholder="**** **** **** ****"
-            />
-          </label>
-          <div className="flex flex-col justify-between gap-3 sm:gap-4 sm:flex-row">
-            <label className="flex-1 block">
-              卡片有效年月
-              <input
-                type="text"
-                name="cardDate"
-                value={paymentForm.cardDate}
-                onChange={(e) =>
-                  setPaymentForm({ ...paymentForm, cardDate: e.target.value })
-                }
-                placeholder="MM/YY"
-              />
-            </label>
-            <label className="flex-1 block">
-              CVV/CVC
-              <input
-                type="text"
-                name="cardCode"
-                value={paymentForm.cardCode}
-                minLength={3}
-                maxLength={3}
-                onChange={(e) =>
-                  setPaymentForm({ ...paymentForm, cardCode: e.target.value })
-                }
-                placeholder="卡片背面檢查碼"
-              />
-            </label>
-          </div>
-          <label className="block">
-            持卡人姓名
-            <input
-              type="text"
-              name="cardName"
-              value={paymentForm.cardName}
-              onChange={(e) =>
-                setPaymentForm({ ...paymentForm, cardName: e.target.value })
-              }
-            />
-          </label>
-        </div>
-        <div className="flex justify-between w-full my-8">
-          <p>支付金額</p>
-          <p className="text-2xl text-primary">
-            <span className="text-sm">NT$ </span>
-            <span className="font-medium">
-              {data?.order?.totalAmount.toLocaleString()}
-            </span>
-          </p>
-        </div>
-        <button
-          className="w-full py-3 text-sm font-medium border-2 rounded border-primary hover:bg-secondary hover:text-primary text-secondary bg-primary"
-          onClick={handlePay}
-        >
-          確認付款
-        </button>
-      </section>
+              <div className="flex items-end justify-between w-full">
+                <div className="flex flex-col justify-between h-full">
+                  <p className="font-medium">{item.title}</p>
+                  <p>
+                    NT$ {addComma(item.price)}
+                    <span className="ml-2">數量：{item.quantity}</span>
+                  </p>
+                </div>
+                <p className="text-base font-medium">NT$ {addComma(item.amount)}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {/* 備註 */}
+        <label className="mb-2 text-sm">備註</label>
+        <textarea
+          value={buyerInfo.note}
+          placeholder="有任何特殊需求或注意事項嗎？"
+          onChange={(e) => setBuyerInfo({ ...buyerInfo, note: e.target.value })}
+          rows={3}
+          className="textarea textarea-bordered"
+        />
+      </div>
     </Layout>
   );
 };

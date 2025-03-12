@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import HeaderMenu from "@/components/organisms/HeaderMenu";
 import Footer from "@/components/organisms/Footer";
+import Alert from "@/components/atoms/Alert";
 
 import shopImage from "@/assets/images/about/shop1.jpg";
 
@@ -25,7 +26,10 @@ const AppLayout = ({ className = "", children }) => {
           />
         </div>
       </div>
-      <main className={`flex-1 ${className}`}>{children}</main>
+      <main className={`flex-1 ${className}`}>
+        <Alert />
+        {children}
+      </main>
       <Footer />
     </div>
   );
