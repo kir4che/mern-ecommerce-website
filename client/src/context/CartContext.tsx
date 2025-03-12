@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useReducer, useCallback, useMemo, ReactNode, Dispatch } from "react";
+import { createContext, useContext, useEffect, useReducer, useMemo, ReactNode, Dispatch } from "react";
 import axios from "axios";
-import { debounce } from "lodash";
+import { throttle } from "lodash";
 
 import { useAuth } from "@/context/AuthContext";
 import { useAxios } from "@/hooks/useAxios";
@@ -76,95 +76,69 @@ const CartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
-const useCartAxios = (url: string, method: 'GET' | 'POST' | 'DELETE' | 'PATCH') => {
-  const { logout } = useAuth();
-  return useAxios(
-    url,
-    { method, withCredentials: true },
-    { 
-      immediate: false,
-      onError: (error) => {
-        if (axios.isAxiosError(error) && error.response?.status === 401) logout();
-      }
-    }
-  );
-};
-
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(CartReducer, INITIAL_STATE);
-  const { logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  const { data, refresh: refreshCart } = useAxios("/cart", 
+  const { refresh: refreshGetCart } = useAxios("/cart", 
     { withCredentials: true }, 
-    {
-      immediate: false, 
-      onError: (err) => err.statusCode === 401 && logout(),
-    }
+    { immediate: false}
   );
-  const { refresh: refreshAddToCart } = useCartAxios('/cart', 'POST');
+  const { refresh: refreshAddToCart } = useAxios('/cart',
+    { method: 'POST', withCredentials: true }, 
+    { immediate: false}
+  );
   const { refresh: refreshRemoveFromCart } = useAxios(
     params => `/cart/${params?.id}`,
-    { method: 'DELETE', withCredentials: true },
-    { immediate: false }
+    { method: 'DELETE', withCredentials: true }, 
+    { immediate: false}
   );
   const { refresh: refreshChangeQuantity } = useAxios(
     params => `/cart/${params?.id}`,
-    { method: 'PATCH', withCredentials: true },
-    { immediate: false }
+    { method: 'PATCH', withCredentials: true }, 
+    { immediate: false}
   );
-  const { refresh: refreshClearCart } = useCartAxios('/cart', 'DELETE');
+  const { refresh: refreshClearCart } = useAxios('/cart',
+    { method: 'DELETE', withCredentials: true }, 
+    { immediate: false}
+  );
 
   const handleError = (err: any) => {
-    if (axios.isAxiosError(err))
-      return err.response?.data?.message || "發生錯誤，請稍後再試";
-    return "未知錯誤";
+    if (axios.isAxiosError(err)) return err.response?.data?.message || "伺服器發生錯誤，請稍後再試。";
+    return "發生未知錯誤，請稍後再試。";
   };
 
   // 取得購物車資料
-  const getCart = useCallback(async () => {
-    try {
-      dispatch({ type: "SET_IS_LOADING", payload: true });
-      dispatch({ type: "SET_FAIL", payload: null });
+  const getCart = async () => {
+    dispatch({ type: "SET_IS_LOADING", payload: true });
+    dispatch({ type: "SET_FAIL", payload: null });
 
-      await refreshCart();
+    try {
+      const res = await refreshGetCart();
+      dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     } finally {
       dispatch({ type: "SET_IS_LOADING", payload: false });
     }
-  }, [refreshCart]);
+  };
 
-  // 初始化購物車
-  useEffect(() => {
-    if (isAuthenticated) getCart();
-    else {
-      const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
-      if (localCart.length === 0) localStorage.setItem("cart", JSON.stringify([]));
-      else dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  const getLocalCart = () => JSON.parse(localStorage.getItem("cart") || "[]") as CartItem[];
 
-  // 更新購物車資料
-  useEffect(() => {
-    if (data?.cart) dispatch({ type: "SET_CART_SUCCESS", payload: data.cart });
-  }, [data]);
-  
+  // 商品加入購物車處理邏輯
   const addToCartLogic = async (productId: string, quantity: number) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
       if (!isAuthenticated) {
         // 未登入：將商品加入本地購物車
-        const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
-        // 檢查商品是否已存在，若存在則更新數量。
+        const localCart = getLocalCart();
         const existingItemIndex = localCart.findIndex(item => item.productId === productId);
-  
         if (existingItemIndex !== -1) localCart[existingItemIndex].quantity += quantity;
         else localCart.push({ productId, quantity });
-  
+
         localStorage.setItem("cart", JSON.stringify(localCart));
-        dispatch({ type: "SET_CART_SUCCESS", payload: localCart });
+        dispatch({ type: "SET_CART_SUCCESS", payload: localCart }); // 同步更新 state.cart
       } else {
         // 已登入：發送 API 新增商品至後端
         await refreshAddToCart({ productId, quantity });
@@ -175,82 +149,80 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // 商品加入購物車
-  const addToCartDebounced = debounce(async ({ productId, quantity }: CartItem) => {
-    return new Promise<void>(async (resolve, reject) => {
-      try {
-        await addToCartLogic(productId, quantity);
-        resolve();
-      } catch (err: any) {
-        reject(err);
-      }
-    });
-  }, 500);
+  const throttledAddToCartLogic = throttle(
+    (productId: string, quantity: number) => {
+      addToCartLogic(productId, quantity);
+    },
+    500, // 每 500ms 最多執行一次，避免使用者連續點擊造成錯誤。
+    {
+      leading: true,  // 第一次點擊時立即執行（不需等待）
+      trailing: false // 節流結束後也不會執行，確保正確忽略節流期間的點擊。
+    }
+  );
 
-  const addToCart = useCallback(async ({ productId, quantity }: CartItem) => {
-    await addToCartDebounced({ productId, quantity });
-  }, [addToCartDebounced]);
+  const addToCart = async ({ productId, quantity }: CartItem) => {
+    return new Promise<void>((resolve) => {
+      throttledAddToCartLogic(productId, quantity);
+      resolve();
+    });
+  };
 
   // 後續登入，需同步本地購物車至後端。
-  const syncLocalCartToServer = useCallback(async () => {
+  const syncLocalCartToServer = async () => {
     if (!isAuthenticated) return;
 
-    const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
-    if (localCart.length === 0) return;
+    const localCartData: CartItem[] = JSON.parse(localStorage.getItem("cart"));
 
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
       // 一次性將 localStorage 內的商品同步加入至後端的購物車
-      await Promise.all(localCart.map(item => 
+      await Promise.all(localCartData.map(item => 
         refreshAddToCart({ productId: item.productId, quantity: item.quantity })
       ));
-
-      localStorage.removeItem("cart"); // 清除 localStorage，確保數據已同步
       await getCart();
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
-  }, [isAuthenticated, refreshAddToCart, getCart]);
+  };
 
-
-  // 當使用者登入時，自動同步本地購物車
+  // 登入時初始化購物車，並同步本地購物車至後端，且清空本地購物車。
   useEffect(() => {
-    if (isAuthenticated) {
-      syncLocalCartToServer();
-      getCart();
-    }
+    getCart();
+    syncLocalCartToServer().then(() => localStorage.removeItem("cart"));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+
   // 商品移出購物車
-  const removeFromCart = useCallback(async (cartItemId: string) => {
+  const removeFromCart = async (cartItemId: string) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
+      dispatch({ type: "REMOVE_ITEM_SUCCESS", payload: cartItemId });
       await refreshRemoveFromCart({ id: cartItemId });
       await getCart();
-      dispatch({ type: "REMOVE_ITEM_SUCCESS", payload: cartItemId });
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
-  }, [refreshRemoveFromCart, getCart]);
+  };
 
   // 變更商品數量
-  const changeQuantity = useCallback(async (cartItemId: string, quantity: number) => {
+  const changeQuantity = async (cartItemId: string, quantity: number) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
-      await refreshChangeQuantity({ id: cartItemId, quantity });
-      await getCart();
       dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
+      await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
+      await getCart();
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
+      await getCart();
     }
-  }, [refreshChangeQuantity, getCart]);
+  };
 
   // 清空購物車
-  const clearCart = useCallback(async () => {
+  const clearCart = async () => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
 
@@ -259,19 +231,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
-  }, [refreshClearCart, getCart]);
+  };
 
   // 計算購物車中商品總數量
   const totalQuantity = useMemo(() => {
-    if (!isAuthenticated) {
-      const localCart: CartItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
-      return localCart.reduce((total, item) => total + item.quantity, 0);
-    }
-    return state.cart.reduce((total, item) => total + item.quantity, 0);
-  }, [isAuthenticated, state.cart]);
+    const localCart = getLocalCart();
+    return (isAuthenticated ? state.cart : localCart).reduce((total, item) => total + item.quantity, 0);
+  }, [state.cart, isAuthenticated]);
   
   // 計算購物車中商品總金額
-  const subtotal = useMemo(() => state.cart.reduce((total, { product, quantity }) => total + (product?.price ?? 0) * quantity, 0), [state.cart]);
+  const subtotal = useMemo(() => {
+    return state.cart.reduce((total, { product, quantity }) => total + (product?.price ?? 0) * quantity, 0);
+  }, [state.cart]);
 
   const contextValue: CartContextType = { ...state, totalQuantity, subtotal, getCart, addToCart, removeFromCart, changeQuantity, clearCart, dispatch };
 
