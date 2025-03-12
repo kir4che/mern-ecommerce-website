@@ -119,7 +119,7 @@ const ProductSlider = () => {
           <SwiperSlide key={product._id}>
             <section className={`relative sm:max-w-80 ${isError && 'pointer-events-none'}`}>
               <div className="absolute z-10">
-                <h3 className={`px-2 mb-3 text-xl w-fit bg-primary text-secondary ${isError && 'bg-opacity-50'}`}>
+                <h3 className={`px-2 mb-2 text-xl w-fit bg-primary text-secondary ${isError && 'bg-opacity-50'}`}>
                   {product.title}
                 </h3>
                 <ul className="flex items-center gap-1.5">
