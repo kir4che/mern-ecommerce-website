@@ -9,7 +9,7 @@ export const preventInvalidInput = (e: React.KeyboardEvent<HTMLInputElement>) =>
 
 // 處理商品數量變更
 export const handleQuantityChange = (
-  value: number,
+  value: number | React.ChangeEvent<HTMLInputElement>,
   product: { _id: string; countInStock: number } | null,
   setQuantity: (value: number) => void
 ) => {
