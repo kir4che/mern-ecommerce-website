@@ -69,7 +69,6 @@ export function useAxios(
       if (!response?.data?.success) {
         const errorDetails: ErrorResponse = {
           message: response?.data?.message || 'Request failed!',
-          code: response?.data?.code,
           statusCode: response?.status,
           details: response?.data?.details,
         };
