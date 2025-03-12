@@ -1,20 +1,18 @@
-import { useState, useEffect } from "react";
+import { useAlert } from "@/context/AlertContext";
 
 import { ReactComponent as InfoIcon } from "@/assets/icons/info.inline.svg";
+import { ReactComponent as WarningIcon } from "@/assets/icons/warning.inline.svg";
 import { ReactComponent as SuccessIcon } from "@/assets/icons/success.inline.svg";
 import { ReactComponent as ErrorIcon } from "@/assets/icons/error.inline.svg";
-
-interface AlertProps {
-  type: "info" | "success" | "error";
-  message: string | string[];
-  autoDismiss?: boolean;
-  className?: string;
-}
 
 const iconMap = {
   info: {
     icon: InfoIcon,
     style: "alert-info bg-sky-50 text-sky-600",
+  },
+  warning: {
+    icon: WarningIcon,
+    style: "alert-warning bg-yellow-50 text-yellow-600",
   },
   success: {
     icon: SuccessIcon,
@@ -26,37 +24,21 @@ const iconMap = {
   },
 };
 
-const Alert: React.FC<AlertProps> = ({
-  type = "info",
-  message,
-  autoDismiss = true,
-  className,
-}) => {
-  const Icon = iconMap[type].icon;
-  const [isVisible, setIsVisible] = useState(true);
+const Alert: React.FC = () => {
+  const { alert } = useAlert();
 
-  useEffect(() => {
-    if (autoDismiss) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, 3000);
+  if (!alert) return null;
 
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoDismiss]);
-
-  const renderMessage = Array.isArray(message)
-    ? message.map((msg, index) => <p key={index}>{msg}</p>)
-    : message; // 只有一條訊息：直接顯示
+  const { variant, message, floating, top } = alert;
+  const Icon = iconMap[variant].icon;
 
   return (
     <div
       role="alert"
-      className={`alert ${iconMap[type].style} flex items-center rounded-md gap-2 border-none py-3 transition-opacity duration-500 font-medium ${isVisible ? "opacity-100" : "opacity-0"} ${className}`}
+      className={`alert ${iconMap[variant].style} flex text-nowrap items-center rounded-md z-[9999] gap-2 border-none py-2.5  w-fit transition-opacity duration-500 font-medium ${floating ? `absolute -translate-x-1/2 left-1/2 ${top}` : ""}`}
     >
       <Icon className="w-5 stroke-current" />
-      {renderMessage}
+      <p>{message}</p>
     </div>
   );
 };

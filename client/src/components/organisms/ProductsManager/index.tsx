@@ -2,11 +2,11 @@ import { useState, useRef } from "react";
 
 import { Product } from "@/types/product";
 import { useAxios } from "@/hooks/useAxios";
+import { useAlert } from "@/context/AlertContext";
 
 import ProductForm from "@/components/organisms/ProductsManager/Form";
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
-import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as EditIcon } from "@/assets/icons/edit.inline.svg";
 import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
@@ -35,9 +35,11 @@ const initialFormData: Partial<Product> = {
 };
 
 const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProducts }) => {
+
+  const { showAlert } = useAlert();
+
   const [formKey, setFormKey] = useState(0);
   const [formData, setFormData] = useState<Partial<Product>>(initialFormData);
-  const [alertMessages, setAlertMessages] = useState<string[]>([]);
   const originalDataRef = useRef<Partial<Product>>({});
 
   // 重置表單
@@ -57,14 +59,21 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
     { method: "POST", withCredentials: true },
     {
       immediate: false,
-      onError: () => setAlertMessages((prev) => [...prev, "新增商品失敗，請稍後再試。"])
+      onError: () => showAlert({
+        variant: "error",
+        message: "新增商品失敗，請稍後再試。",
+      })
     }
   ).refresh;
+
   const updateProduct = useAxios(params => `/products/${params?.id}`,
     { method: "PATCH", withCredentials: true },
     {
       immediate: false,
-      onError: () => setAlertMessages((prev) => [...prev, "更新商品失敗，請稍後再試。"])
+      onError: () => showAlert({
+        variant: "error",
+        message: "更新商品失敗，請稍後再試。",
+      })
     }
   ).refresh;
 
@@ -72,7 +81,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
     { method: "DELETE", withCredentials: true },
     { 
       immediate: false,
-      onError: () => setAlertMessages((prev) => [...prev, "刪除商品失敗，請稍後再試。"])
+      onError: () => showAlert({
+        variant: "error",
+        message: "刪除商品失敗，請稍後再試。",
+      })
     }
   ).refresh
 
@@ -84,7 +96,13 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
 
   // 新增、更新、刪除商品
   const handleProduct = async (action: "add" | "update" | "delete", productData: Partial<Product> & { _id?: string }) => {
-    setAlertMessages([]);
+    if (action === "add" && !productData.imageUrl) {
+      showAlert({
+        variant: "error",
+        message: "請上傳商品圖片",
+      });
+      return false;
+    }
 
     // 驗證表單
     if (action !== "delete") {
@@ -110,7 +128,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
       res = await deleteProduct({ id: productData._id });
     }
 
-    refreshProducts();
+    if (res?.success) refreshProducts(); // 成功後重新取得商品列表
     return res.success;
   };
 
@@ -163,6 +181,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
                   id={`updateProductModal-${item._id}`}
                   confirmText="更新"
                   onConfirm={() => handleProduct("update", formData)}
+                  onClose={resetForm}
                   width="max-w-xl"
                   isShowCloseIcon={true}
                 >
@@ -187,11 +206,6 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
       ) : (
         <p>尚無任何商品...</p>
       )}
-      {alertMessages.length > 0 && 
-        alertMessages.map((message, index) => (
-          <Alert key={index} type="error" message={message} className="absolute z-50 -translate-x-1/2 left-1/2 w-fit top-16 text-nowrap"/>
-        ))
-      }
     </>
   );
 }

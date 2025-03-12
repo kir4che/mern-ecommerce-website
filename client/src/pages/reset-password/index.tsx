@@ -1,21 +1,40 @@
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
+
+import { useAlert } from "@/context/AlertContext";
+import { useAxios } from "@/hooks/useAxios";
 
 import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
-import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
 
 const RequestResetLink: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert();
   const [countdown, setCountdown] = useState<number>(0);
-
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
 
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { isLoading, refresh: ResetPassword } = useAxios(
+    "/user/reset-password",
+    { method: "POST", withCredentials: true },
+    {
+      immediate: false,
+      onSuccess: () => setCountdown(60),
+      onError: (err) => {
+        if (err.statusCode === 404) {
+          showAlert({
+            variant: "error",
+            message: "該 Email 不存在。",
+          });
+        } else showAlert({
+          variant: "error",
+          message: "發送連結失敗，請稍後再試。",
+        });
+      }
+    },
+  );
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -33,28 +52,7 @@ const RequestResetLink: React.FC = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/reset-password`,
-        { email },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        },
-      );
-
-      if (res.status === 200) setCountdown(60); // 開始倒數
-    } catch (err: any) {
-      if (err.response?.status === 404) {
-        setError("該 Email 並不存在。");
-      } else setError("發生錯誤，請稍後再試。");
-    } finally {
-      setLoading(false);
-    }
+    await ResetPassword({ email });
   };
 
   return (
@@ -76,19 +74,12 @@ const RequestResetLink: React.FC = () => {
         <Button
           type="submit"
           className="mx-auto mt-8 rounded-none w-fit"
-          disabled={loading || countdown > 0}
-          aria-disabled={loading || countdown > 0}
+          disabled={isLoading || countdown > 0}
+          aria-disabled={isLoading || countdown > 0}
         >
           {countdown > 0 ? `${countdown} 秒後可以重新發送` : "發送重設連結"}
         </Button>
       </form>
-      {error && (
-        <Alert
-          type="error"
-          message={error}
-          className="absolute -translate-x-1/2 left-1/2 w-fit top-4 text-nowrap"
-        />
-      )}
     </Layout>
   );
 };
