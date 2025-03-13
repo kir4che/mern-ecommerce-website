@@ -1,3 +1,4 @@
+import ImageUploadInput from "@/components/molecules/ImageUploadInput";
 import Input from "@/components/atoms/Input";
 import Select from "@/components/atoms/Select";
 import Textarea from "@/components/atoms/Textarea";
@@ -19,14 +20,6 @@ const ProductForm = ({ formData, setFormData }) => {
 
   return (
     <form id="productForm" className="py-2 space-y-4">
-      <Input 
-        name="imageUrl" 
-        label="商品圖片 URL" 
-        placeholder="http://xxx.jpg" 
-        value={formData?.imageUrl} 
-        onChange={handleChange} 
-        required 
-      />
       <div className="flex flex-wrap gap-x-4 gap-y-2">
         <div className="flex flex-col justify-between grow">
           <Input 
@@ -58,6 +51,13 @@ const ProductForm = ({ formData, setFormData }) => {
           required
         />
       </div>
+      <ImageUploadInput label="商品圖片上傳" setFormData={setFormData} />
+      <Input
+        label="商品圖連結（上傳後會自動填入）"
+        value={formData?.imageUrl}
+        required
+        disabled
+      />
       <Textarea 
         name="description" 
         label="敘述" 
@@ -111,11 +111,8 @@ const ProductForm = ({ formData, setFormData }) => {
           name="allergens"
           label="過敏原"
           placeholder="小麥, 乳製品, 蛋"
-          value={formData?.allergens?.join(",")}
-          onChange={(e) => setFormData((prev) => ({
-            ...prev,
-            allergens: e.target.value.split(",").map((item) => item.trim()),
-          }))}
+          value={formData?.allergens}
+          onChange={handleChange}
           containerStyle="grow"
         />
         <Select
