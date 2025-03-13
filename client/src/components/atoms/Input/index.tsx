@@ -3,10 +3,10 @@ import { useState } from "react";
 interface InputProps {
   id?: string;
   name?: string;
-  type?: "text" | "number" | "email" | "password" | "tel" | "date";
+  type?: "text" | "number" | "email" | "password" | "tel" | "date" | "file";
   label?: string;
   placeholder?: string;
-  value: string | number;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   pattern?: {
@@ -86,10 +86,7 @@ const Input: React.FC<InputProps> = ({
             value={value}
             placeholder={placeholder}
             onChange={handleChange}
-            onInvalid={(e) => {
-              e.preventDefault();
-              handleValidation(value);
-            }}
+            onInvalid={() => handleValidation(value)}
             required={required}
             className={`border-none grow ${errorState && "placeholder-red-300 text-red-600"}`}
             {...props}

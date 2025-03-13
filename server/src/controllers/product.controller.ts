@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import { Types } from "mongoose";
 
 import { ProductModel } from "../models/product.model";
 
@@ -17,7 +17,7 @@ const getProductById = async (req: Request, res: Response) => {
     const idOrIds = req.params.id;
 
     if (idOrIds.includes(",")) {
-      const objectIds = idOrIds.split(",").map((id: string) => new mongoose.Types.ObjectId(id));
+      const objectIds = idOrIds.split(",").map((id: string) => new Types.ObjectId(id));
       const products = await ProductModel.find({ _id: { $in: objectIds } })
       return res.status(200).json({ success: true, message: "Products fetched successfully!", products });
     } else {
@@ -43,7 +43,7 @@ const updateProduct = async (req: Request, res: Response) => {
   try {
     const productId = req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(productId))
+    if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ success: false, message: "Invalid product ID format." });
 
     const updateData = req.body;

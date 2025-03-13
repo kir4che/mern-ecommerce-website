@@ -5,10 +5,12 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 
 import { cartRouter } from "./routes/cart.route";
-import { newRouter } from "./routes/new.route";
+import { newsRouter } from "./routes/news.route";
 import { productRouter } from "./routes/product.route";
 import { userRouter } from "./routes/user.route";
 import { orderRouter } from "./routes/order.route";
+import { paymentRouter } from "./routes/payment.route";
+import { uploadRouter } from "./routes/upload.route";
 
 import { connectDB } from "./config/db";
 
@@ -60,9 +62,11 @@ app.get("/", (req, res) => res.send("Express on Vercel."));
 // 設定 API 路由
 app.use("/api/user", userRouter);
 app.use("/api/products", productRouter);
-app.use("/api/news", newRouter);
+app.use("/api/news", newsRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/payment", paymentRouter);
+app.use("/api/upload", uploadRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
