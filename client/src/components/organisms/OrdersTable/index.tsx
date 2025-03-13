@@ -1,8 +1,14 @@
-import { Fragment, useState, useEffect, useCallback } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 
-import { ORDER_STATUS, PAYMENT_STATUS, SHIPPING_STATUS, ORDERS_FILTER_TYPES, ORDER_FILTER_TYPE_LABELS } from "@/constants/actionTypes";
+import {
+  ORDER_STATUS,
+  PAYMENT_STATUS,
+  SHIPPING_STATUS,
+  ORDERS_FILTER_TYPES,
+  ORDER_FILTER_TYPE_LABELS,
+} from "@/constants/actionTypes";
 import { Order } from "@/types/order";
 import { addComma } from "@/utils/addComma";
 import { formatDate } from "@/utils/formatDate";
@@ -39,7 +45,11 @@ interface OrdersTableProps {
   isAdmin: boolean;
 }
 
-const OrdersFilterTab = ({ filterValue, activeFilter, onClick }: OrdersFilterTabProps) => (
+const OrdersFilterTab = ({
+  filterValue,
+  activeFilter,
+  onClick,
+}: OrdersFilterTabProps) => (
   <button
     type="button"
     role="tab"
@@ -51,15 +61,22 @@ const OrdersFilterTab = ({ filterValue, activeFilter, onClick }: OrdersFilterTab
   </button>
 );
 
-const OrdersActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete, onDeliver }: OrdersActionsProps) => {
+const OrdersActions = ({
+  order,
+  refreshOrders,
+  isAdmin,
+  onRepayment,
+  onComplete,
+  onDeliver,
+}: OrdersActionsProps) => {
   const { _id, status, paymentStatus } = order;
 
   const [shippingTrackingNo, setShippingTrackingNo] = useState<string>("");
 
   const { refresh: updateOrder } = useAxios(
-    params => `/orders/${params?.id}`,
+    (params) => `/orders/${params?.id}`,
     { method: "PATCH", withCredentials: true },
-    { immediate: false }
+    { immediate: false },
   );
 
   // 完成訂單（user）
@@ -68,11 +85,11 @@ const OrdersActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete,
     refreshOrders();
   };
 
-    // 訂單出貨（admin）
-    const handleDeliver = async (orderId, shippingTrackingNo) => {
-      await updateOrder({ id: orderId, status: "shipped", shippingTrackingNo });
-      refreshOrders();
-    };
+  // 訂單出貨（admin）
+  const handleDeliver = async (orderId, shippingTrackingNo) => {
+    await updateOrder({ id: orderId, status: "shipped", shippingTrackingNo });
+    refreshOrders();
+  };
 
   if (!isAdmin) {
     if (status === "completed") return <span>已完成</span>;
@@ -116,7 +133,11 @@ const OrdersActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete,
           isShowCloseBtn={false}
           disabled={!/^[A-Z0-9]{8,20}$/.test(shippingTrackingNo)}
         >
-          <ConfirmDeliveryForm order={order} shippingTrackingNo={shippingTrackingNo} setShippingTrackingNo={setShippingTrackingNo} />
+          <ConfirmDeliveryForm
+            order={order}
+            shippingTrackingNo={shippingTrackingNo}
+            setShippingTrackingNo={setShippingTrackingNo}
+          />
         </Modal>
       </>
     );
@@ -127,32 +148,40 @@ const OrdersActions = ({ order, refreshOrders, isAdmin, onRepayment, onComplete,
 const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const navigate = useNavigate();
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
+
+  // 避免搜尋時過於頻繁發送請求
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce(() => refreshOrders(), 500)
+  , []);
+
+  const handleSearchChange = (keyword: string) => {
+    setSearchKeyword(keyword);
+    debouncedSearch();
+  };
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [filterType, setFilterType] = useState<number>(0);
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [orderBy, setOrderBy] = useState<"asc" | "desc">("desc");
 
   // 訂單 API 請求（admin / user）
   const apiUrl = isAdmin
-  ? `/orders/all?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`
-  : `/orders?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`;
+    ? `/orders/all?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`
+    : `/orders?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`;
 
-  const { data: ordersData, refresh: refreshOrders } = useAxios(apiUrl, { withCredentials: true });
+  const { data: ordersData, refresh: refreshOrders } = useAxios(apiUrl,
+    { withCredentials: true },
+    { immediate: false },
+  );
   const orders = ordersData?.orders;
   const totalOrders = ordersData?.totalOrders;
   const totalPages = ordersData?.totalPages;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSearch = useCallback(debounce((keyword: string) => setSearchKeyword(keyword), 500), []);
-
-  useEffect(() => {
-    debouncedSearch(searchKeyword);
-    return () => debouncedSearch.cancel();
-  }, [searchKeyword, debouncedSearch]);
-
   const handleSort = (key: string) => {
-    if (sortBy === key) setOrderBy(orderBy === "asc" ? "desc" : "asc");
+    const newOrder = sortBy === key && orderBy === "asc" ? "desc" : "asc";
+    setOrderBy(newOrder);
     setSortBy(key);
   };
 
@@ -162,13 +191,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
+  useEffect(() => {
+    refreshOrders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, filterType, sortBy, orderBy]);
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3>{isAdmin ? "訂單管理" : "我的訂單"}</h3>
         <Input
           value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="透過訂單編號、商品名稱搜尋"
           icon={SearchIcon}
           containerStyle="w-full xs:w-72"
@@ -213,7 +247,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
                   onClick={() => handleSort("createdAt")}
                 >
                   <span>成立日期</span>
-                  {sortBy === "createdAt" && orderBy === "asc" ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
+                  {sortBy === "createdAt" && orderBy === "asc" ? (
+                    <ArrowUpIcon className="w-4 h-4" />
+                  ) : (
+                    <ArrowDownIcon className="w-4 h-4" />
+                  )}
                 </th>
                 <th className="p-2">訂單狀態</th>
                 <th className="p-2">付款狀態</th>
@@ -241,7 +279,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
                     <td className="p-2">{order.orderNo}</td>
                     <td className="p-2">{formatDate(order.createdAt)}</td>
                     <td className="p-2">{ORDER_STATUS[order.status]}</td>
-                    <td className="p-2">{PAYMENT_STATUS[order.paymentStatus]}</td>
+                    <td className="p-2">
+                      {PAYMENT_STATUS[order.paymentStatus]}
+                    </td>
                     <td className="p-2">
                       {SHIPPING_STATUS[order.shippingStatus]}
                     </td>
@@ -254,13 +294,32 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
                         refreshOrders={refreshOrders}
                         isAdmin={isAdmin}
                         onRepayment={(id) => navigate(`/checkout/${id}`)}
-                        onComplete={() => (document.getElementById("completeOrderModal") as HTMLDialogElement).showModal()}
-                        onDeliver={() => (document.getElementById("confirmDeliveryModal") as HTMLDialogElement).showModal()}
+                        onComplete={() =>
+                          (
+                            document.getElementById(
+                              "completeOrderModal",
+                            ) as HTMLDialogElement
+                          ).showModal()
+                        }
+                        onDeliver={() =>
+                          (
+                            document.getElementById(
+                              "confirmDeliveryModal",
+                            ) as HTMLDialogElement
+                          ).showModal()
+                        }
                       />
                       <Button
                         variant="icon"
-                        icon={expandedOrderId === order._id ? ArrowUpIcon : ArrowDownIcon}
-                        onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)
+                        icon={
+                          expandedOrderId === order._id
+                            ? ArrowUpIcon
+                            : ArrowDownIcon
+                        }
+                        onClick={() =>
+                          setExpandedOrderId(
+                            expandedOrderId === order._id ? null : order._id,
+                          )
                         }
                         className="ml-2 border-none"
                       />
