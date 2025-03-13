@@ -13,7 +13,10 @@ const IconBtn: React.FC<IconBtnProps> = ({
   isInMenu,
   children,
 }) => (
-  <button className="flex items-center min-w-fit gap-1 md:gap-0.5" onClick={onClick}>
+  <button
+    className="flex items-center min-w-fit gap-1 md:gap-0.5"
+    onClick={onClick}
+  >
     {icon}
     <span className={`text-sm hover:underline ${isInMenu && "text-secondary"}`}>
       {children}

@@ -7,12 +7,7 @@ interface LinkBtnProps {
   text: string;
 }
 
-const LinkBtn: React.FC<LinkBtnProps> = ({
-  to,
-  isInMenu,
-  className,
-  text,
-}) => (
+const LinkBtn: React.FC<LinkBtnProps> = ({ to, isInMenu, className, text }) => (
   <Link
     to={to}
     className={`${

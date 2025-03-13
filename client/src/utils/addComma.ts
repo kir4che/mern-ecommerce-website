@@ -6,6 +6,6 @@ export const addComma = (input: string | number | null | undefined): string => {
   if (isNaN(num)) return "";
 
   return new Intl.NumberFormat("zh-TW", {
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(num);
 };

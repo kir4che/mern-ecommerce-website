@@ -10,17 +10,21 @@ interface NewFormProps {
     date: string;
     content: string;
   };
-  setFormData: React.Dispatch<React.SetStateAction<{
-    title: string;
-    imageUrl?: string;
-    category: string;
-    date: string;
-    content: string;
-  }>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<{
+      title: string;
+      imageUrl?: string;
+      category: string;
+      date: string;
+      content: string;
+    }>
+  >;
 }
 
 const NewForm: React.FC<NewFormProps> = ({ formData, setFormData }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };

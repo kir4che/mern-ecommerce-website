@@ -28,15 +28,16 @@ const Login = () => {
 
   useEffect(() => {
     if (user) navigate("/");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
-    if (error) showAlert({
-      variant: "error",
-      message: error,
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (error)
+      showAlert({
+        variant: "error",
+        message: error,
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
   return (

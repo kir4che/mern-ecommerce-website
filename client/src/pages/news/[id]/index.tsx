@@ -24,19 +24,17 @@ const New = () => {
       </div>
     );
   }
-  
+
   if (isError) return <NotFound message={error?.message} />;
 
   return (
     <Layout>
-      <PageHeader 
-        breadcrumbText="最新消息"
-        titleEn="News"
-        titleCh="最新消息"
-      />
+      <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
       <article className="max-w-screen-lg px-5 py-10 mx-auto md:px-8">
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
-          <time className="text-base font-light">{formatDate(newsItem.date)}</time>
+          <time className="text-base font-light">
+            {formatDate(newsItem.date)}
+          </time>
           <hr className="hidden w-8 h-0.5 rotate-90 bg-primary/30 md:block" />
           <h1 className="leading-10">{newsItem.title}</h1>
         </div>

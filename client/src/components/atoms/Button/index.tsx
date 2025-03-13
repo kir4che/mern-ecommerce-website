@@ -36,7 +36,9 @@ const Button: React.FC<ButtonProps> = ({
     onClick={onClick}
     {...props}
   >
-    {Icon && <Icon className={`w-5 h-5 ${iconPosition && "order-2"} ${iconStyle}`} />}
+    {Icon && (
+      <Icon className={`w-5 h-5 ${iconPosition && "order-2"} ${iconStyle}`} />
+    )}
     {children}
   </button>
 );

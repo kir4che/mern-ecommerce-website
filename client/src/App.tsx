@@ -35,25 +35,25 @@ const App = () => {
     <Layout>
       {/* 跑馬燈 & 商品類別 */}
       <section className="px-5 pb-8 md:px-8">
-      <div className="relative">
-        <div className="overflow-hidden border-b border-primary max-w-screen">
-          <Marquee className="flex items-center gap-5 h-18">
-            {Array.from({ length: 10 }, (_, index) => (
-              <p
-                className="flex items-baseline gap-2 text-2xl font-medium min-w-fit"
-                key={index}
-              >
-                Recommend
-                <span className="text-base font-normal">/ 本店推薦</span>
-              </p>
-            ))}
-          </Marquee>
-          {/* <hr className="block border-b-1 border-primary md:hidden" /> */}
+        <div className="relative">
+          <div className="overflow-hidden border-b border-primary max-w-screen">
+            <Marquee className="flex items-center gap-5 h-18">
+              {Array.from({ length: 10 }, (_, index) => (
+                <p
+                  className="flex items-baseline gap-2 text-2xl font-medium min-w-fit"
+                  key={index}
+                >
+                  Recommend
+                  <span className="text-base font-normal">/ 本店推薦</span>
+                </p>
+              ))}
+            </Marquee>
+            {/* <hr className="block border-b-1 border-primary md:hidden" /> */}
+          </div>
+          <div className="absolute z-10 mt-4 ml-auto text-right right-2 md:top-4 md:m-0">
+            <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
+          </div>
         </div>
-        <div className="absolute z-10 mt-4 ml-auto text-right right-2 md:top-4 md:m-0">
-          <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
-        </div>
-      </div>
         <div className="pt-24 pb-12 md:py-10">
           <ProductSlider />
         </div>
@@ -68,57 +68,57 @@ const App = () => {
       {/* Campaign */}
       {data?.news.length > 0 && (
         <section className="px-5 pb-10 md:px-8">
-        <div className="flex flex-wrap items-center justify-between mb-2 ">
-          <hr className="w-full mb-3 border-primary/30" />
-          {renderTitle("Campaign & Pickup", "最新活動")}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="icon"
-              icon={ArrowLeftIcon}
-              onClick={() => swiperRef.current?.slidePrev()}
-              className='h-fit'
-            />
-            <Button
-              variant="icon"
-              icon={ArrowRightIcon}
-              onClick={() => swiperRef.current?.slideNext()}
-              className='h-fit'
-            />
+          <div className="flex flex-wrap items-center justify-between mb-2 ">
+            <hr className="w-full mb-3 border-primary/30" />
+            {renderTitle("Campaign & Pickup", "最新活動")}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="icon"
+                icon={ArrowLeftIcon}
+                onClick={() => swiperRef.current?.slidePrev()}
+                className="h-fit"
+              />
+              <Button
+                variant="icon"
+                icon={ArrowRightIcon}
+                onClick={() => swiperRef.current?.slideNext()}
+                className="h-fit"
+              />
+            </div>
           </div>
-        </div>
-        <Swiper
-          slidesPerView="auto"
-          centeredSlides
-          modules={[Autoplay]}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
-          loop
-          breakpoints={{
-            0: { slidesPerView: 2, spaceBetween: 16 },
-            768: { slidesPerView: 3.2, spaceBetween: 16 },
-            960: { slidesPerView: 4, spaceBetween: 20 },
-            1152: { slidesPerView: 4.5, spaceBetween: 20 },
-            1440: { slidesPerView: 5, spaceBetween: 24 },
-            1600: { slidesPerView: 5.8, spaceBetween: 24 },
-            1920: { slidesPerView: 6.4, spaceBetween: 32 },
-          }}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
-        >
-          {data?.news.slice(0, 8).map((newsItem) => (
-            <SwiperSlide key={newsItem._id}>
-              <Link
-                to={`/news/${newsItem._id}`}
-                className="space-y-1 hover:underline hover:underline-offset-4"
-              >
-                <BlurImage
-                  src={newsItem.imageUrl}
-                  alt={newsItem.title}
-                  className="object-cover w-full max-h-40"
-                />
-                <p className="font-medium line-clamp-1">{newsItem.title}</p>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <Swiper
+            slidesPerView="auto"
+            centeredSlides
+            modules={[Autoplay]}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            loop
+            breakpoints={{
+              0: { slidesPerView: 2, spaceBetween: 16 },
+              768: { slidesPerView: 3.2, spaceBetween: 16 },
+              960: { slidesPerView: 4, spaceBetween: 20 },
+              1152: { slidesPerView: 4.5, spaceBetween: 20 },
+              1440: { slidesPerView: 5, spaceBetween: 24 },
+              1600: { slidesPerView: 5.8, spaceBetween: 24 },
+              1920: { slidesPerView: 6.4, spaceBetween: 32 },
+            }}
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
+          >
+            {data?.news.slice(0, 8).map((newsItem) => (
+              <SwiperSlide key={newsItem._id}>
+                <Link
+                  to={`/news/${newsItem._id}`}
+                  className="space-y-1 hover:underline hover:underline-offset-4"
+                >
+                  <BlurImage
+                    src={newsItem.imageUrl}
+                    alt={newsItem.title}
+                    className="object-cover w-full max-h-40"
+                  />
+                  <p className="font-medium line-clamp-1">{newsItem.title}</p>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </section>
       )}
       {/* About */}
@@ -168,7 +168,8 @@ const App = () => {
                 src={bg}
                 alt={`bg-${index + 1}`}
                 className={`block object-cover object-bottom ${
-                  index === 1 && "w-100"} ${index === 2 && "w-[674px]"}`}
+                  index === 1 && "w-100"
+                } ${index === 2 && "w-[674px]"}`}
               />
             </SwiperSlide>
           ))}
@@ -218,7 +219,10 @@ const App = () => {
           <hr className="w-full border-primary/30" />
           <div className="flex items-center justify-between">
             {renderTitle("News", "最新消息")}
-            <Link to="/news" className="text-sm hover:underline hover:underline-offset-4">
+            <Link
+              to="/news"
+              className="text-sm hover:underline hover:underline-offset-4"
+            >
               View all
             </Link>
           </div>

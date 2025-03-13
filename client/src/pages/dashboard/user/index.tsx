@@ -11,7 +11,7 @@ import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();
-  
+
   return (
     <Layout className="w-full max-w-6xl px-5 pt-8 pb-4 mx-auto md:px-8">
       <h2>帳戶</h2>
@@ -28,7 +28,10 @@ const UserDashboard = () => {
         </Button>
       </div>
       <OrderTable isAdmin={false} />
-      <Link to="/contact" className="flex items-center justify-end gap-1 mt-12 text-sm">
+      <Link
+        to="/contact"
+        className="flex items-center justify-end gap-1 mt-12 text-sm"
+      >
         聯繫客服 <ArrowRightIcon className="w-5 h-5" />
       </Link>
     </Layout>

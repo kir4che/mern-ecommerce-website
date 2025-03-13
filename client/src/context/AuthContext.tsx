@@ -1,4 +1,11 @@
-import { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 
 import { useAxios } from "@/hooks/useAxios";
 
@@ -23,12 +30,15 @@ type AuthAction =
 
 interface AuthContextType extends AuthState {
   isAuthenticated: boolean;
-  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    rememberMe: boolean,
+  ) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
@@ -56,8 +66,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     error: null,
   });
 
-  const { refresh: loginRequest } = useAxios("/user/login", { method: "POST", withCredentials: true }, { immediate: false });
-  const { refresh: logoutRequest } = useAxios("/user/logout", { method: "POST" }, { immediate: false });
+  const { refresh: loginRequest } = useAxios(
+    "/user/login",
+    { method: "POST", withCredentials: true },
+    { immediate: false },
+  );
+  const { refresh: logoutRequest } = useAxios(
+    "/user/logout",
+    { method: "POST" },
+    { immediate: false },
+  );
 
   // 將 user 存入 localStorage
   useEffect(() => {
@@ -66,16 +84,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [state.user]);
 
   // 登入
-  const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
-    dispatch({ type: "LOGIN_REQUEST" });
-    try {
-      const res = await loginRequest({ email, password, rememberMe });
-      if (res?.success && res?.user) dispatch({ type: "LOGIN_SUCCESS", payload: res.user });
-      else dispatch({ type: "LOGIN_FAIL", payload: res?.message || "登入失敗，請稍後再試。" });
-    } catch {
-      dispatch({ type: "LOGIN_FAIL", payload: "登入過程中發生錯誤，請稍後再試。" });
-    }
-  }, [loginRequest]);
+  const login = useCallback(
+    async (email: string, password: string, rememberMe: boolean) => {
+      dispatch({ type: "LOGIN_REQUEST" });
+      try {
+        const res = await loginRequest({ email, password, rememberMe });
+        if (res?.success && res?.user)
+          dispatch({ type: "LOGIN_SUCCESS", payload: res.user });
+        else
+          dispatch({
+            type: "LOGIN_FAIL",
+            payload: res?.message || "登入失敗，請稍後再試。",
+          });
+      } catch {
+        dispatch({
+          type: "LOGIN_FAIL",
+          payload: "登入過程中發生錯誤，請稍後再試。",
+        });
+      }
+    },
+    [loginRequest],
+  );
 
   // 登出
   const logout = useCallback(async () => {
@@ -85,12 +114,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (res.success) dispatch({ type: "LOGOUT_SUCCESS" });
       else dispatch({ type: "LOGOUT_FAIL", payload: res.message });
     } catch {
-      dispatch({ type: "LOGOUT_FAIL", payload: "登出過程中發生錯誤，請稍後再試。" });
+      dispatch({
+        type: "LOGOUT_FAIL",
+        payload: "登出過程中發生錯誤，請稍後再試。",
+      });
     }
   }, [logoutRequest]);
 
   return (
-    <AuthContext.Provider value={{ ...state, isAuthenticated: Boolean(state.user), login, logout }}>
+    <AuthContext.Provider
+      value={{ ...state, isAuthenticated: Boolean(state.user), login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

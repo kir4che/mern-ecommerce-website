@@ -4,7 +4,10 @@ interface SelectProps {
   value: string | string[];
   defaultText?: string;
   options: { value: string; label: string }[];
-  onChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>, selectedOptions: string[]) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+    selectedOptions: string[],
+  ) => void;
   required?: boolean;
   multiple?: boolean;
   containerStyle?: string;
@@ -23,10 +26,13 @@ const Select: React.FC<SelectProps> = ({
   multiple = false,
   containerStyle = "",
   wrapperStyle = "",
-  selectStyle = ""
+  selectStyle = "",
 }) => {
   // 如果是多選且必填，預設勾選第一個選項。
-  const defaultValue = multiple && required && Array.isArray(value) && value.length === 0 ? [options[0]?.value] : value;
+  const defaultValue =
+    multiple && required && Array.isArray(value) && value.length === 0
+      ? [options[0]?.value]
+      : value;
 
   const handleMultipleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value: selectedValue, checked } = e.target;
@@ -46,7 +52,9 @@ const Select: React.FC<SelectProps> = ({
       <span className="text-sm leading-6">
         {label} {required && <span className="text-red-600">*</span>}
       </span>
-      {multiple && <p className="mb-2 text-xs text-gray-500">可選擇一或多個選項</p>}
+      {multiple && (
+        <p className="mb-2 text-xs text-gray-500">可選擇一或多個選項</p>
+      )}
       <div className={`flex flex-col gap-y-2 ${wrapperStyle}`}>
         {multiple ? (
           options.map(({ value: optValue, label: optLabel }) => (
@@ -56,7 +64,9 @@ const Select: React.FC<SelectProps> = ({
                 name={name}
                 type="checkbox"
                 value={optValue}
-                checked={Array.isArray(defaultValue) && defaultValue.includes(optValue)}
+                checked={
+                  Array.isArray(defaultValue) && defaultValue.includes(optValue)
+                }
                 onChange={handleMultipleChange}
                 className={selectStyle}
               />

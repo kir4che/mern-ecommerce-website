@@ -6,7 +6,12 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
-import { preventInvalidInput, handleQuantityChange, handleAddToCart, calculateFreeShipping } from "@/utils/cartUtils";
+import {
+  preventInvalidInput,
+  handleQuantityChange,
+  handleAddToCart,
+  calculateFreeShipping,
+} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
@@ -21,38 +26,51 @@ import { ReactComponent as MinusIcon } from "@/assets/icons/minus.inline.svg";
 import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
 import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
-import { ReactComponent as DeliveryTrunkIcon } from "@/assets/icons/delivery-trunk.inline.svg"
+import { ReactComponent as DeliveryTrunkIcon } from "@/assets/icons/delivery-trunk.inline.svg";
 
 import "swiper/css";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cart, error: cartError, subtotal, removeFromCart, addToCart, changeQuantity, clearCart } = useCart();
+  const {
+    cart,
+    error: cartError,
+    subtotal,
+    removeFromCart,
+    addToCart,
+    changeQuantity,
+    clearCart,
+  } = useCart();
   const { showAlert } = useAlert();
   const swiperRef = useRef(null);
 
-  const sortedCart = [...cart].sort((a, b) => Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0));
+  const sortedCart = [...cart].sort(
+    (a, b) =>
+      Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0),
+  );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
   const { data } = useAxios("/products");
   const products = data?.products as Product[];
 
-  const { refresh: createOrder } = useAxios("/orders",
+  const { refresh: createOrder } = useAxios(
+    "/orders",
     {
       method: "POST",
       withCredentials: true,
     },
     {
       immediate: false,
-      onSuccess: data => {
+      onSuccess: (data) => {
         clearCart();
         navigate(`/checkout/${data.order._id}`);
       },
-      onError: () => showAlert({
-        variant: "error",
-        message: "訂單送出失敗，請稍後再試！",
-      })
-    }
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "訂單送出失敗，請稍後再試！",
+        }),
+    },
   );
 
   const handleCheckout = () => {
@@ -85,7 +103,15 @@ const Cart = () => {
       <div className="space-y-4 md:w-3/4">
         <div className="flex items-center justify-between">
           <h2>購物車</h2>
-          <Button variant="link" onClick={() => (document.getElementById('clearCartModal') as HTMLDialogElement).showModal()} className="text-primary">
+          <Button
+            variant="link"
+            onClick={() =>
+              (
+                document.getElementById("clearCartModal") as HTMLDialogElement
+              ).showModal()
+            }
+            className="text-primary"
+          >
             清空購物車
           </Button>
           <Modal
@@ -97,7 +123,10 @@ const Cart = () => {
         <div className="px-6 bg-white rounded-lg shadow">
           <ul className="flex flex-col py-5 gap-y-6">
             {sortedCart.map((item) => (
-              <li className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 && "opacity-50"}`} key={item.productId}>
+              <li
+                className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 && "opacity-50"}`}
+                key={item.productId}
+              >
                 <Link
                   to={`/products/${item.productId}`}
                   target="_blank"
@@ -107,7 +136,10 @@ const Cart = () => {
                     src={item.product.imageUrl}
                     alt={item.product.title}
                     className="object-cover rounded aspect-square"
-                    onError={(e) => (e.currentTarget.src = 'https://placehold.co/144x144?text=No Image')}
+                    onError={(e) =>
+                      (e.currentTarget.src =
+                        "https://placehold.co/144x144?text=No Image")
+                    }
                     loading="lazy"
                   />
                 </Link>
@@ -126,7 +158,11 @@ const Cart = () => {
                       onClick={() => removeFromCart(item._id)}
                     />
                   </div>
-                  <p className={item.product.countInStock <= 0 && "text-gray-400"}>
+                  <p
+                    className={
+                      item.product.countInStock <= 0 && "text-gray-400"
+                    }
+                  >
                     NT$ {addComma(item.product.price)}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
@@ -138,10 +174,15 @@ const Cart = () => {
                           variant="icon"
                           icon={MinusIcon}
                           className="border-gray-200 rounded-none h-7"
-                          onClick={() => handleQuantityChange(item.quantity - 1, {
-                              _id: item._id,
-                              countInStock: item.product.countInStock,
-                            }, value => changeQuantity(item._id, value))
+                          onClick={() =>
+                            handleQuantityChange(
+                              item.quantity - 1,
+                              {
+                                _id: item._id,
+                                countInStock: item.product.countInStock,
+                              },
+                              (value) => changeQuantity(item._id, value),
+                            )
                           }
                           disabled={item.quantity <= 1}
                         />
@@ -151,13 +192,15 @@ const Cart = () => {
                           max={item.product.countInStock}
                           value={item.quantity}
                           defaultValue={1}
-                          onChange={(e) => handleQuantityChange(
-                            Number(e.target.value),
-                            {
-                              _id: item._id,
-                              countInStock: item.product.countInStock
-                            },
-                            value => changeQuantity(item._id, value))
+                          onChange={(e) =>
+                            handleQuantityChange(
+                              Number(e.target.value),
+                              {
+                                _id: item._id,
+                                countInStock: item.product.countInStock,
+                              },
+                              (value) => changeQuantity(item._id, value),
+                            )
                           }
                           onKeyDown={preventInvalidInput}
                           disabled={item.product.countInStock <= 0}
@@ -169,17 +212,23 @@ const Cart = () => {
                           icon={PlusIcon}
                           className="border-gray-200 rounded-none h-7"
                           onClick={() =>
-                            handleQuantityChange(item.quantity + 1, {
-                              _id: item._id,
-                              countInStock: item.product.countInStock,
-                            }, value => changeQuantity(item._id, value))
+                            handleQuantityChange(
+                              item.quantity + 1,
+                              {
+                                _id: item._id,
+                                countInStock: item.product.countInStock,
+                              },
+                              (value) => changeQuantity(item._id, value),
+                            )
                           }
                           disabled={item.quantity >= item.product.countInStock}
                         />
                       </div>
                     )}
-                    <p className={`text-lg font-semibold ${item.product.countInStock <= 0 && "text-gray-400"}`}>
-                      NT$ {addComma((item.product.price * item.quantity))}
+                    <p
+                      className={`text-lg font-semibold ${item.product.countInStock <= 0 && "text-gray-400"}`}
+                    >
+                      NT$ {addComma(item.product.price * item.quantity)}
                     </p>
                   </div>
                 </div>
@@ -187,7 +236,9 @@ const Cart = () => {
             ))}
           </ul>
           {/* 免運門檻通知 */}
-          <p className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping && ' text-orange-500'}`}>
+          <p
+            className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping && " text-orange-500"}`}
+          >
             <DeliveryTrunkIcon className="w-6 h-6" />
             {freeShippingInfo.message}
           </p>
@@ -202,39 +253,55 @@ const Cart = () => {
                   variant="icon"
                   icon={ArrowLeftIcon}
                   onClick={() => swiperRef.current?.slidePrev()}
-                  className='border-none h-fit'
+                  className="border-none h-fit"
                 />
                 <Button
                   variant="icon"
                   icon={ArrowRightIcon}
                   onClick={() => swiperRef.current?.slideNext()}
-                  className='border-none h-fit'
+                  className="border-none h-fit"
                 />
               </div>
             </div>
-            <Swiper slidesPerView={Math.min(5, products.length)} spaceBetween={24} loop={products.length > 5} onSwiper={(swiper) => (swiperRef.current = swiper)}>              {products.filter(item => item.tags.includes('推薦')).map(product => (
-                <SwiperSlide className="block min-w-28" key={product._id}>
-                  <Link to={`/products/${product._id}`} className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`} target="_blank">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.title}
-                      className="object-cover w-full mb-2 rounded aspect-square"
-                      onError={(e) => e.currentTarget.src = 'https://placehold.co/144x144?text=No Image'}
-                      loading="lazy"
-                    />
-                    <p className="line-clamp-1">{product.title}</p>
-                    <p>NT$ {addComma(product.price)}</p>
-                  </Link>
-                  <Button
-                    onClick={() => handleAddToCart(product, 1, addToCart)}
-                    className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
-                    disabled={product.countInStock <= 0}
-                  >
-                    {product.countInStock <= 0 ? '補貨中' : '我要加購'}
-                  </Button>
-                </SwiperSlide>
-              ))}
-          </Swiper>
+            <Swiper
+              slidesPerView={Math.min(5, products.length)}
+              spaceBetween={24}
+              loop={products.length > 5}
+              onSwiper={(swiper) => (swiperRef.current = swiper)}
+            >
+              {" "}
+              {products
+                .filter((item) => item.tags.includes("推薦"))
+                .map((product) => (
+                  <SwiperSlide className="block min-w-28" key={product._id}>
+                    <Link
+                      to={`/products/${product._id}`}
+                      className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`}
+                      target="_blank"
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.title}
+                        className="object-cover w-full mb-2 rounded aspect-square"
+                        onError={(e) =>
+                          (e.currentTarget.src =
+                            "https://placehold.co/144x144?text=No Image")
+                        }
+                        loading="lazy"
+                      />
+                      <p className="line-clamp-1">{product.title}</p>
+                      <p>NT$ {addComma(product.price)}</p>
+                    </Link>
+                    <Button
+                      onClick={() => handleAddToCart(product, 1, addToCart)}
+                      className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
+                      disabled={product.countInStock <= 0}
+                    >
+                      {product.countInStock <= 0 ? "補貨中" : "我要加購"}
+                    </Button>
+                  </SwiperSlide>
+                ))}
+            </Swiper>
           </div>
         )}
       </div>
@@ -251,7 +318,11 @@ const Cart = () => {
           <span>小計</span>
           <span className="font-semibold">NT$ {addComma(subtotal)}</span>
         </p>
-        <Button className="w-full" onClick={handleCheckout} disabled={!cart?.length}>
+        <Button
+          className="w-full"
+          onClick={handleCheckout}
+          disabled={!cart?.length}
+        >
           前往付款
         </Button>
       </div>

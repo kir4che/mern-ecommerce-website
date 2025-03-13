@@ -8,13 +8,13 @@ enum OrderStatus {
   Completed = "completed",
   Canceled = "canceled",
   ReturnRequested = "return_requested",
-  Returned = "returned"
+  Returned = "returned",
 }
 
 enum PaymentStatus {
   Unpaid = "unpaid",
   Paid = "paid",
-  Refunded = "refunded"
+  Refunded = "refunded",
 }
 
 enum ShippingStatus {
@@ -24,7 +24,7 @@ enum ShippingStatus {
   Delivered = "delivered",
   PickedUp = "picked_up",
   Returning = "returning",
-  Returned = "returned"
+  Returned = "returned",
 }
 
 interface OrderItem {
