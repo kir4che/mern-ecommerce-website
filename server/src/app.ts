@@ -10,11 +10,21 @@ import { productRouter } from "./routes/product.route";
 import { userRouter } from "./routes/user.route";
 import { orderRouter } from "./routes/order.route";
 import { paymentRouter } from "./routes/payment.route";
+import { uploadRouter } from "./routes/upload.route";
 
 import { connectDB } from "./config/db";
 
+import { v2 as cloudinary } from 'cloudinary';
+
 dotenv.config();
 connectDB();
+
+// Cloudinary 設定
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 
@@ -53,6 +63,7 @@ app.use("/api/news", newsRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/payment", paymentRouter);
+app.use("/api/upload", uploadRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
