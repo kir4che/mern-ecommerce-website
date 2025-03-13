@@ -1,6 +1,6 @@
 import { Schema, Types, model, Document } from "mongoose";
 
-export interface INew extends Document<Types.ObjectId> {
+export interface INews extends Document<Types.ObjectId> {
   _id: Types.ObjectId;
   title: string;
   category: string;
@@ -11,15 +11,15 @@ export interface INew extends Document<Types.ObjectId> {
   updatedAt: Date;
 }
 
-const newSchema = new Schema<INew>(
+const newsSchema = new Schema<INews>(
   {
     title: { type: String, required: true },
     category: { type: String, required: true },
     date: { type: Date, required: true },
     content: { type: String, required: true },
-    imageUrl: { type: String },
+    imageUrl: { type: String, default: "" },
   },
   { timestamps: true },
 );
 
-export const NewModel = model<INew>("new", newSchema);
+export const NewsModel = model<INews>("news", newsSchema);

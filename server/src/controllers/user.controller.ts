@@ -182,8 +182,7 @@ const updatePassword = async (req: Request, res: Response) => {
       resetTokenExpiration: { $gt: new Date() },
     });
 
-    if (!user)
-      return res.status(400).json({ success: false, message: "Invalid or expired token!" });
+    if (!user) return res.status(400).json({ success: false, message: "Invalid or expired token!" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
