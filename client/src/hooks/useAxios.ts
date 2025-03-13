@@ -46,9 +46,9 @@ export function useAxios(
     const requestUrl = resolveUrl(params);
     if (!requestUrl) {
       const errorDetails: ErrorResponse = { message: 'The request URL is invalid!' };
-      setStatus('error');
       setError(errorDetails);
       onError?.(errorDetails);
+      setStatus('error');
       return;
     }
 
@@ -72,16 +72,16 @@ export function useAxios(
           statusCode: response?.status,
           details: response?.data?.details,
         };
-        setStatus('error');
         setError(errorDetails);
         onError?.(errorDetails);
+        setStatus('error');
         return;
       }
 
       setData(response.data || {});
-      setStatus('success');
       
       onSuccess?.(response.data);
+      setStatus('success');
 
       return response.data;
     } catch (err: any) {
@@ -91,9 +91,9 @@ export function useAxios(
         statusCode: err.response?.status,
         details: err.response?.data?.details,
       };
-      setStatus('error');
       setError(errorDetails);
       onError?.(errorDetails);
+      setStatus('error');
     }
   }, [config, onError, resolveUrl, skip, status, onSuccess]
 );

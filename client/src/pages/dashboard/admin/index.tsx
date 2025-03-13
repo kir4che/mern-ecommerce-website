@@ -26,12 +26,13 @@ const AdminDashboard = () => {
   // 權限檢查
   useEffect(() => {
     if (user?.role !== "admin") navigate("/");
-  }, [user?.role, navigate]);
+  }, [user, navigate]);
 
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (!productsLoading || !newsLoading) setInitialLoading(false);
+    if (!productsLoading && !newsLoading && productsData && newsData) setInitialLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productsLoading, newsLoading]);
 
   return (
