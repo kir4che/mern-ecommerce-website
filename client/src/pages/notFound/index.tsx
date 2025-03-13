@@ -18,18 +18,19 @@ const NotFound: React.FC<NotFoundProps> = ({ message }) => {
   const { showAlert } = useAlert();
 
   useEffect(() => {
-    if (message) showAlert({
-      variant: "error",
-      message: message,
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (message)
+      showAlert({
+        variant: "error",
+        message: message,
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Layout className="relative flex flex-col items-center justify-center">
       <h2 className="text-4xl">404</h2>
       <p className="mt-4 mb-10 text-2xl">
-      {message ? GENERAL_ERROR_MESSAGE : DEFAULT_ERROR_MESSAGE}
+        {message ? GENERAL_ERROR_MESSAGE : DEFAULT_ERROR_MESSAGE}
       </p>
       <Button onClick={() => navigate("/")} className="px-8">
         返回首頁

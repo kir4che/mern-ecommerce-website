@@ -18,7 +18,13 @@ interface NewsItemProps {
   content: string;
 }
 
-const NewsItem: React.FC<NewsItemProps> = ({ _id, date, category, title, content }) => (
+const NewsItem: React.FC<NewsItemProps> = ({
+  _id,
+  date,
+  category,
+  title,
+  content,
+}) => (
   <li className="py-4 space-y-4 transition-all border-b border-dashed border-primary/80 hover:bg-gray-50">
     <time className="inline-block mb-2 text-sm font-light text-gray-600">
       {formatDate(date)}
@@ -45,7 +51,7 @@ const News = () => {
   // 獲取當前頁數據
   const { data, error, isLoading, isError } = useAxios(
     `/news?page=${page}&limit=${limit}`,
-    { method: "GET" }
+    { method: "GET" },
   );
 
   // 預加載下一頁數據
@@ -53,7 +59,7 @@ const News = () => {
   const { data: nextPageData } = useAxios(
     `/news?page=${page + 1}&limit=${limit}`,
     { method: "GET" },
-    { skip: shouldSkipPreload }
+    { skip: shouldSkipPreload },
   );
 
   // 更新當前頁的新聞數據
@@ -64,7 +70,8 @@ const News = () => {
   const totalPages = Math.ceil(newsData.total / limit); // 總頁數
 
   // 處理頁碼變更
-  const handlePageChange = useCallback((newPage: number) => {
+  const handlePageChange = useCallback(
+    (newPage: number) => {
       if (newPage > 0 && newPage <= totalPages) {
         // 若有預加載數據且向下一頁移動，直接使用。
         if (newPage === page + 1 && nextPageData) {
@@ -74,18 +81,14 @@ const News = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
-    [page, nextPageData, totalPages]
+    [page, nextPageData, totalPages],
   );
 
   if (isError) return <NotFound message={error?.message} />;
 
   return (
     <Layout>
-      <PageHeader 
-        breadcrumbText="最新消息"
-        titleEn="News"
-        titleCh="最新消息"
-      />
+      <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
       {isLoading ? (
         <div className="flex justify-center py-20">
           <Loading />
@@ -93,7 +96,9 @@ const News = () => {
       ) : (
         <>
           <ul className="max-w-screen-xl px-5 pt-10 mx-auto space-y-4 md:px-8">
-            {newsData.news.map(news => <NewsItem key={news._id} {...news} />)}
+            {newsData.news.map((news) => (
+              <NewsItem key={news._id} {...news} />
+            ))}
           </ul>
           {newsData.total > limit && (
             <Pagination

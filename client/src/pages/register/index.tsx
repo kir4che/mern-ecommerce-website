@@ -24,11 +24,12 @@ const Register = () => {
     {
       immediate: false,
       onSuccess: () => navigate("/login"),
-      onError: (err) => showAlert({
-        variant: "error",
-        message: err.message,
-      })
-    }
+      onError: (err) =>
+        showAlert({
+          variant: "error",
+          message: err.message,
+        }),
+    },
   );
 
   const handleRegister = async (e) => {
@@ -51,7 +52,7 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value.trim())}
           pattern={{
             value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            message: '請輸入有效的 Email 格式'
+            message: "請輸入有效的 Email 格式",
           }}
           required
         />
@@ -63,11 +64,15 @@ const Register = () => {
           onChange={(e) => setPassword(e.target.value)}
           pattern={{
             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
-            message: '密碼需包含大小寫英文及數字，且至少 8 字元'
+            message: "密碼需包含大小寫英文及數字，且至少 8 字元",
           }}
           required
         />
-        <Button type="submit" className="mx-auto mt-8 rounded-none w-28" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="mx-auto mt-8 rounded-none w-28"
+          disabled={isLoading}
+        >
           註冊
         </Button>
         <p className="text-center">

@@ -28,11 +28,12 @@ const RequestResetLink: React.FC = () => {
             variant: "error",
             message: "該 Email 不存在。",
           });
-        } else showAlert({
-          variant: "error",
-          message: "發送連結失敗，請稍後再試。",
-        });
-      }
+        } else
+          showAlert({
+            variant: "error",
+            message: "發送連結失敗，請稍後再試。",
+          });
+      },
     },
   );
 
@@ -67,7 +68,7 @@ const RequestResetLink: React.FC = () => {
           onChange={(e) => setEmail(e.target.value.trim())}
           pattern={{
             value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            message: '請輸入有效的 Email 格式'
+            message: "請輸入有效的 Email 格式",
           }}
           required
         />

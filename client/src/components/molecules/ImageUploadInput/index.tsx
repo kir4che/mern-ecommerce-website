@@ -13,9 +13,13 @@ import { ReactComponent as ErrorIcon } from "@/assets/icons/error.inline.svg";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormData }) => {
+const ImageUploadInput = ({
+  label = "圖片上傳",
+  required = false,
+  setFormData,
+}) => {
   const { showAlert } = useAlert();
-  
+
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +30,7 @@ const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormDat
     if (!file.type.startsWith("image/")) {
       showAlert({
         variant: "error",
-        message: "請選擇圖片格式的檔案。"
+        message: "請選擇圖片格式的檔案。",
       });
       return;
     }
@@ -35,7 +39,7 @@ const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormDat
     if (file.size > MAX_FILE_SIZE) {
       showAlert({
         variant: "error",
-        message: "圖片大小超過 5MB，請重新上傳。"
+        message: "圖片大小超過 5MB，請重新上傳。",
       });
       return;
     }
@@ -43,20 +47,23 @@ const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormDat
     setImageFile(file);
   };
 
-  const { isLoading, isSuccess, isError, refresh } = useAxios("/upload/image",
+  const { isLoading, isSuccess, isError, refresh } = useAxios(
+    "/upload/image",
     {
       method: "POST",
       headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true
+      withCredentials: true,
     },
     {
       immediate: false,
-      onSuccess: (resData) => setFormData((prev) => ({ ...prev, imageUrl: resData.imageUrl })),
-      onError: () => showAlert({
-        variant: "error",
-        message: "上傳圖片失敗，請稍後再試。"
-      })
-    }
+      onSuccess: (resData) =>
+        setFormData((prev) => ({ ...prev, imageUrl: resData.imageUrl })),
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "上傳圖片失敗，請稍後再試。",
+        }),
+    },
   );
 
   const uploadLogic = async () => {
@@ -66,7 +73,10 @@ const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormDat
     refresh(formData);
   };
 
-  const handleImageUpload = throttle(() => uploadLogic(), 1000, { leading: true, trailing: false });
+  const handleImageUpload = throttle(() => uploadLogic(), 1000, {
+    leading: true,
+    trailing: false,
+  });
 
   return (
     <div className="flex items-center justify-between gap-x-4">
@@ -89,7 +99,9 @@ const ImageUploadInput = ({ label = "圖片上傳", required = false, setFormDat
           disabled={isLoading}
         >
           上傳
-          {isLoading && <span className="ml-1 loading loading-spinner loading-xs" />}
+          {isLoading && (
+            <span className="ml-1 loading loading-spinner loading-xs" />
+          )}
         </Button>
         {isSuccess && <SuccessIcon className="w-5 h-5 stroke-green-500" />}
         {isError && <ErrorIcon className="w-5 h-5 stroke-red-500" />}

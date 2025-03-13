@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface Alert {
   variant: "info" | "success" | "error";
@@ -33,14 +39,14 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
   // 隱藏 Alert
   const hideAlert = () => setAlert(null);
 
-useEffect(() => {
-  if (alert && alert.autoDismiss !== false) {
-    const dismissTime = alert.dismissTimeout || 3000;
-    const timer = setTimeout(hideAlert, dismissTime);
-    
-    return () => clearTimeout(timer); // 清除計時器
-  }
-}, [alert]);
+  useEffect(() => {
+    if (alert && alert.autoDismiss !== false) {
+      const dismissTime = alert.dismissTimeout || 3000;
+      const timer = setTimeout(hideAlert, dismissTime);
+
+      return () => clearTimeout(timer); // 清除計時器
+    }
+  }, [alert]);
 
   return (
     <AlertContext.Provider value={{ alert, showAlert, hideAlert }}>

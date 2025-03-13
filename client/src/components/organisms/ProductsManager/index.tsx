@@ -49,10 +49,13 @@ const initialFormData: Partial<Product> = {
   nutrition: "每100ml含熱量50大卡",
   countInStock: 20,
   tags: [],
-  imageUrl: "https://via.placeholder.com/150"
+  imageUrl: "https://via.placeholder.com/150",
 };
 
-const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProducts }) => {
+const ProductsManager: React.FC<ProductsManagerProps> = ({
+  products,
+  refreshProducts,
+}) => {
   const { showAlert } = useAlert();
 
   const [formKey, setFormKey] = useState(0);
@@ -69,51 +72,62 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
   // 過濾表單資料，移除空的欄位。
   const filterFormData = (data: Partial<Product>) => {
     return Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== "" && value !== null)
+      Object.entries(data).filter(
+        ([_, value]) => value !== "" && value !== null,
+      ),
     );
   };
 
-  const addProduct = useAxios("/products",
+  const addProduct = useAxios(
+    "/products",
     { method: "POST", withCredentials: true },
     {
       immediate: false,
-      onError: () => showAlert({
-        variant: "error",
-        message: "新增商品失敗，請稍後再試。",
-      })
-    }
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "新增商品失敗，請稍後再試。",
+        }),
+    },
   ).refresh;
 
-  const updateProduct = useAxios(params => `/products/${params?.id}`,
+  const updateProduct = useAxios(
+    (params) => `/products/${params?.id}`,
     { method: "PATCH", withCredentials: true },
     {
       immediate: false,
-      onError: () => showAlert({
-        variant: "error",
-        message: "更新商品失敗，請稍後再試。",
-      })
-    }
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "更新商品失敗，請稍後再試。",
+        }),
+    },
   ).refresh;
 
-  const deleteProduct = useAxios(params => `/products/${params?.id}`,
+  const deleteProduct = useAxios(
+    (params) => `/products/${params?.id}`,
     { method: "DELETE", withCredentials: true },
-    { 
+    {
       immediate: false,
-      onError: () => showAlert({
-        variant: "error",
-        message: "刪除商品失敗，請稍後再試。",
-      })
-    }
-  ).refresh
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "刪除商品失敗，請稍後再試。",
+        }),
+    },
+  ).refresh;
 
   const refreshProduct = useAxios(
-    params => `/products/${params?.id}`,
+    (params) => `/products/${params?.id}`,
     { withCredentials: true },
-    { immediate: false }
+    { immediate: false },
   ).refresh;
 
   // 新增、更新、刪除商品
-  const handleProduct = async (action: "add" | "update" | "delete", productData: Partial<Product>  & { _id?: string }) => {
+  const handleProduct = async (
+    action: "add" | "update" | "delete",
+    productData: Partial<Product> & { _id?: string },
+  ) => {
     if ((action === "add" || action === "update") && !productData.imageUrl) {
       showAlert({
         variant: "error",
@@ -137,8 +151,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
       const filteredData = filterFormData(productData);
       const changedData = Object.fromEntries(
         Object.entries(filteredData).filter(
-          ([key, value]) => JSON.stringify(value) !== JSON.stringify(originalDataRef.current[key])
-        )
+          ([key, value]) =>
+            JSON.stringify(value) !==
+            JSON.stringify(originalDataRef.current[key]),
+        ),
       );
       if (Object.keys(changedData).length === 0) return false;
       res = await updateProduct({ id: productData._id }, { data: changedData });
@@ -155,7 +171,11 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
       <div className="flex items-center justify-between mb-4">
         <h3>商品管理</h3>
         <Button
-          onClick={() => (document.getElementById("addProductModal") as HTMLDialogElement).showModal()}
+          onClick={() =>
+            (
+              document.getElementById("addProductModal") as HTMLDialogElement
+            ).showModal()
+          }
           className="h-9"
         >
           新增商品
@@ -169,7 +189,11 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
           width="max-w-xl"
           isShowCloseIcon={true}
         >
-          <ProductForm key={formKey} formData={formData} setFormData={setFormData} />
+          <ProductForm
+            key={formKey}
+            formData={formData}
+            setFormData={setFormData}
+          />
         </Modal>
       </div>
       {products?.length > 0 ? (
@@ -179,7 +203,10 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
               className="flex items-center justify-between py-3 border-b border-gray-300 border-dashed"
               key={item._id}
             >
-              <p className="overflow-hidden truncate hover:opacity-80 whitespace-nowrap">{item.title} <span className="text-xs">({item.countInStock})</span></p>
+              <p className="overflow-hidden truncate hover:opacity-80 whitespace-nowrap">
+                {item.title}{" "}
+                <span className="text-xs">({item.countInStock})</span>
+              </p>
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Button
                   variant="icon"
@@ -190,7 +217,11 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
                       setFormData(res.product);
                       originalDataRef.current = res.product;
                       setFormKey((prev) => prev + 1);
-                      (document.getElementById(`updateProductModal-${item._id}`) as HTMLDialogElement).showModal();
+                      (
+                        document.getElementById(
+                          `updateProductModal-${item._id}`,
+                        ) as HTMLDialogElement
+                      ).showModal();
                     }
                   }}
                   className="border-none h-fit"
@@ -203,12 +234,22 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
                   width="max-w-xl"
                   isShowCloseIcon={true}
                 >
-                  <ProductForm key={formKey} formData={formData} setFormData={setFormData} />
+                  <ProductForm
+                    key={formKey}
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
                 </Modal>
                 <Button
                   variant="icon"
                   icon={CloseIcon}
-                  onClick={() => (document.getElementById(`deleteProductModal-${item._id}`) as HTMLDialogElement).showModal()}
+                  onClick={() =>
+                    (
+                      document.getElementById(
+                        `deleteProductModal-${item._id}`,
+                      ) as HTMLDialogElement
+                    ).showModal()
+                  }
                   className="border-none h-fit"
                 />
                 <Modal
@@ -226,6 +267,6 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
       )}
     </>
   );
-}
+};
 
 export default ProductsManager;

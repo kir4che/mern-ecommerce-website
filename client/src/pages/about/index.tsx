@@ -24,13 +24,18 @@ const About = () => {
   return (
     <Layout>
       <section className="px-5 pt-4 bg-center bg-no-repeat bg-cover md:px-8 bg-about-cover">
-        <Breadcrumb text={ABOUT.title} textColor="text-secondary" link="about" />
+        <Breadcrumb
+          text={ABOUT.title}
+          textColor="text-secondary"
+          link="about"
+        />
         <div className="max-w-6xl py-40 mx-auto space-y-8 text-secondary">
           <div className="space-y-1">
             <p className="text-base">About us</p>
             <h2 className="text-4xl leading-normal">{ABOUT.title}</h2>
           </div>
-          <p dangerouslySetInnerHTML={{
+          <p
+            dangerouslySetInnerHTML={{
               __html: ABOUT.description2.replace(/\n/g, "<br/>"),
             }}
             className="sm:max-w-md drop-shadow"
@@ -39,7 +44,10 @@ const About = () => {
       </section>
       <section className="py-12">
         {ABOUT.details.map((detail, index) => (
-          <section key={index} className="px-5 pt-4 pb-12 border-t border-primary md:px-8">
+          <section
+            key={index}
+            className="px-5 pt-4 pb-12 border-t border-primary md:px-8"
+          >
             <h2 className="mb-3 text-lg md:text-sm md:mb-0">
               <span className="mr-2 text-2xl font-light">{`0${index + 1}`}</span>
               {detail.title}
@@ -94,7 +102,10 @@ const About = () => {
           <p className="text-base">店家資訊</p>
         </div>
         {SHOP_LIST.map((shop) => (
-          <div key={shop.name} className="flex flex-col justify-between md:flex-row gap-y-6 gap-x-10">
+          <div
+            key={shop.name}
+            className="flex flex-col justify-between md:flex-row gap-y-6 gap-x-10"
+          >
             <div className="flex-1 max-w-xl">
               <img
                 src={shop.imageUrl}
