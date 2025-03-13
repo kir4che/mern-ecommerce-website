@@ -46,7 +46,7 @@ const createPaymentHandler = async (req: Request, res: Response) => {
       TotalAmount: totalAmount,
       TradeDesc: "日出麵包坊",
       ItemName,
-      ReturnURL: `${process.env.NGROK_URL}/api/payment/callback`,
+      ReturnURL: `${process.env.BACKEND_URL}/api/payment/callback`,
       ClientBackURL: `${process.env.FRONTEND_URL}/my-account`, // 付款完成後導回會員資訊頁，讓使用者查看訂單狀態。
       ChoosePayment,
       EncryptType: 1, // 一律為 1，表示 SHA256 加密。
