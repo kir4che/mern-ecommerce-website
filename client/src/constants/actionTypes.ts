@@ -3,14 +3,14 @@ export enum AUTH_ACTION_TYPE {
   LOGIN_SUCCESS = "LOGIN_SUCCESS",
   LOGIN_FAIL = "LOGIN_FAIL",
   LOGOUT = "LOGOUT",
-  LOGOUT_FAIL = "LOGOUT_FAIL"
+  LOGOUT_FAIL = "LOGOUT_FAIL",
 }
 
 export const ERROR_MESSAGES = {
   LOGIN_FAIL: "使用者帳號或密碼不正確，請重新輸入！",
   LOGOUT_FAIL: "登出失敗，請稍後再試！",
   STORAGE_FAIL: "登入狀態保存失敗，請檢查您的網路或重試。",
-  LOGIN_RESPONSE_ERROR: "登入失敗，請稍後再試或聯繫我們。"
+  LOGIN_RESPONSE_ERROR: "登入失敗，請稍後再試或聯繫我們。",
 } as const;
 
 export const PRODUCT_CATEGORIES = [
@@ -53,11 +53,11 @@ export const SHIPPING_STATUS = {
 } as const;
 
 export const ORDERS_FILTER_TYPES = {
-  "ALL": 0,
-  "UNPAID": 1,
-  "PENDING": 2,
-  "SHIPPED": 3,
-  "COMPLETED": 4,
+  ALL: 0,
+  UNPAID: 1,
+  PENDING: 2,
+  SHIPPED: 3,
+  COMPLETED: 4,
 } as const;
 
 export const ORDER_FILTER_TYPE_LABELS = {

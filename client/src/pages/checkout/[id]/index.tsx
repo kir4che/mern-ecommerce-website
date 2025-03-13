@@ -25,31 +25,38 @@ const initialBuyerInfo = {
 
 const Checkout: React.FC = () => {
   const { id } = useParams();
-  const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, { withCredentials: true });
+  const { data, error, isLoading, isError } = useAxios(`/orders/${id}`, {
+    withCredentials: true,
+  });
 
   const [buyerInfo, setBuyerInfo] = useState(initialBuyerInfo);
   const [paymentMethod, setPaymentMethod] = useState("ATM");
 
-  // 暫時不串接金流，直接設定付款成功
-  const handlePay = async () => {
-    if (!paymentMethod) return alert("請選擇付款方式");
-    else if (!paymentForm.cardNumber) return alert("請輸入卡號");
-    else if (!paymentForm.cardDate) return alert("請輸入卡片有效年月");
-    else if (!paymentForm.cardCode) return alert("請輸入CVV/CVC");
-    else if (!paymentForm.cardName) return alert("請輸入持卡人姓名");
+  const paymentMethods = [
+    { method: "ATM", label: "ATM 虛擬帳號" },
+    { method: "WebATM", label: "WebATM" },
+    {
+      method: "Credit",
+      label: "信用卡",
+      additionalIcons: [
+        <VisaIcon className="w-8 h-8" />,
+        <MasterCardIcon className="w-8 h-8" />,
+        <JCBIcon className="w-6 h-6" />,
+      ],
+    },
+  ];
 
-    // 更新訂單狀態
-    try {
-      const res = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/orders/${id}`,
-        {
-          status: "已付款",
-          paymentStatus: "已付款",
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+  const { refresh: createPayment } = useAxios(
+    "/payment",
+    { method: "POST", withCredentials: true },
+    {
+      immediate: false,
+      onSuccess: (res) => {
+        const form = document.createElement("form");
+        form.action =
+          "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
+        form.method = "POST";
+        form.style.display = "none";
 
       if (res.status === 200) {
         alert("付款成功！");
@@ -72,8 +79,8 @@ const Checkout: React.FC = () => {
         // 將表單添加到頁面並提交
         document.body.appendChild(form);
         form.submit();
-      }
-    }
+      },
+    },
   );
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -87,7 +94,7 @@ const Checkout: React.FC = () => {
       phone: buyerInfo.phone,
       address: buyerInfo.address,
       note: buyerInfo.note,
-      ChoosePayment: paymentMethod
+      ChoosePayment: paymentMethod,
     });
   };
 
@@ -98,26 +105,127 @@ const Checkout: React.FC = () => {
       </div>
     );
   }
-  
-  if (!isLoading && (isError || !data)) return <NotFound message={error?.message} />;
+
+  if (!isLoading && (isError || !data))
+    return <NotFound message={error?.message} />;
 
   return (
-    <Layout>
-      <section className="px-[5vw] p-10">
-        <h3 className="pb-2 mb-4 text-base border-b border-gray-300">
-          付款方式
-        </h3>
-        <div className="space-y-3 text-sm">
-          <button
-            className={`${paymentMethod === "信用卡" ? "border-primary" : ""} flex bg-white items-center gap-2 p-4 border-2 rounded-lg`}
-            onClick={() => setPaymentMethod("信用卡")}
-          >
-            {paymentMethod === "信用卡" ? (
+    <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
+      <form className="flex-1 order-2" onSubmit={handleSubmit}>
+        {/* 購買人資訊 */}
+        <div className="mb-8 space-y-4">
+          <h3 className="pb-2 text-base border-b border-gray-400">
+            購買人資訊
+          </h3>
+          <div className="flex flex-wrap gap-4">
+            <Input
+              label="收件人姓名"
+              value={buyerInfo.name}
+              onChange={(e) =>
+                setBuyerInfo({ ...buyerInfo, name: e.target.value })
+              }
+              helperText="請填寫真實姓名以確保順利收件"
+              required
+            />
+            <Input
+              label="聯絡電話"
+              type="tel"
+              value={buyerInfo.phone}
+              onChange={(e) =>
+                setBuyerInfo({ ...buyerInfo, phone: e.target.value })
+              }
+              placeholder="0912345678"
+              pattern={{
+                value: /^09\d{8}$/,
+                message: "請輸入有效的手機號碼（例如：0912345678）",
+              }}
+              required
+            />
+          </div>
+          <Input
+            label="配送地址"
+            value={buyerInfo.address}
+            onChange={(e) =>
+              setBuyerInfo({ ...buyerInfo, address: e.target.value })
+            }
+            placeholder="請填寫完整地址"
+            required
+          />
+        </div>
+        {/* 付款方式 */}
+        <div className="mb-8 space-y-4">
+          <h3 className="pb-2 mb-4 text-base border-b border-gray-400">
+            付款方式
+            <span className="text-sm font-normal">
+              （透過綠界金流提供安全的付款服務）
+            </span>
+          </h3>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {paymentMethods.map(({ method, label, additionalIcons }) => (
+              <Button
+                key={method}
+                className={`h-14 rounded-lg hover:bg-secondary hover:text-primary border ${
+                  paymentMethod === method && "border-2"
+                }`}
+                onClick={() => setPaymentMethod(method)}
+              >
+                {paymentMethod === method ? <CheckIcon /> : <UncheckIcon />}
+                <p className="ml-0.5">{label}</p>
+                {additionalIcons &&
+                  additionalIcons.map((Icon, index) => (
+                    <span key={index}>{Icon}</span>
+                  ))}
+              </Button>
+            ))}
+          </div>
+        </div>
+        {/* 支付金額明細 */}
+        <div className="flex flex-col pt-4 border-t border-gray-400 gap-y-4">
+          <PriceRow label="商品金額" value={data.order?.subtotal ?? 0} />
+          <PriceRow label="運費" value={data.order?.shippingFee ?? 0} />
+          <PriceRow
+            label="折扣"
+            value={-(data.order?.discount ?? 0)}
+            className="text-red-500"
+          />
+          <div className="flex justify-between w-full mt-8 mb-4 font-medium">
+            <p>總金額</p>
+            <p className="font-semibold">
+              NT${" "}
+              <span className="text-2xl">
+                {addComma(data?.order?.totalAmount)}
+              </span>
+            </p>
+          </div>
+          <Button type="submit" className="w-full rounded-md">
+            確認付款
+          </Button>
+        </div>
+        {/* 官網購物須知 */}
+        <div className="mt-12 space-y-2">
+          <h3>官網購物須知</h3>
+          <ul className="pl-5 text-sm leading-6 list-disc">
+            <li>訂單完成後，請務必確認您的收貨資訊是否正確。</li>
+            <li>本網站提供多種支付方式，包括 ATM 轉帳、信用卡支付等。</li>
+            <li>商品一經售出，恕無法退換貨，除非商品有瑕疵或錯誤。</li>
+            <li>我們會在收到付款後 24 小時內處理您的訂單，並發送出貨通知。</li>
+          </ul>
+        </div>
+      </form>
+      <div className="flex flex-col flex-1 lg:order-3">
+        {/* 購買的商品 */}
+        <ul className="mb-8 space-y-4">
+          {data?.order?.orderItems?.map((item) => (
+            <li className="flex w-full gap-x-4" key={item.productId}>
               <img
-                width="30"
-                height="30"
-                src="https://img.icons8.com/ios-glyphs/30/ok--v1.png"
-                alt="checked"
+                src={item.imageUrl}
+                alt={item.title}
+                className="object-cover w-20 rounded aspect-square"
+                onError={(e) =>
+                  (e.currentTarget.src =
+                    "https://placehold.co/144x144?text=No Image")
+                }
+                loading="lazy"
               />
               <div className="flex items-end justify-between w-full">
                 <div className="flex flex-col justify-between h-full">
@@ -127,7 +235,9 @@ const Checkout: React.FC = () => {
                     <span className="ml-2">數量：{item.quantity}</span>
                   </p>
                 </div>
-                <p className="text-base font-medium">NT$ {addComma(item.amount)}</p>
+                <p className="text-base font-medium">
+                  NT$ {addComma(item.amount)}
+                </p>
               </div>
             </li>
           ))}

@@ -18,5 +18,5 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         </CartProvider>
       </AuthProvider>
     </AlertProvider>
-  </ThemeProvider>
+  </ThemeProvider>,
 );

@@ -37,10 +37,10 @@ const Input: React.FC<InputProps> = ({
   errorMessage,
   helperText,
   containerStyle,
-  wrapperStyle = 'flex-col gap-1',
+  wrapperStyle = "flex-col gap-1",
   labelStyle,
   inputStyle,
-  numberStyle = 'rounded-none h-fit p-0',
+  numberStyle = "rounded-none h-fit p-0",
   icon: Icon,
   ...props
 }) => {
@@ -69,16 +69,24 @@ const Input: React.FC<InputProps> = ({
     <div className={`flex flex-col gap-1 ${containerStyle}`}>
       <div className={`flex ${wrapperStyle}`}>
         {label && (
-          <label htmlFor={id} className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}>
+          <label
+            htmlFor={id}
+            className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}
+          >
             {label} {required && <span className="text-red-600">*</span>}
           </label>
         )}
-        <div className={`flex items-center gap-2 input focus-within:outline-none input-bordered
+        <div
+          className={`flex items-center gap-2 input focus-within:outline-none input-bordered
           ${errorState && "border-red-600 focus-within:border-red-600"}
           ${type === "number" && "pl-2.5 pr-0" + numberStyle}
           ${inputStyle}`}
         >
-          {Icon && <Icon className={`w-5 ${errorState && "stroke-red-500 text-red-500"}`} />}
+          {Icon && (
+            <Icon
+              className={`w-5 ${errorState && "stroke-red-500 text-red-500"}`}
+            />
+          )}
           <input
             id={id}
             name={name}
@@ -93,8 +101,12 @@ const Input: React.FC<InputProps> = ({
           />
         </div>
       </div>
-      {!errorState && helperText && <p className="text-gray-400">{helperText}</p>}
-      {errorState && !required && <p className="text-red-600">{errorMessage || pattern?.message}</p>}
+      {!errorState && helperText && (
+        <p className="text-gray-400">{helperText}</p>
+      )}
+      {errorState && !required && (
+        <p className="text-red-600">{errorMessage || pattern?.message}</p>
+      )}
     </div>
   );
 };

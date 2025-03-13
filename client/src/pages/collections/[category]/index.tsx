@@ -1,21 +1,25 @@
 import { useEffect, useState, useMemo, memo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { useInView } from 'react-intersection-observer';
+import { useInView } from "react-intersection-observer";
 
 import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
-import { Product } from '@/types/product';
+import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
-import { filterProductsByCategory } from '@/utils/productFilters';
+import { filterProductsByCategory } from "@/utils/productFilters";
 import { linkToCategory } from "@/utils/linkToCategory";
-import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
+import {
+  preventInvalidInput,
+  handleQuantityChange,
+  handleAddToCart,
+} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
-import PageHeader from '@/components/molecules/PageHeader'
+import PageHeader from "@/components/molecules/PageHeader";
 import Loading from "@/components/atoms/Loading";
-import ProductLinkImg from '@/components/atoms/ProductLinkImg';
+import ProductLinkImg from "@/components/atoms/ProductLinkImg";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 
@@ -38,7 +42,7 @@ const Collections = () => {
   const { ref, inView } = useInView({
     threshold: 0, // 只要有東西進到視窗範圍就會觸發
     triggerOnce: false, // 可以多次觸發
-    rootMargin: '100px' // 在視窗底部提早 100px 觸發
+    rootMargin: "100px", // 在視窗底部提早 100px 觸發
   });
 
   // 處理分類選擇
@@ -57,7 +61,7 @@ const Collections = () => {
   // 篩選商品列表
   const filteredProducts = useMemo(() => {
     if (!products) return [];
-    return filterProductsByCategory(products, category || 'all');
+    return filterProductsByCategory(products, category || "all");
   }, [products, category]);
 
   // 根據當前頁數和每頁顯示的商品數量，計算出當前顯示的商品列表。
@@ -70,7 +74,7 @@ const Collections = () => {
     if (inView && filteredProducts.length > displayedProducts.length) {
       // 提前加載更多商品
       const loadMoreProducts = () => {
-        setCurrentPage(prev => prev + 1);
+        setCurrentPage((prev) => prev + 1);
       };
 
       // 使用 setTimeout 來延遲加載，讓使用者感覺更順。
@@ -83,7 +87,7 @@ const Collections = () => {
 
   return (
     <Layout>
-      <PageHeader 
+      <PageHeader
         breadcrumbText="商品"
         titleEn="Collections"
         titleCh="商品一覽"
@@ -106,7 +110,12 @@ const Collections = () => {
           <div className="grid w-full grid-cols-1 gap-10 py-10 mx-auto max-w-screen-2xl lg:gap-12 xl:gap-16 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {displayedProducts.map((product) => (
               <div key={product._id}>
-                <ProductLinkImg product={product} data={data} isError={isError} className='-mb-12' />
+                <ProductLinkImg
+                  product={product}
+                  data={data}
+                  isError={isError}
+                  className="-mb-12"
+                />
                 <div className="flex flex-col py-0.5 pl-4 border-l-2 border-primary">
                   <h3 className="relative z-10 px-2 mb-1 text-base w-fit bg-primary text-secondary text-nowrap">
                     {product.title}
@@ -117,12 +126,16 @@ const Collections = () => {
                         key={index}
                         className="z-0 text-xs w-fit bg-secondary"
                       >
-                        <Link to={`/collections/${linkToCategory[category]}`}># {category}</Link>
+                        <Link to={`/collections/${linkToCategory[category]}`}>
+                          # {category}
+                        </Link>
                       </li>
                     ))}
                   </ul>
                   <div className="flex items-center justify-between mt-2 mb-4 gap-x-2">
-                    <p className="text-xl font-semibold text-nowrap">NT$ {addComma(product.price)}</p>
+                    <p className="text-xl font-semibold text-nowrap">
+                      NT$ {addComma(product.price)}
+                    </p>
                     <Input
                       type="number"
                       label="數量"
@@ -130,10 +143,17 @@ const Collections = () => {
                       max={product.countInStock}
                       value={quantities[product._id] || 1}
                       defaultValue={1}
-                      onChange={(e) => handleQuantityChange(
-                        Number(e.target.value),
-                        product,
-                        value => setQuantities((prev) => ({ ...prev, [product._id]: value })))}
+                      onChange={(e) =>
+                        handleQuantityChange(
+                          Number(e.target.value),
+                          product,
+                          (value) =>
+                            setQuantities((prev) => ({
+                              ...prev,
+                              [product._id]: value,
+                            })),
+                        )
+                      }
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
                       wrapperStyle="flex items-center gap-2"
@@ -144,24 +164,30 @@ const Collections = () => {
                   <Button
                     key={product._id}
                     icon={product.countInStock !== 0 && CartPlusIcon}
-                    onClick={() => handleAddToCart(
-                      product, 
-                      quantities[product._id],
-                      addToCart, 
-                      (value) => setQuantities((prev) => ({ ...prev, [product._id]: value }))
-                    )}
+                    onClick={() =>
+                      handleAddToCart(
+                        product,
+                        quantities[product._id],
+                        addToCart,
+                        (value) =>
+                          setQuantities((prev) => ({
+                            ...prev,
+                            [product._id]: value,
+                          })),
+                      )
+                    }
                     disabled={product.countInStock <= 0}
-                    className='ml-auto text-sm w-fit h-9 text-primary'
+                    className="ml-auto text-sm w-fit h-9 text-primary"
                   >
-                    {product.countInStock <= 0 ? '補貨中' : '加入購物車'}
+                    {product.countInStock <= 0 ? "補貨中" : "加入購物車"}
                   </Button>
                 </div>
               </div>
             ))}
           </div>
           {filteredProducts.length > displayedProducts.length && (
-            <div 
-              ref={ref} 
+            <div
+              ref={ref}
               className="flex items-center justify-center w-full h-20 my-4"
             >
               <Loading />

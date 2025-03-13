@@ -153,8 +153,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   // 避免搜尋時過於頻繁發送請求
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
-    debounce(() => refreshOrders(), 500)
-  , []);
+    debounce(() => refreshOrders(), 500),
+    [],
+  );
 
   const handleSearchChange = (keyword: string) => {
     setSearchKeyword(keyword);
@@ -171,7 +172,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     ? `/orders/all?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`
     : `/orders?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`;
 
-  const { data: ordersData, refresh: refreshOrders } = useAxios(apiUrl,
+  const { data: ordersData, refresh: refreshOrders } = useAxios(
+    apiUrl,
     { withCredentials: true },
     { immediate: false },
   );
@@ -193,7 +195,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
 
   useEffect(() => {
     refreshOrders();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, filterType, sortBy, orderBy]);
 
   return (

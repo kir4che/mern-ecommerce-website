@@ -41,7 +41,9 @@ const AdminDashboard = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (!productsLoading || !newsLoading) setInitialLoading(false);
+    if (!productsLoading && !newsLoading && productsData && newsData)
+      setInitialLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productsLoading, newsLoading]);
 
   return (
@@ -57,6 +59,9 @@ const AdminDashboard = () => {
           >
             {productsError ? (
               <div className="flex flex-col items-center gap-y-4">
+                <p className="text-base text-gray-800">
+                  抱歉，暫時無法取得商品資訊
+                </p>
                 <p className="text-base text-gray-800">
                   抱歉，暫時無法取得商品資訊
                 </p>
@@ -81,6 +86,9 @@ const AdminDashboard = () => {
           >
             {newsError ? (
               <div className="flex flex-col items-center gap-y-4">
+                <p className="text-base text-gray-800">
+                  抱歉，暫時無法取得消息資訊
+                </p>
                 <p className="text-base text-gray-800">
                   抱歉，暫時無法取得消息資訊
                 </p>

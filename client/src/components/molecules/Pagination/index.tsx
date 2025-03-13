@@ -11,7 +11,11 @@ interface PaginationProps {
   handlePageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ page, totalPages, handlePageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  page,
+  totalPages,
+  handlePageChange,
+}) => {
   // 使用 useMemo 計算頁碼，避免不必要的重渲染。
   const pageNumbers = useMemo(() => {
     const pages = [];
@@ -49,7 +53,7 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, handlePageCha
           variant="icon"
           icon={ArrowLeftIcon}
           onClick={() => handlePageChange(page - 1)}
-          className='h-fit border-none hover:opacity-50'
+          className="h-fit border-none hover:opacity-50"
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -82,7 +86,7 @@ const Pagination: React.FC<PaginationProps> = ({ page, totalPages, handlePageCha
           variant="icon"
           icon={ArrowRightIcon}
           onClick={() => handlePageChange(page + 1)}
-          className='h-fit border-none hover:opacity-50'
+          className="h-fit border-none hover:opacity-50"
         />
       )}
     </div>

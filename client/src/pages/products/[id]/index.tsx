@@ -5,7 +5,11 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
-import { preventInvalidInput, handleQuantityChange, handleAddToCart } from "@/utils/cartUtils";
+import {
+  preventInvalidInput,
+  handleQuantityChange,
+  handleAddToCart,
+} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
@@ -19,21 +23,30 @@ import BlurImage from "@/components/atoms/BlurImage";
 
 import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
-const ProductInfo = ({ label, value }: { label: string, value: string | string[] }) => (
-  value && value !== "" && value.length !== 0 && (
-  <li className="text-sm list-none">
-    <span className="inline-block py-1 mr-3 text-xs text-center bg-gray-200 rounded min-w-20">
-      {label}
-    </span>
-    {Array.isArray(value) ? value.join('、') : value}
-  </li>
-  )
-);
+const ProductInfo = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | string[];
+}) =>
+  value &&
+  value !== "" &&
+  value.length !== 0 && (
+    <li className="text-sm list-none">
+      <span className="inline-block py-1 mr-3 text-xs text-center bg-gray-200 rounded min-w-20">
+        {label}
+      </span>
+      {Array.isArray(value) ? value.join("、") : value}
+    </li>
+  );
 
 const ProductPage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const { data, error, isLoading, isError, refresh } = useAxios(`/products/${id}`);
+  const { data, error, isLoading, isError, refresh } = useAxios(
+    `/products/${id}`,
+  );
   const product = data?.product as Product;
   const isOutOfStock = product?.countInStock <= 0;
 
@@ -42,13 +55,14 @@ const ProductPage = () => {
   useEffect(() => {
     window.scrollTo({ top: 0 });
     if (id) refresh();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (!isLoading && (isError || !product)) return <NotFound message={error?.message} />;
+  if (!isLoading && (isError || !product))
+    return <NotFound message={error?.message} />;
 
   return (
-    <Layout className='px-5 md:px-8'>
+    <Layout className="px-5 md:px-8">
       {isLoading ? (
         <Loading />
       ) : (
@@ -57,7 +71,7 @@ const ProductPage = () => {
             <BlurImage
               src={product.imageUrl}
               alt={product.title}
-              className='object-cover w-full h-full rounded-md max-h-96'
+              className="object-cover w-full h-full rounded-md max-h-96"
             />
           </div>
           <div className="flex-1">
@@ -69,7 +83,9 @@ const ProductPage = () => {
                   key={index}
                   className="px-2 py-1 text-sm border rounded-full w-fit bg-secondary border-primary"
                 >
-                  <Link to={`/collections/${linkToCategory[category]}`}># {category}</Link>
+                  <Link to={`/collections/${linkToCategory[category]}`}>
+                    # {category}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -77,7 +93,9 @@ const ProductPage = () => {
               {product.description}
             </p>
             <div className="flex items-center justify-between mb-8">
-              <p className="text-3xl font-semibold">NT$ {addComma(product.price)}</p>
+              <p className="text-3xl font-semibold">
+                NT$ {addComma(product.price)}
+              </p>
               <div className="flex items-center gap-3">
                 <Input
                   type="number"
@@ -86,24 +104,36 @@ const ProductPage = () => {
                   max={product.countInStock}
                   value={quantity}
                   defaultValue={1}
-                  onChange={(e) => handleQuantityChange(Number(e.target.value), product, setQuantity)}
+                  onChange={(e) =>
+                    handleQuantityChange(
+                      Number(e.target.value),
+                      product,
+                      setQuantity,
+                    )
+                  }
                   onKeyDown={preventInvalidInput}
                   disabled={isOutOfStock}
-                  wrapperStyle='items-center gap-2'
-                  inputStyle='rounded-none'
+                  wrapperStyle="items-center gap-2"
+                  inputStyle="rounded-none"
                 />
                 <Button
                   icon={product.countInStock !== 0 && CartPlusIcon}
-                  onClick={() => handleAddToCart(product, quantity, addToCart, setQuantity)}
+                  onClick={() =>
+                    handleAddToCart(product, quantity, addToCart, setQuantity)
+                  }
                   disabled={isOutOfStock}
-                  className='h-10'
+                  className="h-10"
                 >
-                  {isOutOfStock ? '補貨中' : '加入購物車'}
+                  {isOutOfStock ? "補貨中" : "加入購物車"}
                 </Button>
               </div>
             </div>
-            {product.ingredients && <Accordion title="製作材料">{product.ingredients}</Accordion>}
-            {product.nutrition && <Accordion title="營養成分表示">{product.nutrition}</Accordion>}
+            {product.ingredients && (
+              <Accordion title="製作材料">{product.ingredients}</Accordion>
+            )}
+            {product.nutrition && (
+              <Accordion title="營養成分表示">{product.nutrition}</Accordion>
+            )}
             <ul className="py-8 space-y-2 border-b border-gray-400">
               <ProductInfo label="內容" value={product.content} />
               <ProductInfo label="過敏原" value={product.allergens} />

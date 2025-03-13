@@ -13,7 +13,8 @@ const ResetPassword: React.FC = () => {
   const { token } = useParams();
   const { showAlert } = useAlert();
 
-  const { refresh: ResetPassword } = useAxios("/user/update-password",
+  const { refresh: ResetPassword } = useAxios(
+    "/user/update-password",
     { method: "POST", withCredentials: true },
     {
       immediate: false,
@@ -30,11 +31,12 @@ const ResetPassword: React.FC = () => {
             variant: "error",
             message: "連結無效或已過期，請重新申請重設密碼。",
           });
-        } else showAlert({
-          variant: "error",
-          message: "發生錯誤，請稍後再試。",
-        });
-      }
+        } else
+          showAlert({
+            variant: "error",
+            message: "發生錯誤，請稍後再試。",
+          });
+      },
     },
   );
 
@@ -48,7 +50,6 @@ const ResetPassword: React.FC = () => {
     if (!isSamePassword) return;
     await ResetPassword({ resetToken: token, password });
   };
-
 
   return (
     <Layout className="relative flex flex-col justify-center w-full max-w-sm px-4 mx-auto">
