@@ -16,26 +16,43 @@ interface ProductsManagerProps {
   refreshProducts: () => void;
 }
 
+// const initialFormData: Partial<Product> = {
+//   title: "",
+//   tagline: "",
+//   categories: [],
+//   description: "",
+//   price: 0,
+//   content: "",
+//   expiryDate: "",
+//   allergens: [],
+//   delivery: "",
+//   storage: "",
+//   ingredients: "",
+//   nutrition: "",
+//   countInStock: 0,
+//   tags: [],
+//   imageUrl: ""
+// };
+
 const initialFormData: Partial<Product> = {
-  title: "",
-  tagline: "",
+  title: "手工蜂蜜檸檬茶",
+  tagline: "清爽解渴，純天然手工製作",
   categories: [],
-  description: "",
-  price: 0,
-  content: "",
-  expiryDate: "",
-  allergens: [],
-  delivery: "",
-  storage: "",
-  ingredients: "",
-  nutrition: "",
-  countInStock: 0,
+  description: "使用100%天然蜂蜜與新鮮檸檬製成，無添加防腐劑。",
+  price: 150,
+  content: "500ml / 瓶",
+  expiryDate: "常溫保存約3個月",
+  allergens: ["蜂蜜"],
+  delivery: "常溫配送",
+  storage: "請置於陰涼處，開封後需冷藏",
+  ingredients: "水、蜂蜜、檸檬汁",
+  nutrition: "每100ml含熱量50大卡",
+  countInStock: 20,
   tags: [],
-  imageUrl: ""
+  imageUrl: "https://via.placeholder.com/150"
 };
 
 const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProducts }) => {
-
   const { showAlert } = useAlert();
 
   const [formKey, setFormKey] = useState(0);
@@ -45,6 +62,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
   // 重置表單
   const resetForm = () => {
     setFormData(initialFormData);
+    originalDataRef.current = {};
     setFormKey((prev) => prev + 1);
   };
 
@@ -95,17 +113,18 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
   ).refresh;
 
   // 新增、更新、刪除商品
-  const handleProduct = async (action: "add" | "update" | "delete", productData: Partial<Product> & { _id?: string }) => {
-    if (action === "add" && !productData.imageUrl) {
+  const handleProduct = async (action: "add" | "update" | "delete", productData: Partial<Product>  & { _id?: string }) => {
+    if ((action === "add" || action === "update") && !productData.imageUrl) {
       showAlert({
         variant: "error",
         message: "請上傳商品圖片",
       });
+
       return false;
     }
 
-    // 驗證表單
-    if (action !== "delete") {
+    // 驗證表單（新增、更新時）
+    if (action === "add" || action === "update") {
       const form = document.getElementById("productForm") as HTMLFormElement;
       if (!form.reportValidity()) return false;
     }
@@ -121,15 +140,14 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({ products, refreshProd
           ([key, value]) => JSON.stringify(value) !== JSON.stringify(originalDataRef.current[key])
         )
       );
-      if (Object.keys(changedData).length === 0) return;
+      if (Object.keys(changedData).length === 0) return false;
       res = await updateProduct({ id: productData._id }, { data: changedData });
     } else if (action === "delete") {
       if (!productData._id) return;
       res = await deleteProduct({ id: productData._id });
     }
-
     if (res?.success) refreshProducts(); // 成功後重新取得商品列表
-    return res.success;
+    return res?.success ?? false;
   };
 
   return (

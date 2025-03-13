@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
 import Button from "@/components/atoms/Button";
+import Alert from "@/components/atoms/Alert";
 
 import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
 
@@ -116,6 +117,7 @@ return (
         <button />
       </form>
     )}
+    <Alert />
   </dialog>
 );
 };
