@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import Marquee from "react-fast-marquee";
 
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
@@ -9,7 +10,6 @@ import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
 import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
-import Marquee from "@/components/atoms/Marquee";
 import DropdownMenu from "@/components/atoms/DropdownMenu";
 import BlurImage from "@/components/atoms/BlurImage";
 import ProductSlider from "@/components/organisms/ProductSlider";
@@ -37,18 +37,11 @@ const App = () => {
       <section className="px-5 pb-8 md:px-8">
         <div className="relative">
           <div className="overflow-hidden border-b border-primary max-w-screen">
-            <Marquee className="flex items-center gap-5 h-18">
-              {Array.from({ length: 10 }, (_, index) => (
-                <p
-                  className="flex items-baseline gap-2 text-2xl font-medium min-w-fit"
-                  key={index}
-                >
-                  Recommend
-                  <span className="text-base font-normal">/ 本店推薦</span>
-                </p>
-              ))}
+            <Marquee autoFill speed={20} className="h-16">
+              <p className="flex items-baseline mx-2 text-2xl font-medium gap-x-1">
+                Recommend<span className="text-base font-normal">／本店推薦</span>
+              </p>
             </Marquee>
-            {/* <hr className="block border-b-1 border-primary md:hidden" /> */}
           </div>
           <div className="absolute z-10 mt-4 ml-auto text-right right-2 md:top-4 md:m-0">
             <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
@@ -168,7 +161,7 @@ const App = () => {
                 src={bg}
                 alt={`bg-${index + 1}`}
                 className={`block object-cover object-bottom ${
-                  index === 1 && "w-100"
+                  index === 1 && "w-[25rem]"
                 } ${index === 2 && "w-[674px]"}`}
               />
             </SwiperSlide>
