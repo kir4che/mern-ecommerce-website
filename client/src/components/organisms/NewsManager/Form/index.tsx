@@ -1,24 +1,12 @@
+import { NewsItem } from "@/types/news";
+
 import ImageUploadInput from "@/components/molecules/ImageUploadInput";
 import Input from "@/components/atoms/Input";
 import Textarea from "@/components/atoms/Textarea";
 
 interface NewFormProps {
-  formData: {
-    title: string;
-    imageUrl?: string;
-    category: string;
-    date: string;
-    content: string;
-  };
-  setFormData: React.Dispatch<
-    React.SetStateAction<{
-      title: string;
-      imageUrl?: string;
-      category: string;
-      date: string;
-      content: string;
-    }>
-  >;
+  formData: Partial<NewsItem>;
+  setFormData: React.Dispatch<React.SetStateAction<Partial<NewsItem>>>;
 }
 
 const NewForm: React.FC<NewFormProps> = ({ formData, setFormData }) => {
