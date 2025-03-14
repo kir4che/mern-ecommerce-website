@@ -4,10 +4,7 @@ interface SelectProps {
   value: string | string[];
   defaultText?: string;
   options: { value: string; label: string }[];
-  onChange: (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
-    selectedOptions: string[],
-  ) => void;
+  onChange?: (name: string, value: string | string[]) => void;
   required?: boolean;
   multiple?: boolean;
   containerStyle?: string;
@@ -21,7 +18,7 @@ const Select: React.FC<SelectProps> = ({
   value = "",
   defaultText,
   options,
-  onChange,
+  onChange = () => {},
   required = false,
   multiple = false,
   containerStyle = "",
@@ -44,7 +41,7 @@ const Select: React.FC<SelectProps> = ({
       updatedValues = updatedValues.filter((v) => v !== selectedValue);
     }
 
-    onChange(e, updatedValues);
+    onChange(name, updatedValues);
   };
 
   return (
@@ -69,6 +66,7 @@ const Select: React.FC<SelectProps> = ({
                 }
                 onChange={handleMultipleChange}
                 className={selectStyle}
+                data-testid={name}
               />
               <label htmlFor={`${name}-${optValue}`} className="text-sm">
                 {optLabel}
@@ -79,9 +77,10 @@ const Select: React.FC<SelectProps> = ({
           <select
             name={name}
             value={defaultValue}
-            onChange={(e) => onChange(e, [e.target.value])}
+            onChange={(e) => onChange(name, e.target.value)}
             required={required}
             className={`text-base select select-bordered focus:outline-none ${selectStyle}`}
+            data-testid={name}
           >
             {defaultText && <option value="">{defaultText}</option>}
             {options.map(({ value: optValue, label: optLabel }) => (

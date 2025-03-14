@@ -43,7 +43,20 @@ const New = () => {
           alt={newsItem.title}
           className="object-cover object-center w-full h-80 md:min-h-96 md:h-[24vw]"
         />
-        <ReactMarkdown className="py-8 text-base markdown">
+        <ReactMarkdown
+          components={{
+            ul: ({ children }) => (
+              <ul className="pl-2 whitespace-normal list-disc list-inside">
+                {children}
+              </ul>
+            ),
+            ol: ({ children }) => (
+              <ol className="pl-2 whitespace-normal list-disc list-inside">
+                {children}
+              </ol>
+            ),
+          }}
+        >
           {newsItem.content}
         </ReactMarkdown>
       </article>

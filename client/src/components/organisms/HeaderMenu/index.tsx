@@ -62,6 +62,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
       }
     >
       <header
+        role="banner"
         className={`flex px-4 md:px-8 w-full items-center justify-between ${
           !isMenuOpen && isScrolled
             ? "fixed h-16 border bg-secondary border-b-primary duration-300"
@@ -76,7 +77,8 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
               : "hover:bg-secondary"
           }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          iconStyle={isMenuOpen && "stroke-secondary"}
+          iconStyle={isMenuOpen ? "stroke-secondary" : ""}
+          aria-label={isMenuOpen ? "關閉選單" : "開啟選單"}
         />
         {!isMenuOpen && (
           <Link to="/" className="absolute -translate-x-1/2 left-1/2">
@@ -87,11 +89,11 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
           {user ? (
             <>
               <Link to="/my-account" className="hidden sm:block">
-                <UserIcon className="w-6 h-6" />
+                <UserIcon className="w-6 h-6" aria-label="會員中心" />
               </Link>
               {user.role === "admin" && (
                 <Link to="/admin/dashboard" className="hidden sm:block">
-                  <DashboardIcon className="w-6 h-6" />
+                  <DashboardIcon className="w-6 h-6" aria-label="管理後台" />
                 </Link>
               )}
             </>
@@ -118,11 +120,13 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
           <Link to="/cart" className="relative">
             <CartIcon
               className={`w-6 h-6 transition-colors duration-300 ${isMenuOpen ? "stroke-secondary" : "stroke-primary"}`}
+              aria-label="購物車"
             />
             <span
               className={`absolute -top-3 -right-4 rounded-full w-[22px] h-[22px] inline-flex text-xs items-center justify-center ${
                 isMenuOpen ? "bg-secondary" : "bg-primary text-secondary"
               }`}
+              aria-label="購物車數量"
             >
               {totalQuantity}
             </span>
@@ -134,7 +138,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
       {isMenuOpen && (
         <div className="h-screen overflow-y-auto">
           <Navigation
-            user={user}
+            role={user?.role}
             handleMenuClose={() => setIsMenuOpen(false)}
           />
         </div>

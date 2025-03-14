@@ -36,10 +36,10 @@ const Input: React.FC<InputProps> = ({
   pattern,
   errorMessage,
   helperText,
-  containerStyle,
+  containerStyle = "",
   wrapperStyle = "flex-col gap-1",
-  labelStyle,
-  inputStyle,
+  labelStyle = "",
+  inputStyle = "",
   numberStyle = "rounded-none h-fit p-0",
   icon: Icon,
   ...props
@@ -71,20 +71,20 @@ const Input: React.FC<InputProps> = ({
         {label && (
           <label
             htmlFor={id}
-            className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}
+            className={`text-sm ${errorState ? "text-red-600" : ""} ${labelStyle}`}
           >
             {label} {required && <span className="text-red-600">*</span>}
           </label>
         )}
         <div
           className={`flex items-center gap-2 input focus-within:outline-none input-bordered
-          ${errorState && "border-red-600 focus-within:border-red-600"}
-          ${type === "number" && "pl-2.5 pr-0" + numberStyle}
+          ${errorState ? "border-red-600 focus-within:border-red-600" : ""}
+          ${type === "number" ? "pl-2.5 pr-0" + numberStyle : ""}
           ${inputStyle}`}
         >
           {Icon && (
             <Icon
-              className={`w-5 ${errorState && "stroke-red-500 text-red-500"}`}
+              className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : ""}`}
             />
           )}
           <input
@@ -94,9 +94,12 @@ const Input: React.FC<InputProps> = ({
             value={value}
             placeholder={placeholder}
             onChange={handleChange}
+            onBlur={() => handleValidation(value)}
             onInvalid={() => handleValidation(value)}
             required={required}
-            className={`border-none grow ${errorState && "placeholder-red-300 text-red-600"}`}
+            className={`border-none grow ${errorState ? "placeholder-red-300 text-red-600" : ""}`}
+            data-testid={id}
+            aria-invalid={errorState}
             {...props}
           />
         </div>
@@ -104,7 +107,7 @@ const Input: React.FC<InputProps> = ({
       {!errorState && helperText && (
         <p className="text-gray-400">{helperText}</p>
       )}
-      {errorState && !required && (
+      {errorState && (
         <p className="text-red-600">{errorMessage || pattern?.message}</p>
       )}
     </div>

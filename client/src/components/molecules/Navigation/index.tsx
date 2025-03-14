@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
 
+interface NavigationProps {
+  role: string;
+  handleMenuClose: () => void;
+}
+
 const sections = [
   {
     items: [
@@ -25,12 +30,12 @@ const sections = [
   },
 ];
 
-const Navigation = ({ user, handleMenuClose }) => {
+const Navigation: React.FC<NavigationProps> = ({ role, handleMenuClose }) => {
   const filteredSections = sections.map((section) => {
     const filteredItems = section.items?.filter((item) => {
       if (!item.role) return true; // 無角色限制的項目所有人都能看見
-      if (item.role === "admin" && user?.role !== "admin") return false; // 非 admin 隱藏「管理後台」
-      if (item.role === "user" && !["user", "admin"].includes(user?.role))
+      if (item.role === "admin" && role !== "admin") return false; // 非 admin 隱藏「管理後台」
+      if (item.role === "user" && !["user", "admin"].includes(role))
         return false;
       return true;
     });

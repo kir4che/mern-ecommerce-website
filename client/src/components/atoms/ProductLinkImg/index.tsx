@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Product } from "@/types/product";
 
 interface ProductLinkImgProps {
-  product: Product;
+  product: Partial<Product>;
   data: any;
   isError: boolean;
   className?: string;
@@ -12,7 +12,7 @@ const ProductLinkImg: React.FC<ProductLinkImgProps> = ({
   product,
   data,
   isError,
-  className,
+  className = "",
 }) => {
   return (
     <Link
@@ -22,7 +22,7 @@ const ProductLinkImg: React.FC<ProductLinkImgProps> = ({
       <img
         src={product.imageUrl}
         alt={product.title}
-        className={`relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2] opacity-0 ${isError && "opacity-50"}`}
+        className={`relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2] opacity-0 ${isError ? "opacity-50" : ""}`}
         onLoad={(e) => (e.currentTarget.style.opacity = "1")}
         onError={(e) =>
           (e.currentTarget.src = "https://placehold.co/300x300?text=No Image")

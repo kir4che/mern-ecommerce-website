@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.inline.svg";
 
@@ -12,8 +12,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ title, list }) => {
   const detailsRef = useRef(null);
 
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (detailsRef.current && !detailsRef.current.contains(event.target)) {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (detailsRef.current && !detailsRef.current.contains(e.target)) {
         detailsRef.current.removeAttribute("open");
       }
     };

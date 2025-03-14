@@ -6,7 +6,8 @@ interface TooltipProps {
 
 const Tooltip: React.FC<TooltipProps> = ({ isActivated, text, children }) => (
   <p
-    className={`tooltip tooltip-bottom ${isActivated && "tooltip-open"}`}
+    role="tooltip"
+    className={`tooltip tooltip-bottom ${isActivated ? "tooltip-open" : ""}`}
     {...(isActivated ? { "data-tip": text } : {})}
   >
     {children}

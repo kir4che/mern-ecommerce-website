@@ -19,6 +19,7 @@ interface ModalProps {
   autoCloseDelay?: number; // 預設 3 秒後自動關閉
   disabled?: boolean;
   children?: React.ReactNode;
+  showAlert?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -35,6 +36,7 @@ const Modal: React.FC<ModalProps> = ({
   autoCloseDelay = 3000,
   disabled = false,
   children,
+  showAlert = false,
 }) => {
   const modalRef = useRef<HTMLDialogElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -71,10 +73,10 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <dialog id={id} ref={modalRef} className="modal">
       <div
-        className={`modal-box p-0 flex flex-col ${!children && "py-6"} ${width} ${className}`}
+        className={`modal-box p-0 flex flex-col ${!children ? "py-6" : ""} ${width} ${className}`}
       >
         <div
-          className={`flex items-center justify-between px-8 ${children && "border-b py-4"}`}
+          className={`flex items-center justify-between px-8 ${children ? "border-b py-4" : ""}`}
         >
           {title && <h3 className="text-lg font-bold">{title}</h3>}
           {isShowCloseIcon && (
@@ -82,7 +84,7 @@ const Modal: React.FC<ModalProps> = ({
               variant="icon"
               icon={CloseIcon}
               onClick={handleClose}
-              className={`border-none h-fit ${!title && "ml-auto"}`}
+              className={`border-none h-fit ${!title ? "ml-auto" : ""}`}
             />
           )}
         </div>
@@ -96,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
         )}
         {!loading && (
           <div
-            className={`flex justify-end px-8 modal-action ${children && " border-t py-4"}`}
+            className={`flex justify-end px-8 modal-action ${children ? " border-t py-4" : ""}`}
           >
             <Button
               onClick={async () => {
@@ -122,7 +124,7 @@ const Modal: React.FC<ModalProps> = ({
           <button />
         </form>
       )}
-      <Alert />
+      {showAlert && <Alert />}
     </dialog>
   );
 };

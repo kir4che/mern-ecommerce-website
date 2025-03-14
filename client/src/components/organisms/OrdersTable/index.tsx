@@ -12,6 +12,7 @@ import {
 import { Order } from "@/types/order";
 import { addComma } from "@/utils/addComma";
 import { formatDate } from "@/utils/formatDate";
+import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 
 import ConfirmDeliveryForm from "@/components/organisms/ConfirmDeliveryForm";
@@ -70,13 +71,21 @@ const OrdersActions = ({
   onDeliver,
 }: OrdersActionsProps) => {
   const { _id, status, paymentStatus } = order;
+  const { showAlert } = useAlert();
 
   const [shippingTrackingNo, setShippingTrackingNo] = useState<string>("");
 
   const { refresh: updateOrder } = useAxios(
     (params) => `/orders/${params?.id}`,
     { method: "PATCH", withCredentials: true },
-    { immediate: false },
+    {
+      immediate: false,
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "更新訂單失敗，請稍後再試。",
+        }),
+    },
   );
 
   // 完成訂單（user）
@@ -113,6 +122,7 @@ const OrdersActions = ({
           id="completeOrderModal"
           onConfirm={() => handleComplete(_id)}
           title="確認收到商品無誤，再按下「確定」以完成訂單。"
+          showAlert
         />
       </>
     );
@@ -132,6 +142,7 @@ const OrdersActions = ({
           isShowCloseIcon={true}
           isShowCloseBtn={false}
           disabled={!/^[A-Z0-9]{8,20}$/.test(shippingTrackingNo)}
+          showAlert
         >
           <ConfirmDeliveryForm
             order={order}

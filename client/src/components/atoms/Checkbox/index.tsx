@@ -13,8 +13,8 @@ const Checkbox: React.FC<CheckboxProps> = ({
   id,
   label,
   onChange = () => {},
-  className,
-  labelStyle,
+  className = "",
+  labelStyle = "",
   ...props
 }) => {
   return (
@@ -24,6 +24,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         id={id}
         onChange={onChange}
         className="w-5 h-5 rounded-full checkbox"
+        data-testid={id}
         {...props}
       />
       <label htmlFor={id} className={`text-sm ${labelStyle}`}>

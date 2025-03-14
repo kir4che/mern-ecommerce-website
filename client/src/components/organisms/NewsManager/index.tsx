@@ -146,7 +146,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
           onConfirm={() => handleNew("add", formData)}
           onClose={resetForm}
           width="max-w-xl"
-          isShowCloseIcon={true}
+          isShowCloseIcon
+          showAlert
         >
           <NewForm
             key={formKey}
@@ -190,7 +191,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
                   onConfirm={() => handleNew("update", formData)}
                   onClose={resetForm}
                   width="max-w-xl"
-                  isShowCloseIcon={true}
+                  isShowCloseIcon
+                  showAlert
                 >
                   <NewForm
                     key={formKey}
@@ -215,6 +217,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
                   title="確定要刪除此消息嗎？"
                   confirmText="刪除"
                   onConfirm={() => handleNew("delete", { _id: item._id })}
+                  showAlert
                 />
               </div>
             </li>
