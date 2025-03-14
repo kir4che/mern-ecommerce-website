@@ -7,15 +7,6 @@ module.exports = {
         xs: "490px",
         sm: "652px",
       },
-      maxWidth: {
-        100: "25rem",
-      },
-      width: {
-        100: "25rem",
-      },
-      height: {
-        18: "4.5rem",
-      },
       backgroundImage: {
         "about-cover": "url('/src/assets/images/about/about-cover.jpg')",
       },
