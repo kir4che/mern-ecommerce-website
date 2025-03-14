@@ -60,7 +60,10 @@ const INITIAL_STATE: CartState = {
 
 export const CartContext = createContext<CartContextType | null>(null);
 
-const CartReducer = (state: CartState, action: CartAction): CartState => {
+export const CartReducer = (
+  state: CartState,
+  action: CartAction,
+): CartState => {
   switch (action.type) {
     case "SET_IS_LOADING":
       return { ...state, isLoading: action.payload };
@@ -289,7 +292,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
+    <CartContext.Provider value={contextValue} data-testid="cart-provider">
+      {children}
+    </CartContext.Provider>
   );
 };
 

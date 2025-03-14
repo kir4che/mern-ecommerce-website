@@ -39,7 +39,7 @@ interface AddToCartParams {
 
 // 加入商品到購物車
 export const handleAddToCart = async (
-  product: Product | null,
+  product: Partial<Product> | null,
   quantity: number,
   addToCart: (params: AddToCartParams) => Promise<void>,
   setQuantity?: (value: number) => void,

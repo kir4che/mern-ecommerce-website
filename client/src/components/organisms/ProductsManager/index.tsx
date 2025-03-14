@@ -187,7 +187,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           onConfirm={() => handleProduct("add", formData)}
           onClose={resetForm}
           width="max-w-xl"
-          isShowCloseIcon={true}
+          isShowCloseIcon
+          showAlert
         >
           <ProductForm
             key={formKey}
@@ -225,6 +226,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                     }
                   }}
                   className="border-none h-fit"
+                  aria-label="編輯商品"
                 />
                 <Modal
                   id={`updateProductModal-${item._id}`}
@@ -232,7 +234,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                   onConfirm={() => handleProduct("update", formData)}
                   onClose={resetForm}
                   width="max-w-xl"
-                  isShowCloseIcon={true}
+                  isShowCloseIcon
+                  showAlert
                 >
                   <ProductForm
                     key={formKey}
@@ -251,12 +254,14 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                     ).showModal()
                   }
                   className="border-none h-fit"
+                  aria-label="刪除商品"
                 />
                 <Modal
                   id={`deleteProductModal-${item._id}`}
                   title="確定要刪除此商品嗎？"
                   confirmText="刪除"
                   onConfirm={() => handleProduct("delete", { _id: item._id })}
+                  showAlert
                 />
               </div>
             </li>

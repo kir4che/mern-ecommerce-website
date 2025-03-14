@@ -6,7 +6,11 @@ interface AccordionProps {
 }
 
 const Accordion: React.FC<AccordionProps> = ({ title, children }) => (
-  <details className="py-5 text-sm border-b border-gray-400 group" open>
+  <details
+    role="region"
+    className="py-5 text-sm border-b border-gray-400 group"
+    open
+  >
     <summary className="flex items-center justify-between cursor-pointer">
       <p className="font-medium">{title}</p>
       <ArrowDownIcon className="w-4 h-4 transform group-hover:rotate-180" />

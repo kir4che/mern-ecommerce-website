@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -17,10 +17,10 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "types": ["react", "react-dom"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "data.ts"],
-  "exclude": ["node_modules"],
-  "extends": "./tsconfig.paths.json"
+  "exclude": ["node_modules"]
 }

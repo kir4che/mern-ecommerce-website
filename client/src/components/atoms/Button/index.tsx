@@ -26,18 +26,20 @@ const Button: React.FC<ButtonProps> = ({
   <button
     type={type}
     className={`btn
-      ${variant === "link" && "btn-link"} 
-      ${variant === "icon" && "btn-icon"} 
-      ${variant === "text" && "btn-text"}
-      ${variant !== "link" && variant !== "icon" && variant !== "text" && "btn-outline"}
+      ${variant === "link" ? "btn-link" : ""} 
+      ${variant === "icon" ? "btn-icon" : ""} 
+      ${variant === "text" ? "btn-text" : ""}
+      ${variant !== "link" && variant !== "icon" && variant !== "text" ? "btn-outline" : ""}
       duration-500 rounded-full 
-      ${variant === "secondary" && "text-secondary bg-primary hover:text-primary hover:bg-secondary"} 
+      ${variant === "secondary" ? "text-secondary bg-primary hover:text-primary hover:bg-secondary" : ""} 
       ${className}`}
     onClick={onClick}
     {...props}
   >
     {Icon && (
-      <Icon className={`w-5 h-5 ${iconPosition && "order-2"} ${iconStyle}`} />
+      <Icon
+        className={`w-5 h-5 ${iconPosition ? "order-2" : ""} ${iconStyle}`}
+      />
     )}
     {children}
   </button>

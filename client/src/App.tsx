@@ -39,7 +39,8 @@ const App = () => {
           <div className="overflow-hidden border-b border-primary max-w-screen">
             <Marquee autoFill speed={20} className="h-16">
               <p className="flex items-baseline mx-2 text-2xl font-medium gap-x-1">
-                Recommend<span className="text-base font-normal">／本店推薦</span>
+                Recommend
+                <span className="text-base font-normal">／本店推薦</span>
               </p>
             </Marquee>
           </div>

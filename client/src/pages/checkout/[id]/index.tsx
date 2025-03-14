@@ -83,8 +83,8 @@ const Checkout: React.FC = () => {
     },
   );
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     // 建立付款單，並導向綠界金流。
     await createPayment({
