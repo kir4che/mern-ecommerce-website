@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams } from "react-router";
 
 import { useGetData } from "@/hooks/useGetData";
 
@@ -165,7 +164,7 @@ const Checkout: React.FC = () => {
               <Button
                 key={method}
                 className={`h-14 rounded-lg hover:bg-secondary hover:text-primary border ${
-                  paymentMethod === method && "border-2"
+                  paymentMethod === method ? "border-2" : ""
                 }`}
                 onClick={() => setPaymentMethod(method)}
               >

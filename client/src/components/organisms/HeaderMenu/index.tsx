@@ -1,5 +1,5 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -78,7 +78,6 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
           }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           iconStyle={isMenuOpen ? "stroke-secondary" : ""}
-          aria-label={isMenuOpen ? "關閉選單" : "開啟選單"}
         />
         {!isMenuOpen && (
           <Link to="/" className="absolute -translate-x-1/2 left-1/2">
@@ -133,7 +132,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
           </Link>
         </div>
       </header>
-      <hr className={`border-primary ${isScrolled && "-mx-8"}`} />
+      <hr className={`border-primary ${isScrolled ? "-mx-8" : ""}`} />
       {/* 網站選單 */}
       {isMenuOpen && (
         <div className="h-screen overflow-y-auto">

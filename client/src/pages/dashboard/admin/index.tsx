@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { useAxios } from "@/hooks/useAxios";
 import { useAuth } from "@/context/AuthContext";
@@ -55,7 +55,7 @@ const AdminDashboard = () => {
         <div className="flex flex-col w-full gap-6 mb-6 lg:gap-12 sm:flex-row">
           {/* 商品管理 */}
           <div
-            className={`flex-1 sm:w-1/2 min-h-48 ${productsError && "flex items-center justify-center"}`}
+            className={`flex-1 sm:w-1/2 min-h-48 ${productsError ? "flex items-center justify-center" : ""}`}
           >
             {productsError ? (
               <div className="flex flex-col items-center gap-y-4">
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
           </div>
           {/* 消息管理 */}
           <div
-            className={`flex-1 sm:w-1/2 min-h-48 ${newsError && "flex items-center justify-center"}`}
+            className={`flex-1 sm:w-1/2 min-h-48 ${newsError ? "flex items-center justify-center" : ""}`}
           >
             {newsError ? (
               <div className="flex flex-col items-center gap-y-4">

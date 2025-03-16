@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom";
 
-if (typeof TextEncoder === "undefined")
+// Add TextEncoder polyfill
+if (typeof TextEncoder === "undefined") {
   global.TextEncoder = require("util").TextEncoder;
-if (typeof TextDecoder === "undefined")
+}
+
+if (typeof TextDecoder === "undefined") {
   global.TextDecoder = require("util").TextDecoder;
+}

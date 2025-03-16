@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router";
 
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";

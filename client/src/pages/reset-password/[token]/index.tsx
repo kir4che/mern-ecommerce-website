@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
