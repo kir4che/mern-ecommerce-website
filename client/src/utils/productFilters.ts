@@ -8,19 +8,19 @@ export const CATEGORY_MAP = {
 } as const;
 
 type CategoryKey = keyof typeof CATEGORY_MAP;
-type CategoryFilter = (products: Product[]) => Product[];
+type CategoryFilter = (products: Partial<Product>[]) => Partial<Product>[];
 
 // 建立分類篩選器
 const createCategoryFilter =
   (cat: CategoryKey): CategoryFilter =>
-  (products: Product[]) =>
+  (products: Partial<Product>[]) =>
     products.filter((item) => item.categories.includes(CATEGORY_MAP[cat]));
 
 // 根據分類篩選商品
 export const filterProductsByCategory = (
-  products: Product[],
+  products: Partial<Product>[],
   category: string,
-): Product[] => {
+): Partial<Product>[] => {
   if (!products?.length) return [];
 
   const categoryFilters: Record<string, CategoryFilter> = {

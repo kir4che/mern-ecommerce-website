@@ -169,7 +169,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           onConfirm={() => handleProduct("add", formData)}
           onClose={resetForm}
           width="max-w-xl"
-          isShowCloseIcon={true}
+          isShowCloseIcon
+          showAlert
         >
           <ProductForm
             key={formKey}
@@ -214,7 +215,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                   onConfirm={() => handleProduct("update", formData)}
                   onClose={resetForm}
                   width="max-w-xl"
-                  isShowCloseIcon={true}
+                  isShowCloseIcon
+                  showAlert
                 >
                   <ProductForm
                     key={formKey}
@@ -239,6 +241,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                   title="確定要刪除此商品嗎？"
                   confirmText="刪除"
                   onConfirm={() => handleProduct("delete", { _id: item._id })}
+                  showAlert
                 />
               </div>
             </li>

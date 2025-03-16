@@ -53,7 +53,8 @@ const Pagination: React.FC<PaginationProps> = ({
           variant="icon"
           icon={ArrowLeftIcon}
           onClick={() => handlePageChange(page - 1)}
-          className="h-fit border-none hover:opacity-50"
+          className="border-none h-fit hover:opacity-50"
+          data-testid="previous-button"
         />
       )}
       <ul className="flex items-center justify-center space-x-2">
@@ -73,7 +74,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 onClick={() => handlePageChange(pageNum)}
                 className={`h-8 w-8 p-0 text-sm border-none rounded-full ${
                   page === pageNum ? "bg-primary text-secondary" : "bg-white"
-                } ${page !== pageNum && "hover:bg-primary/10 hover:text-primary"}`}
+                } ${page !== pageNum ? "hover:bg-primary/10 hover:text-primary" : ""}`}
               >
                 {pageNum}
               </Button>
@@ -86,7 +87,8 @@ const Pagination: React.FC<PaginationProps> = ({
           variant="icon"
           icon={ArrowRightIcon}
           onClick={() => handlePageChange(page + 1)}
-          className="h-fit border-none hover:opacity-50"
+          className="border-none h-fit hover:opacity-50"
+          data-testid="next-button"
         />
       )}
     </div>

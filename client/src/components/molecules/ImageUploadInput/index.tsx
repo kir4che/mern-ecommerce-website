@@ -95,7 +95,7 @@ const ImageUploadInput = ({
           variant="icon"
           icon={!isLoading && UploadIcon}
           onClick={handleImageUpload}
-          className={`border-none hover:opacity-75 ${isLoading && "h-10 w-20"}`}
+          className={`border-none hover:opacity-75 ${isLoading ? "h-10 w-20" : ""}`}
           disabled={isLoading}
         >
           上傳

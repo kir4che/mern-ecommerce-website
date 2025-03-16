@@ -134,7 +134,7 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
       {isMenuOpen && (
         <div className="h-screen overflow-y-auto">
           <Navigation
-            user={user}
+            role={user?.role}
             handleMenuClose={() => setIsMenuOpen(false)}
           />
         </div>

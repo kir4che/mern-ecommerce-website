@@ -19,7 +19,7 @@ describe("ProductLinkImg Component", () => {
     return render(<MemoryRouter>{component}</MemoryRouter>);
   };
 
-  it("should render a link with the correct 'to' attribute", () => {
+  test("should render a link with the correct 'to' attribute", () => {
     renderWithRouter(
       <ProductLinkImg
         product={mockProduct}
@@ -32,7 +32,7 @@ describe("ProductLinkImg Component", () => {
     expect(linkElement).toHaveAttribute("href", `/products/${mockProduct._id}`);
   });
 
-  it("should render an image with the correct src", () => {
+  test("should render an image with the correct src", () => {
     renderWithRouter(
       <ProductLinkImg
         product={mockProduct}
@@ -45,7 +45,7 @@ describe("ProductLinkImg Component", () => {
     expect(imgElement).toHaveAttribute("src", mockProduct.imageUrl);
   });
 
-  it("should set a default image on error", () => {
+  test("should set a default image on error", () => {
     const mockIsErrorTrue = true;
     renderWithRouter(
       <ProductLinkImg
@@ -63,7 +63,7 @@ describe("ProductLinkImg Component", () => {
     );
   });
 
-  it("should apply correct classes based on error state", () => {
+  test("should apply correct classes based on error state", () => {
     renderWithRouter(
       <ProductLinkImg
         product={mockProduct}

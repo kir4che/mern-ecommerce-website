@@ -3,7 +3,7 @@ import { Order } from "@/types/order";
 import Input from "@/components/atoms/Input";
 
 interface ConfirmDeliveryFormProps {
-  order: Order;
+  order: Partial<Order>;
   shippingTrackingNo: string;
   setShippingTrackingNo: (value: string) => void;
 }
@@ -46,6 +46,7 @@ const ConfirmDeliveryForm: React.FC<ConfirmDeliveryFormProps> = ({
       <li>電話：{order?.phone}</li>
     </ul>
     <Input
+      id="shippingTrackingNo"
       value={shippingTrackingNo}
       label="配送編號"
       onChange={(e) => setShippingTrackingNo(e.target.value)}

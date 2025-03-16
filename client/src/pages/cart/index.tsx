@@ -118,6 +118,7 @@ const Cart = () => {
             id="clearCartModal"
             onConfirm={clearCart}
             title="確定要清空購物車嗎？"
+            showAlert
           />
         </div>
         <div className="px-6 bg-white rounded-lg shadow">

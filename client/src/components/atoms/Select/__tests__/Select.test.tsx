@@ -48,7 +48,7 @@ describe("Select Component", () => {
       );
     });
 
-    test("preselects the first option when required", () => {
+    test("preselects first option when required", () => {
       render(<Select {...multipleProps} required />);
       expect(screen.getByLabelText("Option 1")).toBeChecked();
     });
@@ -62,7 +62,7 @@ describe("Select Component", () => {
       ]);
     });
 
-    test("not deselects the last selected option when required", () => {
+    test("not deselects last selected option when required", () => {
       render(<Select {...multipleProps} required value={["option1"]} />);
 
       fireEvent.click(screen.getByLabelText("Option 1"));
