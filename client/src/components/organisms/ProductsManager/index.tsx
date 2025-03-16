@@ -16,40 +16,22 @@ interface ProductsManagerProps {
   refreshProducts: () => void;
 }
 
-// const initialFormData: Partial<Product> = {
-//   title: "",
-//   tagline: "",
-//   categories: [],
-//   description: "",
-//   price: 0,
-//   content: "",
-//   expiryDate: "",
-//   allergens: [],
-//   delivery: "",
-//   storage: "",
-//   ingredients: "",
-//   nutrition: "",
-//   countInStock: 0,
-//   tags: [],
-//   imageUrl: ""
-// };
-
 const initialFormData: Partial<Product> = {
-  title: "手工蜂蜜檸檬茶",
-  tagline: "清爽解渴，純天然手工製作",
+  title: "",
+  tagline: "",
   categories: [],
-  description: "使用100%天然蜂蜜與新鮮檸檬製成，無添加防腐劑。",
-  price: 150,
-  content: "500ml / 瓶",
-  expiryDate: "常溫保存約3個月",
-  allergens: ["蜂蜜"],
-  delivery: "常溫配送",
-  storage: "請置於陰涼處，開封後需冷藏",
-  ingredients: "水、蜂蜜、檸檬汁",
-  nutrition: "每100ml含熱量50大卡",
-  countInStock: 20,
+  description: "",
+  price: 0,
+  content: "",
+  expiryDate: "",
+  allergens: [],
+  delivery: "",
+  storage: "",
+  ingredients: "",
+  nutrition: "",
+  countInStock: 0,
   tags: [],
-  imageUrl: "https://via.placeholder.com/150",
+  imageUrl: "",
 };
 
 const ProductsManager: React.FC<ProductsManagerProps> = ({
