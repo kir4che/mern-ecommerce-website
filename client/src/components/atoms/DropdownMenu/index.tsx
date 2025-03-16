@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.inline.svg";
 

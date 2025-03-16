@@ -30,9 +30,9 @@ const Textarea: React.FC<TextareaProps> = ({
   required = false,
   errorMessage,
   helperText,
-  containerStyle,
-  labelStyle,
-  inputStyle,
+  containerStyle = "",
+  labelStyle = "",
+  inputStyle = "",
   ...props
 }) => {
   const [errorState, setErrorState] = useState<boolean>(false);
@@ -55,7 +55,7 @@ const Textarea: React.FC<TextareaProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className={`text-sm ${errorState && "text-red-600"} ${labelStyle}`}
+          className={`text-sm ${errorState ? "text-red-600" : ""} ${labelStyle}`}
         >
           {label} {required && <span className="text-red-600">*</span>}
         </label>
@@ -68,20 +68,18 @@ const Textarea: React.FC<TextareaProps> = ({
         rows={rows}
         maxLength={maxLength}
         onChange={handleChange}
-        onInvalid={(e) => {
-          e.preventDefault();
-          handleValidation(value);
-        }}
+        onBlur={() => handleValidation(value)}
+        onInvalid={() => handleValidation(value)}
         required={required}
-        className={`textarea focus:outline-none textarea-bordered ${errorState && "placeholder-red-300 border-red-600 text-red-600 focus:border-red-600"} ${inputStyle}`}
+        className={`textarea focus:outline-none textarea-bordered ${errorState ? "placeholder-red-300 border-red-600 text-red-600 focus:border-red-600" : ""} ${inputStyle}`}
+        data-testid={id}
+        aria-invalid={errorState}
         {...props}
       />
       {!errorState && helperText && (
         <p className="text-gray-400">{helperText}</p>
       )}
-      {errorState && !required && (
-        <p className="text-red-600">{errorMessage}</p>
-      )}
+      {errorState && <p className="text-red-600">{errorMessage}</p>}
     </div>
   );
 };
