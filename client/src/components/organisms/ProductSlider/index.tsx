@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 
@@ -117,7 +117,7 @@ const ProductSlider = () => {
             "--swiper-navigation-size": "2rem",
           } as React.CSSProperties
         }
-        className={isError && "opacity-70"}
+        className={isError ? "opacity-70" : ""}
       >
         {products &&
           products
@@ -125,11 +125,11 @@ const ProductSlider = () => {
             .map((product) => (
               <SwiperSlide key={product._id}>
                 <section
-                  className={`relative sm:max-w-80 ${isError && "pointer-events-none"}`}
+                  className={`relative sm:max-w-80 ${isError ? "pointer-events-none" : ""}`}
                 >
                   <div className="absolute z-10">
                     <h3
-                      className={`px-2 mb-2 text-xl w-fit bg-primary text-secondary ${isError && "bg-opacity-50"}`}
+                      className={`px-2 mb-2 text-xl w-fit bg-primary text-secondary ${isError ? "bg-opacity-50" : ""}`}
                     >
                       {product.title}
                     </h3>
@@ -203,7 +203,7 @@ const ProductSlider = () => {
                       </div>
                     </div>
                     <p
-                      className={`overflow-hidden line-clamp-3 text-ellipsis ${product.allergens.length > 0 && "mb-6"}`}
+                      className={`overflow-hidden line-clamp-3 text-ellipsis ${product.allergens.length > 0 ? "mb-6" : ""}`}
                     >
                       {product.description}
                     </p>
