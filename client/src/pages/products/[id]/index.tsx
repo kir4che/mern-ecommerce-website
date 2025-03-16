@@ -43,7 +43,7 @@ const ProductInfo = ({
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { data, error, isLoading, isError, refresh } = useAxios(
     `/products/${id}`,
   );
@@ -121,7 +121,11 @@ const ProductPage = () => {
                   onClick={() =>
                     handleAddToCart(product, quantity, addToCart, setQuantity)
                   }
-                  disabled={isOutOfStock}
+                  disabled={
+                    isOutOfStock ||
+                    cart.find((item) => item.productId === product._id)
+                      ?.quantity >= product.countInStock
+                  }
                   className="h-10"
                 >
                   {isOutOfStock ? "補貨中" : "加入購物車"}

@@ -4,23 +4,31 @@ import Select from "@/components/atoms/Select";
 import Textarea from "@/components/atoms/Textarea";
 
 const ProductForm = ({ formData, setFormData }) => {
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-    selectedOptions?: string[],
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-
-    // 根據不同的欄位更新 formData，若是多選則處理為 Array。
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        selectedOptions ||
-        (Array.isArray(prev[name])
-          ? value.split(",").map((v) => v.trim())
-          : value),
+      [name]: Array.isArray(prev[name])
+        ? value.split(",").map((v) => v.trim())
+        : value,
     }));
+  };
+
+  const handleSelectChange = (name: string, value: string | string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const tags = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   return (
@@ -31,14 +39,14 @@ const ProductForm = ({ formData, setFormData }) => {
             name="title"
             label="商品名稱"
             value={formData?.title}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
           <Input
             name="tagline"
             label="標語"
             value={formData?.tagline}
-            onChange={handleChange}
+            onChange={handleInputChange}
           />
         </div>
         <Select
@@ -51,7 +59,7 @@ const ProductForm = ({ formData, setFormData }) => {
             { value: "餅乾", label: "餅乾" },
             { value: "其他", label: "其他" },
           ]}
-          onChange={handleChange}
+          onChange={handleSelectChange}
           multiple
           required
         />
@@ -67,7 +75,7 @@ const ProductForm = ({ formData, setFormData }) => {
         name="description"
         label="敘述"
         value={formData?.description}
-        onChange={handleChange}
+        onChange={handleInputChange}
         required
       />
       <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -77,7 +85,7 @@ const ProductForm = ({ formData, setFormData }) => {
           label="價格"
           value={formData?.price}
           min={0}
-          onChange={handleChange}
+          onChange={handleInputChange}
           required
           containerStyle="flex-1"
           numberStyle="h-10"
@@ -87,7 +95,7 @@ const ProductForm = ({ formData, setFormData }) => {
           label="庫存數量"
           type="number"
           value={formData?.countInStock}
-          onChange={handleChange}
+          onChange={handleInputChange}
           containerStyle="flex-1"
           numberStyle="h-10"
         />
@@ -98,7 +106,7 @@ const ProductForm = ({ formData, setFormData }) => {
           label="內容"
           placeholder="內含 2 入"
           value={formData?.content}
-          onChange={handleChange}
+          onChange={handleInputChange}
           required
           containerStyle="flex-1"
         />
@@ -107,7 +115,7 @@ const ProductForm = ({ formData, setFormData }) => {
           label="有效期限"
           placeholder="常溫保存 3 天"
           value={formData?.expiryDate}
-          onChange={handleChange}
+          onChange={handleInputChange}
           containerStyle="flex-1"
         />
       </div>
@@ -117,7 +125,7 @@ const ProductForm = ({ formData, setFormData }) => {
           label="過敏原"
           placeholder="小麥, 乳製品, 蛋"
           value={formData?.allergens}
-          onChange={handleChange}
+          onChange={handleInputChange}
           containerStyle="grow"
         />
         <Select
@@ -129,7 +137,7 @@ const ProductForm = ({ formData, setFormData }) => {
             { value: "常溫宅配", label: "常溫宅配" },
             { value: "低溫宅配", label: "低溫宅配" },
           ]}
-          onChange={handleChange}
+          onChange={handleSelectChange}
         />
       </div>
       <Input
@@ -137,33 +145,28 @@ const ProductForm = ({ formData, setFormData }) => {
         label="保存方式"
         placeholder="請保存於陰涼處，避免高溫或陽光照射。"
         value={formData?.storage}
-        onChange={handleChange}
+        onChange={handleInputChange}
       />
       <Input
         name="ingredients"
         label="成分"
         placeholder="小麥粉、牛奶、無鹽奶油、蛋..."
         value={formData?.ingredients}
-        onChange={handleChange}
+        onChange={handleInputChange}
       />
       <Input
         name="nutrition"
         label="營養資訊"
         placeholder="（每100g）能量180kcal，蛋白質5.0g，脂肪2.5g，碳水化合物35.0g，食鹽相當量0.5g"
         value={formData?.nutrition}
-        onChange={handleChange}
+        onChange={handleInputChange}
       />
       <Input
         name="tags"
         label="標籤"
         placeholder="推薦,熱銷,新品,特價"
         value={formData?.tags?.join(",")}
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            tags: e.target.value.split(",").map((item) => item.trim()),
-          }))
-        }
+        onChange={handleTagsChange}
       />
     </form>
   );

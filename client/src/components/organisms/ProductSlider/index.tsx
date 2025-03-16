@@ -26,7 +26,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 const ProductSlider = () => {
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { data, isLoading, isError, refresh } = useAxios("/products");
   const products = data?.products as Product[];
 
@@ -163,7 +163,6 @@ const ProductSlider = () => {
                           min={1}
                           max={product.countInStock}
                           value={quantities[product._id] || 1}
-                          defaultValue={1}
                           onChange={(e) =>
                             handleQuantityChange(
                               Number(e.target.value),
@@ -196,7 +195,11 @@ const ProductSlider = () => {
                                 })),
                             )
                           }
-                          disabled={product.countInStock <= 0}
+                          disabled={
+                            product.countInStock <= 0 ||
+                            cart.find((item) => item.productId === product._id)
+                              ?.quantity >= product.countInStock
+                          }
                           className="w-6 h-6 border-primary hover:border-primary hover:bg-primary"
                           iconStyle="hover:stroke-secondary"
                         />
