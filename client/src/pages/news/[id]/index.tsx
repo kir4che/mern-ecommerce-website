@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import ReactMarkdown from "react-markdown";
 
 import { useAxios } from "@/hooks/useAxios";

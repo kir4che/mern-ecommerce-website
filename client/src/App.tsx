@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Marquee from "react-fast-marquee";
@@ -162,8 +162,8 @@ const App = () => {
                 src={bg}
                 alt={`bg-${index + 1}`}
                 className={`block object-cover object-bottom ${
-                  index === 1 && "w-[25rem]"
-                } ${index === 2 && "w-[674px]"}`}
+                  index === 1 ? "w-[25rem]" : index === 2 ? "w-[674px]" : ""
+                }`}
               />
             </SwiperSlide>
           ))}

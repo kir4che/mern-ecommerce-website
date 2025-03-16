@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import { useAxios } from "@/hooks/useAxios";
 import { addComma } from "@/utils/addComma";
@@ -162,7 +162,7 @@ const Checkout: React.FC = () => {
               <Button
                 key={method}
                 className={`h-14 rounded-lg hover:bg-secondary hover:text-primary border ${
-                  paymentMethod === method && "border-2"
+                  paymentMethod === method ? "border-2" : ""
                 }`}
                 onClick={() => setPaymentMethod(method)}
               >

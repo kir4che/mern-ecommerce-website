@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, memo } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router";
 import { useInView } from "react-intersection-observer";
 
 import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
