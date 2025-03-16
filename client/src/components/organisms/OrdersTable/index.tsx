@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
 import {
@@ -370,14 +370,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
             variant="icon"
             icon={ArrowLeftIcon}
             onClick={() => handlePageChange(currentPage - 1)}
-            className={`w-4 h-4 border-none hover:opacity-50 ${currentPage === 1 && "invisible"}`}
+            className={`w-4 h-4 border-none hover:opacity-50 ${currentPage === 1 ? "invisible" : ""}`}
           />
           {Array.from({ length: totalPages }).map((_, index) => (
             <Button
               key={index}
               variant="icon"
               onClick={() => handlePageChange(index + 1)}
-              className={`w-4 h-4 text-xs border-none hover:opacity-80 ${index + 1 !== currentPage && "text-gray-400"}`}
+              className={`w-4 h-4 text-xs border-none hover:opacity-80 ${index + 1 !== currentPage ? "text-gray-400" : ""}`}
             >
               {index + 1}
             </Button>

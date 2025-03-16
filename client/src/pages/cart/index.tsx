@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Product } from "@/types/product";
@@ -125,13 +125,13 @@ const Cart = () => {
           <ul className="flex flex-col py-5 gap-y-6">
             {sortedCart.map((item) => (
               <li
-                className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 && "opacity-50"}`}
+                className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 ? "opacity-50" : ""}`}
                 key={item.productId}
               >
                 <Link
                   to={`/products/${item.productId}`}
                   target="_blank"
-                  className={`w-36 ${item.product.countInStock <= 0 && "pointer-events-none"}`}
+                  className={`w-36 ${item.product.countInStock <= 0 ? "pointer-events-none" : ""}`}
                 >
                   <img
                     src={item.product.imageUrl}
@@ -148,7 +148,7 @@ const Cart = () => {
                   <div className="flex items-center justify-between">
                     <Link
                       to={`/products/${item.productId}`}
-                      className={`font-medium ${item.product.countInStock <= 0 && "text-gray-400 pointer-events-none"}`}
+                      className={`font-medium ${item.product.countInStock <= 0 ? "text-gray-400 pointer-events-none" : ""}`}
                     >
                       {item.product.title}
                     </Link>
@@ -161,7 +161,7 @@ const Cart = () => {
                   </div>
                   <p
                     className={
-                      item.product.countInStock <= 0 && "text-gray-400"
+                      item.product.countInStock <= 0 ? "text-gray-400" : ""
                     }
                   >
                     NT$ {addComma(item.product.price)}
@@ -227,7 +227,7 @@ const Cart = () => {
                       </div>
                     )}
                     <p
-                      className={`text-lg font-semibold ${item.product.countInStock <= 0 && "text-gray-400"}`}
+                      className={`text-lg font-semibold ${item.product.countInStock <= 0 ? "text-gray-400" : ""}`}
                     >
                       NT$ {addComma(item.product.price * item.quantity)}
                     </p>
@@ -238,7 +238,7 @@ const Cart = () => {
           </ul>
           {/* 免運門檻通知 */}
           <p
-            className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping && " text-orange-500"}`}
+            className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping ? " text-orange-500" : ""}`}
           >
             <DeliveryTrunkIcon className="w-6 h-6" />
             {freeShippingInfo.message}
@@ -277,7 +277,7 @@ const Cart = () => {
                   <SwiperSlide className="block min-w-28" key={product._id}>
                     <Link
                       to={`/products/${product._id}`}
-                      className={`flex flex-col gap-2 ${product.countInStock <= 0 && "opacity-50 pointer-events-none"}`}
+                      className={`flex flex-col gap-2 ${product.countInStock <= 0 ? "opacity-50 pointer-events-none" : ""}`}
                       target="_blank"
                     >
                       <img
