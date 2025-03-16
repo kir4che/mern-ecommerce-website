@@ -143,17 +143,20 @@ const Collections = () => {
                       max={product.countInStock}
                       value={quantities[product._id] || 1}
                       defaultValue={1}
-                      onChange={(e) =>
-                        handleQuantityChange(
-                          Number(e.target.value),
-                          product,
-                          (value) =>
-                            setQuantities((prev) => ({
-                              ...prev,
-                              [product._id]: value,
-                            })),
-                        )
-                      }
+                      onChange={(e) => {
+                        const quantity = Number(e.target.value);
+                        if (product._id && typeof product.countInStock === 'number') {
+                          handleQuantityChange(
+                            quantity,
+                            product as Product,
+                            (value) =>
+                              setQuantities((prev) => ({
+                                ...prev,
+                                [product._id]: value,
+                              })),
+                          );
+                        }
+                      }}
                       onKeyDown={preventInvalidInput}
                       disabled={product.countInStock <= 0}
                       wrapperStyle="flex items-center gap-2"
