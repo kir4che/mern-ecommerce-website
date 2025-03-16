@@ -30,7 +30,7 @@ const ITEMS_PER_PAGE = 10; // 每頁顯示的商品數量
 const Collections = () => {
   const navigate = useNavigate();
   const { category } = useParams();
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { data, error, isLoading, isError } = useAxios("/products");
   const products = data?.products as Product[];
 
@@ -142,13 +142,9 @@ const Collections = () => {
                       min={1}
                       max={product.countInStock}
                       value={quantities[product._id] || 1}
-                      defaultValue={1}
                       onChange={(e) => {
                         const quantity = Number(e.target.value);
-                        if (
-                          product._id &&
-                          typeof product.countInStock === "number"
-                        ) {
+                        if (product._id && typeof product.countInStock === 'number') {
                           handleQuantityChange(
                             quantity,
                             product as Product,
@@ -156,7 +152,7 @@ const Collections = () => {
                               setQuantities((prev) => ({
                                 ...prev,
                                 [product._id]: value,
-                              }))
+                              })),
                           );
                         }
                       }}
@@ -182,7 +178,11 @@ const Collections = () => {
                           }))
                       )
                     }
-                    disabled={product.countInStock <= 0}
+                    disabled={
+                      product.countInStock <= 0 ||
+                      cart.find((item) => item.productId === product._id)
+                        ?.quantity >= product.countInStock
+                    }
                     className="ml-auto text-sm w-fit h-9 text-primary"
                   >
                     {product.countInStock <= 0 ? "補貨中" : "加入購物車"}
