@@ -84,16 +84,6 @@ input:-webkit-autofill {
   @apply appearance-none;
 }
 
-/* News 內文 Markdown 樣式 */
-
-.markdown {
-  @apply whitespace-pre-line;
-}
-
-.markdown ul, .markdown ol {
-  @apply whitespace-normal list-disc list-inside;
-}
-
 /* Image 選擇時的 overlay 樣式 */
 
 .img-with-overlay:hover .overlay {

@@ -30,7 +30,7 @@ const New = () => {
   return (
     <Layout>
       <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
-      <article className="max-w-screen-lg px-5 py-10 mx-auto md:px-8">
+      <article className="max-w-screen-lg px-5 py-10 mx-auto whitespace-pre-line md:px-8">
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
           <time className="text-base font-light">
             {formatDate(newsItem.date)}
@@ -41,19 +41,15 @@ const New = () => {
         <img
           src={newsItem.imageUrl}
           alt={newsItem.title}
-          className="object-cover object-center w-full h-80 md:min-h-96 md:h-[24vw]"
+          className="object-cover mb-4 object-center w-full h-80 md:min-h-96 md:h-[24vw]"
         />
         <ReactMarkdown
           components={{
             ul: ({ children }) => (
-              <ul className="pl-2 whitespace-normal list-disc list-inside">
-                {children}
-              </ul>
+              <ul className="pl-2 whitespace-normal list-disc list-inside">{children}</ul>
             ),
             ol: ({ children }) => (
-              <ol className="pl-2 whitespace-normal list-disc list-inside">
-                {children}
-              </ol>
+              <ol className="pl-2 whitespace-normal list-disc list-inside">{children}</ol>
             ),
           }}
         >
