@@ -145,7 +145,10 @@ const Collections = () => {
                       defaultValue={1}
                       onChange={(e) => {
                         const quantity = Number(e.target.value);
-                        if (product._id && typeof product.countInStock === 'number') {
+                        if (
+                          product._id &&
+                          typeof product.countInStock === "number"
+                        ) {
                           handleQuantityChange(
                             quantity,
                             product as Product,
