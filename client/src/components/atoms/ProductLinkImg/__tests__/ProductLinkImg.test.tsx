@@ -8,51 +8,40 @@ describe("ProductLinkImg Component", () => {
     imageUrl: "https://example.com/product.jpg",
     title: "Test Product",
   };
-
-  const mockData = {
-    products: true,
-  };
-
+  const mockData = { products: true };
   const mockIsError = false;
 
-  const renderWithRouter = (component: React.ReactNode) => {
-    return render(<MemoryRouter>{component}</MemoryRouter>);
-  };
-
-  test("should render a link with the correct 'to' attribute", () => {
-    renderWithRouter(
-      <ProductLinkImg
-        product={mockProduct}
-        data={mockData}
-        isError={mockIsError}
-      />,
+  test("renders a link image with the correct 'to' attribute", () => {
+    render(
+      <MemoryRouter>
+        <ProductLinkImg
+          product={mockProduct}
+          data={mockData}
+          isError={mockIsError}
+        />
+      </MemoryRouter>,
     );
 
-    const linkElement = screen.getByRole("link");
-    expect(linkElement).toHaveAttribute("href", `/products/${mockProduct._id}`);
-  });
-
-  test("should render an image with the correct src", () => {
-    renderWithRouter(
-      <ProductLinkImg
-        product={mockProduct}
-        data={mockData}
-        isError={mockIsError}
-      />,
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      `/products/${mockProduct._id}`,
     );
-
-    const imgElement = screen.getByRole("img") as HTMLImageElement;
-    expect(imgElement).toHaveAttribute("src", mockProduct.imageUrl);
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      mockProduct.imageUrl,
+    );
   });
 
-  test("should set a default image on error", () => {
+  test("sets a default image on error", () => {
     const mockIsErrorTrue = true;
-    renderWithRouter(
-      <ProductLinkImg
-        product={mockProduct}
-        data={mockData}
-        isError={mockIsErrorTrue}
-      />,
+    render(
+      <MemoryRouter>
+        <ProductLinkImg
+          product={mockProduct}
+          data={mockData}
+          isError={mockIsErrorTrue}
+        />
+      </MemoryRouter>,
     );
 
     const imgElement = screen.getByRole("img") as HTMLImageElement;
@@ -63,21 +52,24 @@ describe("ProductLinkImg Component", () => {
     );
   });
 
-  test("should apply correct classes based on error state", () => {
-    renderWithRouter(
-      <ProductLinkImg
-        product={mockProduct}
-        data={mockData}
-        isError={mockIsError}
-      />,
+  test("applies correct classes based on error state", () => {
+    render(
+      <MemoryRouter>
+        <ProductLinkImg
+          product={mockProduct}
+          data={mockData}
+          isError={mockIsError}
+        />
+      </MemoryRouter>,
     );
 
     const imgElements = screen.getAllByRole("img");
     expect(imgElements[0]).toHaveClass("opacity-0");
 
-    // Test with error state
-    renderWithRouter(
-      <ProductLinkImg product={mockProduct} data={mockData} isError={true} />,
+    render(
+      <MemoryRouter>
+        <ProductLinkImg product={mockProduct} data={mockData} isError={true} />
+      </MemoryRouter>,
     );
     const imgElementsWithError = screen.getAllByRole("img");
     expect(imgElementsWithError[1]).toHaveClass("opacity-50");

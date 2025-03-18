@@ -71,23 +71,23 @@ const TestComponent = () => {
 };
 
 describe("AlertContext", () => {
-  beforeEach(() => {
-    render(
+  const renderTestComponent = () => {
+    return render(
       <AlertProvider>
         <TestComponent />
       </AlertProvider>,
     );
+  };
 
-    jest.useFakeTimers();
-  });
-
+  beforeEach(() => jest.useFakeTimers());
   // 每次測試完清除計時器
   afterEach(() => {
-    jest.runOnlyPendingTimers();
+    act(() => jest.runOnlyPendingTimers());
     jest.useRealTimers();
   });
 
-  test("AlertContext works correctly", () => {
+  test("AlertContext works correctly", async () => {
+    renderTestComponent();
     // 點擊 "Show Alert" 按鈕，確認 alert 有顯示。
     fireEvent.click(screen.getByText("Show Alert"));
     expect(screen.getByTestId("alert")).toHaveTextContent("Test Alert");
@@ -97,7 +97,8 @@ describe("AlertContext", () => {
     expect(screen.queryByTestId("alert")).not.toBeInTheDocument();
   });
 
-  test("alert message automatically disappears", () => {
+  test("alert message automatically disappears", async () => {
+    renderTestComponent();
     fireEvent.click(screen.getByText("Show Alert"));
     expect(screen.getByTestId("alert")).toHaveTextContent("Test Alert");
 
@@ -106,7 +107,9 @@ describe("AlertContext", () => {
     expect(screen.queryByTestId("alert")).not.toBeInTheDocument();
   });
 
-  test("alert message can be set to not auto-dismiss", () => {
+  test("alert message can be set to not auto-dismiss", async () => {
+    renderTestComponent();
+    
     // 設定 alert 不自動消失
     fireEvent.click(screen.getByText("No Auto Dismiss"));
     expect(screen.getByTestId("alert")).toHaveTextContent("No Auto Dismiss");
@@ -116,20 +119,20 @@ describe("AlertContext", () => {
     expect(screen.getByTestId("alert")).toHaveTextContent("No Auto Dismiss");
   });
 
-  test("supports different types of alert messages", () => {
+  test("supports different types of alert messages", async () => {
+    renderTestComponent();
+    
     fireEvent.click(screen.getByText("Show Alert"));
     expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "info");
+
     fireEvent.click(screen.getByText("Hide Alert"));
+
     fireEvent.click(screen.getByText("Show Success"));
-    expect(screen.getByTestId("alert")).toHaveAttribute(
-      "data-variant",
-      "success",
-    );
+    expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "success");
+
     fireEvent.click(screen.getByText("Hide Alert"));
+
     fireEvent.click(screen.getByText("Show Error"));
-    expect(screen.getByTestId("alert")).toHaveAttribute(
-      "data-variant",
-      "error",
-    );
+    expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "error");
   });
 });

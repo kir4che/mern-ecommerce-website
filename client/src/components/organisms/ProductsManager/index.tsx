@@ -208,6 +208,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                     }
                   }}
                   className="border-none h-fit"
+                  aria-label="編輯商品"
                 />
                 <Modal
                   id={`updateProductModal-${item._id}`}
@@ -235,6 +236,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                     ).showModal()
                   }
                   className="border-none h-fit"
+                  aria-label="刪除商品"
                 />
                 <Modal
                   id={`deleteProductModal-${item._id}`}

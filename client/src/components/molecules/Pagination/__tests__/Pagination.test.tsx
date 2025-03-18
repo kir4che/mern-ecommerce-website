@@ -3,15 +3,20 @@ import Pagination from "@/components/molecules/Pagination";
 
 describe("Pagination Component", () => {
   const handlePageChange = jest.fn();
+  beforeEach(() => handlePageChange.mockClear());
 
-  test("renders page numbers correctly", () => {
-    render(
+  const renderPagination = (page: number, totalPages: number) => {
+    return render(
       <Pagination
-        page={1}
-        totalPages={3}
+        page={page}
+        totalPages={totalPages}
         handlePageChange={handlePageChange}
       />,
     );
+  };
+
+  test("renders page numbers correctly", () => {
+    renderPagination(1, 3);
 
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
@@ -19,43 +24,31 @@ describe("Pagination Component", () => {
   });
 
   test("highlights the current page", () => {
-    render(
-      <Pagination
-        page={1}
-        totalPages={3}
-        handlePageChange={handlePageChange}
-      />,
-    );
-
-    const currentPageButton = screen.getByText("1");
-    expect(currentPageButton).toHaveClass("bg-primary text-secondary");
+    renderPagination(1, 3);
+    expect(screen.getByText("1")).toHaveClass("bg-primary text-secondary");
   });
 
   test("calls handlePageChange when click next button", () => {
-    render(
-      <Pagination
-        page={1}
-        totalPages={3}
-        handlePageChange={handlePageChange}
-      />,
-    );
+    renderPagination(1, 3);
 
-    const nextBtn = screen.getByTestId("next-button");
-    fireEvent.click(nextBtn);
+    fireEvent.click(screen.getByTestId("next-button"));
     expect(handlePageChange).toHaveBeenCalledWith(2);
   });
 
   test("calls handlePageChange when click previous button", () => {
-    render(
-      <Pagination
-        page={2}
-        totalPages={3}
-        handlePageChange={handlePageChange}
-      />,
-    );
+    renderPagination(2, 3);
 
-    const previousBtn = screen.getByTestId("previous-button");
-    fireEvent.click(previousBtn);
+    fireEvent.click(screen.getByTestId("previous-button"));
     expect(handlePageChange).toHaveBeenCalledWith(1);
+  });
+
+  test("next button should not be visible on last page", () => {
+    renderPagination(3, 3);
+    expect(screen.queryByTestId("next-button")).not.toBeInTheDocument();
+  });
+
+  test("previous button should not be visible on first page", () => {
+    renderPagination(1, 3);
+    expect(screen.queryByTestId("previous-button")).not.toBeInTheDocument();
   });
 });

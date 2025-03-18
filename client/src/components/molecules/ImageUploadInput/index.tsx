@@ -81,6 +81,7 @@ const ImageUploadInput = ({
   return (
     <div className="flex items-center justify-between gap-x-4">
       <Input
+        id="imageFile"
         name="imageFile"
         label={label}
         type="file"
@@ -100,11 +101,24 @@ const ImageUploadInput = ({
         >
           上傳
           {isLoading && (
-            <span className="ml-1 loading loading-spinner loading-xs" />
+            <span
+              className="ml-1 loading loading-spinner loading-xs"
+              data-testid="loading-icon"
+            />
           )}
         </Button>
-        {isSuccess && <SuccessIcon className="w-5 h-5 stroke-green-500" />}
-        {isError && <ErrorIcon className="w-5 h-5 stroke-red-500" />}
+        {isSuccess && (
+          <SuccessIcon
+            className="w-5 h-5 stroke-green-500"
+            data-testid="success-icon"
+          />
+        )}
+        {isError && (
+          <ErrorIcon
+            data-testid="error-icon"
+            className="w-5 h-5 stroke-red-500"
+          />
+        )}
       </div>
     </div>
   );

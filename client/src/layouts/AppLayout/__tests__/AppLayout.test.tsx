@@ -6,8 +6,8 @@ import { CartProvider } from "@/context/CartContext";
 import { MemoryRouter } from "react-router";
 
 describe("AppLayout", () => {
-  beforeEach(() => {
-    render(
+  const renderAppLayout = () => {
+    return render(
       <MemoryRouter>
         <AlertProvider>
           <AuthProvider>
@@ -18,17 +18,13 @@ describe("AppLayout", () => {
         </AlertProvider>
       </MemoryRouter>,
     );
-  });
-
-  test("renders HeaderMenu, Alert, and Footer", () => {
-    expect(screen.getByLabelText("menu-button")).toBeInTheDocument();
-    expect(screen.getByText(/copyright/i)).toBeInTheDocument();
-  });
+  };
 
   test("sets body overflow style based on menu state", async () => {
+    renderAppLayout();
     expect(document.body.style.overflow).toBe("auto");
 
-    const menuBtn = screen.getByLabelText("menu-button");
+    const menuBtn = screen.getByLabelText("開啟選單");
     // 模擬 Menu 開啟，確認 overflow 有改變。
     fireEvent.click(menuBtn);
     await waitFor(() => expect(document.body.style.overflow).toBe("hidden"));

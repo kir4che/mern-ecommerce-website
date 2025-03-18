@@ -71,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
   }, [loading, autoCloseDelay]);
 
   return (
-    <dialog id={id} role="dialog" ref={modalRef} className="modal">
+    <dialog id={id} ref={modalRef} className="modal">
       <div
         className={`modal-box p-0 flex flex-col ${!children ? "py-6" : ""} ${width} ${className}`}
       >

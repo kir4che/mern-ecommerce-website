@@ -1,9 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import Modal from "@/components/molecules/Modal";
 
-global.HTMLDialogElement.prototype.showModal = jest.fn();
-global.HTMLDialogElement.prototype.close = jest.fn();
-
 describe("Modal Component", () => {
   const onConfirm = jest.fn();
   const onClose = jest.fn();
@@ -13,8 +10,8 @@ describe("Modal Component", () => {
     global.HTMLDialogElement.prototype.close = jest.fn();
   });
 
-  beforeEach(() => {
-    render(
+  const renderDefaultModal = () => {
+    return render(
       <Modal
         id="test-modal"
         onConfirm={onConfirm}
@@ -24,21 +21,49 @@ describe("Modal Component", () => {
         <p>This is the modal content</p>
       </Modal>,
     );
-  });
+  };
 
   test("renders the title correctly", () => {
+    renderDefaultModal();
     expect(screen.getByText("Test Title")).toBeInTheDocument();
   });
 
   test("calls onConfirm when click confirm button", () => {
-    const confirmBtn = screen.getByText("確認");
-    fireEvent.click(confirmBtn);
+    renderDefaultModal();
+
+    fireEvent.click(screen.getByText("確認"));
     expect(onConfirm).toHaveBeenCalled();
   });
 
   test("calls onClose when click close button", () => {
-    const closeBtn = screen.getByText("取消");
-    fireEvent.click(closeBtn);
+    renderDefaultModal();
+
+    fireEvent.click(screen.getByText("取消"));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  test("calls onClose when modal is closed", () => {
+    renderDefaultModal();
+
+    fireEvent.click(screen.getByText("取消"));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  test("not close when onConfirm returns false", async () => {
+    const onConfirmFalse = jest.fn(() => false);
+    render(
+      <Modal
+        id="test-modal-2"
+        onConfirm={onConfirmFalse}
+        onClose={onClose}
+        title="Test Title 2"
+      >
+        <p>This is the modal content</p>
+      </Modal>,
+    );
+
+    fireEvent.click(screen.getByText("確認"));
+    expect(onConfirmFalse).toHaveBeenCalled();
+    expect(screen.getByText("Test Title 2")).toBeInTheDocument();
   });
 });

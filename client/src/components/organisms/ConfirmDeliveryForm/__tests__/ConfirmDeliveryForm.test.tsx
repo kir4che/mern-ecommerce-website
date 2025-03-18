@@ -27,14 +27,20 @@ const mockOrder = {
 };
 
 describe("ConfirmDeliveryForm", () => {
-  test("renders order details", () => {
-    render(
+  const renderConfirmDeliveryForm = (
+    setShippingTrackingNo: (value: string) => void = () => {},
+  ) => {
+    return render(
       <ConfirmDeliveryForm
         order={mockOrder}
         shippingTrackingNo=""
-        setShippingTrackingNo={() => {}}
+        setShippingTrackingNo={setShippingTrackingNo}
       />,
     );
+  };
+
+  test("renders order details", () => {
+    renderConfirmDeliveryForm();
 
     expect(screen.getByText("訂單編號：12345678")).toBeInTheDocument();
     expect(screen.getByText(/王小明/i)).toBeInTheDocument();
@@ -46,13 +52,7 @@ describe("ConfirmDeliveryForm", () => {
 
   test("updates tracking number input", () => {
     const setShippingTrackingNo = jest.fn();
-    render(
-      <ConfirmDeliveryForm
-        order={mockOrder}
-        shippingTrackingNo=""
-        setShippingTrackingNo={setShippingTrackingNo}
-      />,
-    );
+    renderConfirmDeliveryForm(setShippingTrackingNo);
 
     // 模擬輸入配送編號，並確認是否正確更新。
     fireEvent.change(screen.getByTestId("shippingTrackingNo"), {
@@ -68,13 +68,7 @@ describe("ConfirmDeliveryForm", () => {
       },
     });
 
-    render(
-      <ConfirmDeliveryForm
-        order={mockOrder}
-        shippingTrackingNo=""
-        setShippingTrackingNo={() => {}}
-      />,
-    );
+    renderConfirmDeliveryForm();
 
     // 點擊複製按鈕，並確認是否正確複製地址。
     fireEvent.click(screen.getAllByText("複製")[0]);
