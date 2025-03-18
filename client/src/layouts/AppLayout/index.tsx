@@ -31,8 +31,8 @@ const AppLayout = ({ className = "", children }) => {
         </div>
       </div>
       <main className={`flex-1 ${className}`}>
-        {children}
         <Alert />
+        {children}
       </main>
       <Footer />
     </div>

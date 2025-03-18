@@ -29,13 +29,13 @@ const Alert: React.FC = () => {
 
   if (!alert) return null;
 
-  const { variant, message, floating } = alert;
+  const { variant, message, floating, top } = alert;
   const Icon = iconMap[variant].icon;
 
   return (
     <div
       role="alert"
-      className={`alert ${iconMap[variant].style} flex text-nowrap items-center rounded-md gap-2 border-none py-2.5  w-fit transition-opacity duration-500 font-medium ${floating ? "absolute -translate-x-1/2 left-1/2 top-4" : ""}`}
+      className={`alert ${iconMap[variant].style} flex text-nowrap items-center rounded-md z-[9999] gap-2 border-none py-2.5  w-fit transition-opacity duration-500 font-medium ${floating ? `absolute -translate-x-1/2 left-1/2 ${top}` : ""}`}
     >
       <Icon className="w-5 stroke-current" />
       <p>{message}</p>

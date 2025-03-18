@@ -12,6 +12,7 @@ interface Alert {
   autoDismiss?: boolean; // 是否自動消失
   dismissTimeout?: number; // 自動消失時間
   floating?: boolean; // 位置是否浮動
+  top?: string; // 距離頂部的距離
 }
 
 interface AlertContextType {
@@ -30,6 +31,7 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
     setAlert({
       autoDismiss: true,
       floating: true,
+      top: "top-4",
       ...newAlert, // 保留傳入的屬性，優先級較高
     });
   };
