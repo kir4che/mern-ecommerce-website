@@ -109,7 +109,7 @@ describe("AlertContext", () => {
 
   test("alert message can be set to not auto-dismiss", async () => {
     renderTestComponent();
-    
+
     // 設定 alert 不自動消失
     fireEvent.click(screen.getByText("No Auto Dismiss"));
     expect(screen.getByTestId("alert")).toHaveTextContent("No Auto Dismiss");
@@ -121,18 +121,24 @@ describe("AlertContext", () => {
 
   test("supports different types of alert messages", async () => {
     renderTestComponent();
-    
+
     fireEvent.click(screen.getByText("Show Alert"));
     expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "info");
 
     fireEvent.click(screen.getByText("Hide Alert"));
 
     fireEvent.click(screen.getByText("Show Success"));
-    expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "success");
+    expect(screen.getByTestId("alert")).toHaveAttribute(
+      "data-variant",
+      "success",
+    );
 
     fireEvent.click(screen.getByText("Hide Alert"));
 
     fireEvent.click(screen.getByText("Show Error"));
-    expect(screen.getByTestId("alert")).toHaveAttribute("data-variant", "error");
+    expect(screen.getByTestId("alert")).toHaveAttribute(
+      "data-variant",
+      "error",
+    );
   });
 });
