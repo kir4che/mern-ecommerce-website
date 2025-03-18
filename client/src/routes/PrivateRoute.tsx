@@ -14,8 +14,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   const { user, loading, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
-    if (!loading && isAuthenticated && !user?.email) void logout();
-  }, [isAuthenticated, loading, logout, user?.email]);
+    if (!user?.email) logout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   if (loading) return <Loading />;
 
