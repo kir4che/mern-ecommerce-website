@@ -13,7 +13,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    if (!user?.id) logout();
+    if (!user?.email) logout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
