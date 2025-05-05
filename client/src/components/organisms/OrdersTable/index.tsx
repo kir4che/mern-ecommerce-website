@@ -96,6 +96,7 @@ const OrdersActions = ({
   // 訂單出貨（admin）
   const handleDeliver = async (orderId, shippingTrackingNo) => {
     await updateOrder({ id: orderId, status: "shipped", shippingTrackingNo });
+    setShippingTrackingNo("");
     refreshOrders();
   };
 
