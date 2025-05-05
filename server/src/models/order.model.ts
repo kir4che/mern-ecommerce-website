@@ -20,7 +20,6 @@ enum PaymentStatus {
 }
 
 enum ShippingStatus {
-  NotShipped = "not_shipped",
   Pending = "pending",
   InTransit = "in_transit",
   Delivered = "delivered",
@@ -30,14 +29,14 @@ enum ShippingStatus {
 }
 
 const ORDER_STATUS_FLOW: Record<OrderStatus, { paymentStatus: PaymentStatus; shippingStatus: ShippingStatus }> = {
-  [OrderStatus.Created]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
-  [OrderStatus.Paid]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.Created]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.Pending },
+  [OrderStatus.Paid]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Pending },
   [OrderStatus.Processing]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Pending },
   [OrderStatus.Shipped]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.InTransit },
   [OrderStatus.Delivered]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Delivered },
   [OrderStatus.PickedUp]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
   [OrderStatus.Completed]:  { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.PickedUp },
-  [OrderStatus.Canceled]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.NotShipped },
+  [OrderStatus.Canceled]: { paymentStatus: PaymentStatus.Unpaid, shippingStatus: ShippingStatus.Pending },
   [OrderStatus.ReturnRequested]: { paymentStatus: PaymentStatus.Paid, shippingStatus: ShippingStatus.Returning },
   [OrderStatus.Returned]: { paymentStatus: PaymentStatus.Refunded, shippingStatus: ShippingStatus.Returned },
 };
@@ -112,7 +111,7 @@ const orderSchema = new Schema<IOrder>(
     shippingStatus: { 
       type: String, 
       enum: Object.values(ShippingStatus), 
-      default: ShippingStatus.NotShipped 
+      default: ShippingStatus.Pending 
     },
     shippingTrackingNo: { type: String, unique: true, sparse: true, default: undefined },
     paymentMethod: { type: String },
