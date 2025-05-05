@@ -142,7 +142,6 @@ const Collections = () => {
                       min={1}
                       max={product.countInStock}
                       value={quantities[product._id] || 1}
-                      defaultValue={1}
                       onChange={(e) => {
                         const quantity = Number(e.target.value);
                         if (

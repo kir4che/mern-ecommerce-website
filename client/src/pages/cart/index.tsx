@@ -192,7 +192,6 @@ const Cart = () => {
                           min={1}
                           max={item.product.countInStock}
                           value={item.quantity}
-                          defaultValue={1}
                           onChange={(e) =>
                             handleQuantityChange(
                               Number(e.target.value),

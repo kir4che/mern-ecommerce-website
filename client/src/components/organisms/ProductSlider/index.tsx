@@ -163,7 +163,6 @@ const ProductSlider = () => {
                           min={1}
                           max={product.countInStock}
                           value={quantities[product._id] || 1}
-                          defaultValue={1}
                           onChange={(e) =>
                             handleQuantityChange(
                               Number(e.target.value),
