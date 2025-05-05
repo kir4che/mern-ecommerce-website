@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
@@ -182,12 +182,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const totalPages = ordersData?.totalPages;
 
   // 避免搜尋時過於頻繁發送請求
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      setSearchKeyword(value);
-    }, 500),
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearchKeyword(value);
+      }, 500),
     [],
   );
+
+  useEffect(() => {
+    return () => debouncedSearch.cancel();
+  }, [debouncedSearch]);
 
   const handleSearchChange = (value: string) => {
     setInputKeyword(value);
@@ -208,7 +213,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
 
   useEffect(() => {
     refreshOrders();
-  }, [currentPage, filterType, sortBy, orderBy, searchKeyword]);
+  }, [currentPage, filterType, sortBy, orderBy, searchKeyword, refreshOrders]);
 
   return (
     <>
