@@ -15,7 +15,6 @@ import {
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
-import NotFound from "@/pages/notFound";
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
@@ -88,7 +87,7 @@ const Cart = () => {
 
   useEffect(() => {
     if (cartError) showAlert({ variant: "error", message: cartError });
-  }, [cartError]);
+  }, [cartError, showAlert]);
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
