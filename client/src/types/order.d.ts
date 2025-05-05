@@ -18,7 +18,6 @@ enum PaymentStatus {
 }
 
 enum ShippingStatus {
-  NotShipped = "not_shipped",
   Pending = "pending",
   InTransit = "in_transit",
   Delivered = "delivered",

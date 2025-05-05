@@ -43,7 +43,6 @@ export const PAYMENT_STATUS = {
 } as const;
 
 export const SHIPPING_STATUS = {
-  not_shipped: "未出貨",
   pending: "待出貨",
   in_transit: "配送中",
   delivered: "已送達",
