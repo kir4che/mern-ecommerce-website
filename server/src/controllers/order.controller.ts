@@ -97,7 +97,7 @@ const createOrder = async (req: AuthRequest, res: Response) => {
   const { orderItems, subtotal, shippingFee, couponCode, discount, totalAmount } = req.body;
 
   try {
-    const uid = new ShortUniqueId({ length: 20 });
+    const uid = new ShortUniqueId({ length: 16 });
     const orderNo = uid.randomUUID();
 
     const order = new OrderModel({

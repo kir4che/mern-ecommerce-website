@@ -40,7 +40,7 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     // 建立傳送給綠界的交易參數
     const base_param = {
       MerchantID: process.env.MERCHANT_ID,
-      MerchantTradeNo: orderNo,
+      MerchantTradeNo: `${orderNo}${Date.now().toString().slice(-4)}`,
       MerchantTradeDate,
       PaymentType: 'aio',
       TotalAmount: totalAmount,
