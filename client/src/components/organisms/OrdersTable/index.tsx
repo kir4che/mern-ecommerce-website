@@ -55,8 +55,7 @@ const OrdersFilterTab = ({
     type="button"
     role="tab"
     onClick={onClick}
-    className={`tab h-9 ${activeFilter === filterValue ? "border-primary border-b-[1.5px]" : "hover:border-b"} 
-    overflow-x-auto text-nowrap`}
+    className={`tab h-9 text-nowrap ${activeFilter === filterValue ? "border-primary border-b-[1.5px]" : "hover:border-b"}`}
   >
     {ORDER_FILTER_TYPE_LABELS[filterValue]}
   </button>
@@ -97,6 +96,7 @@ const OrdersActions = ({
   // 訂單出貨（admin）
   const handleDeliver = async (orderId, shippingTrackingNo) => {
     await updateOrder({ id: orderId, status: "shipped", shippingTrackingNo });
+    setShippingTrackingNo("");
     refreshOrders();
   };
 
@@ -224,7 +224,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
         />
       </div>
       {/* 篩選 Tabs */}
-      <div role="tablist" className="mb-3 rounded bg-amber-100 tabs">
+      <div
+        role="tablist"
+        className="mb-3 rounded bg-amber-100 tabs overflow-x-auto"
+      >
         {Object.entries(ORDERS_FILTER_TYPES).map(([key, value]) => (
           <OrdersFilterTab
             key={key}
