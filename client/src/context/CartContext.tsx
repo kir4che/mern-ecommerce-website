@@ -135,9 +135,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const res = await refreshGetCart();
-      dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+      // 確保 res 和 res.cart 存在
+      if (res && res.cart)
+        dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+      // 若 res.cart 不存在，則設置為空陣列。
+      else dispatch({ type: "SET_CART_SUCCESS", payload: [] });
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
+      // 發生錯誤時，確保購物車不會是 undefined。
+      dispatch({ type: "SET_CART_SUCCESS", payload: [] });
     } finally {
       dispatch({ type: "SET_IS_LOADING", payload: false });
     }
@@ -177,7 +183,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     (productId: string, quantity: number) => {
       addToCartLogic(productId, quantity);
     },
-    500, // 每 500ms 最多執行一次，避免使用者連續點擊造成錯誤。
+    300, // 每 500ms 最多執行一次，避免使用者連續點擊造成錯誤。
     {
       leading: true, // 第一次點擊時立即執行（不需等待）
       trailing: false, // 節流結束後也不會執行，確保正確忽略節流期間的點擊。
@@ -195,7 +201,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const syncLocalCartToServer = async () => {
     if (!isAuthenticated) return;
 
-    const localCartData: CartItem[] = JSON.parse(localStorage.getItem("cart"));
+    const localCartData: CartItem[] = JSON.parse(
+      localStorage.getItem("cart") || "[]",
+    );
+
+    // 如果本地購物車為空，則不需要同步。
+    if (localCartData.length === 0) return;
 
     try {
       dispatch({ type: "SET_FAIL", payload: null });
@@ -235,18 +246,45 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // 使用節流處理數量變更，避免快速點擊導致的錯誤。
+  const throttledChangeQuantity = throttle(
+    async (cartItemId: string, quantity: number) => {
+      try {
+        dispatch({ type: "SET_FAIL", payload: null });
+        dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
+        await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
+
+        try {
+          const res = await refreshGetCart();
+          if (res && res.cart)
+            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        } catch (err: any) {
+          dispatch({ type: "SET_FAIL", payload: handleError(err) });
+        }
+      } catch (err: any) {
+        dispatch({ type: "SET_FAIL", payload: handleError(err) });
+
+        // 在錯誤時靜默重新取得購物車，但避免設置 loading 狀態。
+        try {
+          const res = await refreshGetCart();
+          if (res && res.cart)
+            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        } catch (err: any) {
+          dispatch({ type: "SET_FAIL", payload: handleError(err) });
+        }
+      }
+    },
+    500,
+    { leading: true, trailing: false },
+  );
+
   // 變更商品數量
   const changeQuantity = async (cartItemId: string, quantity: number) => {
-    try {
-      dispatch({ type: "SET_FAIL", payload: null });
+    if (quantity <= 0) return;
 
-      dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
-      await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
-      await getCart();
-    } catch (err: any) {
-      dispatch({ type: "SET_FAIL", payload: handleError(err) });
-      await getCart();
-    }
+    dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
+
+    return throttledChangeQuantity(cartItemId, quantity);
   };
 
   // 清空購物車
