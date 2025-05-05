@@ -57,21 +57,21 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
     <div
       className={
         isMenuOpen
-          ? "flex-1 md:overflow-auto bg-primary duration-700"
-          : "bg-secondary"
+          ? "flex-1 bg-primary duration-700"
+          : "bg-secondary overflow-hidden"
       }
     >
       <header
         role="banner"
         className={`flex px-4 md:px-8 w-full items-center justify-between ${
           !isMenuOpen && isScrolled
-            ? "fixed h-16 border bg-secondary border-b-primary duration-300"
+            ? "fixed h-16 border-b bg-secondary border-b-primary duration-300"
             : "relative h-20 md:h-24"
         }`}
       >
         <Button
           icon={isMenuOpen ? CloseIcon : MenuIcon}
-          className={`h-fit p-2 border-[1.5px] ${
+          className={`h-fit p-2 border-[1.5px] focus:outline-none ${
             isMenuOpen
               ? "hover:bg-primary border-secondary hover:border-secondary"
               : "hover:bg-secondary"
