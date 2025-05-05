@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -86,7 +86,9 @@ const Cart = () => {
     });
   };
 
-  if (cartError) return <NotFound message={cartError} />;
+  useEffect(() => {
+    if (cartError) showAlert({ variant: "error", message: cartError });
+  }, [cartError]);
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">

@@ -139,11 +139,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (res && res.cart)
         dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
       // 若 res.cart 不存在，則設置為空陣列。
-      else dispatch({ type: "SET_CART_SUCCESS", payload: [] });
+      else if (res) dispatch({ type: "SET_CART_SUCCESS", payload: [] });
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
-      // 發生錯誤時，確保購物車不會是 undefined。
-      dispatch({ type: "SET_CART_SUCCESS", payload: [] });
     } finally {
       dispatch({ type: "SET_IS_LOADING", payload: false });
     }
@@ -171,8 +169,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: "SET_CART_SUCCESS", payload: localCart }); // 同步更新 state.cart
       } else {
         // 已登入：發送 API 新增商品至後端
-        await refreshAddToCart({ productId, quantity });
-        await getCart();
+        try {
+          await refreshAddToCart({ productId, quantity });
+
+          const res = await refreshGetCart();
+          if (res && res.cart)
+            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        } catch (err: any) {
+          dispatch({ type: "SET_FAIL", payload: handleError(err) });
+
+          try {
+            const res = await refreshGetCart();
+            if (res && res.cart)
+              dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+          } catch (err: any) {
+            dispatch({ type: "SET_FAIL", payload: handleError(err) });
+          }
+        }
       }
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
@@ -229,7 +242,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // 登入時初始化購物車，並同步本地購物車至後端，且清空本地購物車。
   useEffect(() => {
     getCart();
-    syncLocalCartToServer().then(() => localStorage.removeItem("cart"));
+
+    // 同步本地購物車到服務器，只有成功同步後才清空本地購物車。
+    if (isAuthenticated) {
+      syncLocalCartToServer()
+        .then(() => localStorage.removeItem("cart"))
+        .catch((err: any) => {
+          dispatch({
+            type: "SET_FAIL",
+            payload: "同步本地購物車失敗，請稍後再試。",
+          });
+        });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
@@ -237,10 +261,26 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = async (cartItemId: string) => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
-
       dispatch({ type: "REMOVE_ITEM_SUCCESS", payload: cartItemId });
-      await refreshRemoveFromCart({ id: cartItemId });
-      await getCart();
+
+      try {
+        await refreshRemoveFromCart({ id: cartItemId });
+
+        const res = await refreshGetCart();
+        if (res && res.cart) {
+          dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        }
+      } catch (err: any) {
+        dispatch({ type: "SET_FAIL", payload: handleError(err) });
+
+        try {
+          const res = await refreshGetCart();
+          if (res && res.cart)
+            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        } catch (err: any) {
+          dispatch({ type: "SET_FAIL", payload: handleError(err) });
+        }
+      }
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
@@ -252,26 +292,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       try {
         dispatch({ type: "SET_FAIL", payload: null });
         dispatch({ type: "UPDATE_QUANTITY_SUCCESS", cartItemId, quantity });
-        await refreshChangeQuantity({ id: cartItemId }, { data: { quantity } });
 
         try {
+          await refreshChangeQuantity(
+            { id: cartItemId },
+            { data: { quantity } },
+          );
+
           const res = await refreshGetCart();
           if (res && res.cart)
             dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
         } catch (err: any) {
           dispatch({ type: "SET_FAIL", payload: handleError(err) });
+
+          // 嘗試重新取得購物車以同步狀態
+          try {
+            const res = await refreshGetCart();
+            if (res && res.cart)
+              dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+          } catch (err: any) {
+            dispatch({ type: "SET_FAIL", payload: handleError(err) });
+          }
         }
       } catch (err: any) {
         dispatch({ type: "SET_FAIL", payload: handleError(err) });
-
-        // 在錯誤時靜默重新取得購物車，但避免設置 loading 狀態。
-        try {
-          const res = await refreshGetCart();
-          if (res && res.cart)
-            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
-        } catch (err: any) {
-          dispatch({ type: "SET_FAIL", payload: handleError(err) });
-        }
       }
     },
     500,
@@ -291,9 +335,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = async () => {
     try {
       dispatch({ type: "SET_FAIL", payload: null });
+      dispatch({ type: "CLEAR_CART_SUCCESS" });
 
-      await refreshClearCart();
-      await getCart();
+      try {
+        await refreshClearCart();
+
+        const res = await refreshGetCart();
+        if (res && res.cart)
+          dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+      } catch (err: any) {
+        dispatch({ type: "SET_FAIL", payload: handleError(err) });
+
+        try {
+          const res = await refreshGetCart();
+          if (res && res.cart)
+            dispatch({ type: "SET_CART_SUCCESS", payload: res.cart });
+        } catch (err: any) {
+          dispatch({ type: "SET_FAIL", payload: handleError(err) });
+        }
+      }
     } catch (err: any) {
       dispatch({ type: "SET_FAIL", payload: handleError(err) });
     }
