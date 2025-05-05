@@ -295,7 +295,11 @@ const Cart = () => {
                     <Button
                       onClick={() => handleAddToCart(product, 1, addToCart)}
                       className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
-                      disabled={product.countInStock <= 0}
+                      disabled={
+                        product.countInStock <= 0 ||
+                        cart.find((item) => item.productId === product._id)
+                          ?.quantity >= product.countInStock
+                      }
                     >
                       {product.countInStock <= 0 ? "補貨中" : "我要加購"}
                     </Button>
