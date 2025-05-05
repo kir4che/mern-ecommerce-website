@@ -10,7 +10,6 @@ import { productRouter } from "./routes/product.route";
 import { userRouter } from "./routes/user.route";
 import { orderRouter } from "./routes/order.route";
 import { paymentRouter } from "./routes/payment.route";
-import { uploadRouter } from "./routes/upload.route";
 
 import { connectDB } from "./config/db";
 
@@ -37,6 +36,7 @@ app.use(
 );
 app.options("*", cors());
 app.use(express.json()); // 解析 JSON 格式的 request body
+app.use(express.urlencoded({ extended: true })); // 解析 URL-encoded 請求
 app.use(cookieParser()); // 解析 cookie
 
 // Session 設定
@@ -66,7 +66,6 @@ app.use("/api/news", newsRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/payment", paymentRouter);
-app.use("/api/upload", uploadRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {

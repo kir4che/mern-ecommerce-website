@@ -73,11 +73,13 @@ const getOrders = async (req: AuthRequest, res: Response) => {
 };
 
 const getOrderById = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  if (!Types.ObjectId.isValid(id))
+    return res.status(400).json({ success: false, message: 'Invalid order ID format.' });
+
   try {
-    const order = await OrderModel.findById(id)
-      .select("_id orderNo userId name phone address orderItems subtotal shippingFee discount couponCode totalAmount createdAt")
-      .sort({ createdAt: -1 });
-    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+    const order = await OrderModel.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found." });
 
     // 如果訂單的 userId 和當前 user 不匹配，則無權更新。
     if (req.role !== "admin" && !order.userId.equals(req.userId))
@@ -93,7 +95,7 @@ const createOrder = async (req: AuthRequest, res: Response) => {
   const { orderItems, subtotal, shippingFee, couponCode, discount, totalAmount } = req.body;
 
   try {
-    const uid = new ShortUniqueId({ length: 20 });
+    const uid = new ShortUniqueId({ length: 16 });
     const orderNo = uid.randomUUID();
 
     const order = new OrderModel({
@@ -105,7 +107,7 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       couponCode,
       discount: discount ?? 0,
       totalAmount: totalAmount || subtotal + shippingFee - (discount ?? 0), // 同样使用 discount ?? 0
-      status: OrderStatus.Created,
+      paymentStatus: "unpaid",
     });
     await order.save();
 

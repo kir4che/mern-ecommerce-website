@@ -21,7 +21,7 @@ const getCart = async (req: AuthRequest, res: Response) => {
     if (!cart) {
       const newCart = new CartModel({ userId, items: [] });
       await newCart.save();
-      return res.status(200).json({ success: true, message: "New cart created successfully!", cart: [] });
+      return res.status(200).json({ message: "New cart created successfully!", cart: [] });
     }
 
     // 透過 Promise.all() 方法，將所有的購物車項目進行填入。
@@ -46,7 +46,7 @@ const getCart = async (req: AuthRequest, res: Response) => {
       }),
     );
 
-    res.status(200).json({ success: true, message: "Cart fetched successfully!", cart: populatedItems });
+    res.status(200).json({ message: "Cart fetched successfully!", cart: populatedItems });
   } catch (err: any) {
     res.status(401).json({ success: false, message: err.message });
   }
@@ -98,10 +98,10 @@ const removeFromCart = async (req: AuthRequest, res: Response) => {
     if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
 
     const cartItem = await CartItemModel.findById(itemId);
-    if (!cartItem) return res.status(404).json({ success: false, message: "Item not found in the cart." });
+    if (!cartItem) return res.status(404).json({ message: "Item not found in the cart." });
 
     await cartItem.deleteOne({ _id: itemId });
-    res.status(200).json({ success: true, message: "Selected items removed successfully!", cart });
+    res.status(200).json({ message: "Selected items removed successfully!", cart });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
