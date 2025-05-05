@@ -3,10 +3,10 @@ import { Types } from "mongoose";
 const ORDER_TYPE_FILTERS: Record<number, any> = {
   0: {}, // 全部
   1: { paymentStatus: "unpaid" }, // 待付款
-  2: { shippingStatus: "pending" }, // 待出貨
+  2: { shippingStatus: { $in: ["pending", "not_shipped"] } }, // 待出貨
   3: { status: { $in: ["shipped", "delivered", "picked_up"] } }, // 已出貨
   4: { status: "completed" }, // 已完成
-  // 5: { status: "cancelled" }, // 已取消
+  // 5: { status: "cancelled" }, // 取消
 };
 
 export const ordersFilrer = (keyword?: string, type?: string, userId?: Types.ObjectId) => {
