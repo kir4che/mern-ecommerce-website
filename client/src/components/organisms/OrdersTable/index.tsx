@@ -159,19 +159,8 @@ const OrdersActions = ({
 const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const navigate = useNavigate();
 
+  const [inputKeyword, setInputKeyword] = useState<string>("");
   const [searchKeyword, setSearchKeyword] = useState<string>("");
-
-  // 避免搜尋時過於頻繁發送請求
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSearch = useCallback(
-    debounce(() => refreshOrders(), 500),
-    [],
-  );
-
-  const handleSearchChange = (keyword: string) => {
-    setSearchKeyword(keyword);
-    debouncedSearch();
-  };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [filterType, setFilterType] = useState<number>(0);
@@ -192,6 +181,19 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const totalOrders = ordersData?.totalOrders;
   const totalPages = ordersData?.totalPages;
 
+  // 避免搜尋時過於頻繁發送請求
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setSearchKeyword(value);
+    }, 500),
+    [],
+  );
+
+  const handleSearchChange = (value: string) => {
+    setInputKeyword(value);
+    debouncedSearch(value);
+  };
+
   const handleSort = (key: string) => {
     const newOrder = sortBy === key && orderBy === "asc" ? "desc" : "asc";
     setOrderBy(newOrder);
@@ -206,15 +208,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
 
   useEffect(() => {
     refreshOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filterType, sortBy, orderBy]);
+  }, [currentPage, filterType, sortBy, orderBy, searchKeyword]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3>{isAdmin ? "訂單管理" : "我的訂單"}</h3>
         <Input
-          value={searchKeyword}
+          value={inputKeyword}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="透過訂單編號、商品名稱搜尋"
           icon={SearchIcon}
