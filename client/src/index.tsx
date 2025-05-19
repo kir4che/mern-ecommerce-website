@@ -1,22 +1,23 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router";
+import { Provider } from "react-redux";
 
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AlertProvider } from "@/context/AlertContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { store } from "@/store";
 import { router } from "@/routes";
 
 import "./style.css";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
-  <ThemeProvider>
-    <AlertProvider>
-      <AuthProvider>
+  <Provider store={store}>
+    <ThemeProvider>
+      <AlertProvider>
         <CartProvider>
           <RouterProvider router={router} />
         </CartProvider>
-      </AuthProvider>
-    </AlertProvider>
-  </ThemeProvider>,
+      </AlertProvider>
+    </ThemeProvider>
+  </Provider>,
 );

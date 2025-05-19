@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import { throttle } from "lodash";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useAxios } from "@/hooks/useAxios";
 
 interface CartItem {

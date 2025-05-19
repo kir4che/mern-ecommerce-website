@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useCart, CartContext, CartProvider } from "@/context/CartContext";
 import { CartReducer } from "@/context/CartContext";
-import * as AuthContextModule from "@/context/AuthContext";
+import * as AuthContextModule from "@/hooks/useAuth";
 import * as useAxiosModule from "@/hooks/useAxios";
 
 jest.mock("@/hooks/useAxios", () => ({ useAxios: jest.fn() }));
-jest.mock("@/context/AuthContext", () => ({
-  ...jest.requireActual("@/context/AuthContext"),
+jest.mock("@/hooks/useAuth", () => ({
+  ...jest.requireActual("@/hooks/useAuth"),
   useAuth: jest.fn(),
 }));
 

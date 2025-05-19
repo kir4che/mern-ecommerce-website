@@ -1,7 +1,7 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Link } from "react-router";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/context/CartContext";
 
 import Logo from "@/components/atoms/Logo";

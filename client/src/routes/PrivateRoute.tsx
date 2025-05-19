@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Navigate } from "react-router";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PrivateRouteProps {
   component: React.ComponentType;

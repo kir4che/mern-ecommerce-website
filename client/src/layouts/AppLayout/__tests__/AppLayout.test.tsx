@@ -1,22 +1,25 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { Provider } from "react-redux";
+
 import AppLayout from "@/layouts/AppLayout";
+import { store } from "@/store";
 import { AlertProvider } from "@/context/AlertContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { MemoryRouter } from "react-router";
 
 describe("AppLayout", () => {
   const renderAppLayout = () => {
     return render(
-      <MemoryRouter>
-        <AlertProvider>
-          <AuthProvider>
+      <Provider store={store}>
+        <MemoryRouter>
+          <AlertProvider>
             <CartProvider>
               <AppLayout>Test Children</AppLayout>
             </CartProvider>
-          </AuthProvider>
-        </AlertProvider>
-      </MemoryRouter>,
+          </AlertProvider>
+        </MemoryRouter>
+        ,
+      </Provider>,
     );
   };
 

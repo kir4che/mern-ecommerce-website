@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import { useAxios } from "@/hooks/useAxios";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 import Layout from "@/layouts/AppLayout";
 import OrderTable from "@/components/organisms/OrdersTable";
