@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";

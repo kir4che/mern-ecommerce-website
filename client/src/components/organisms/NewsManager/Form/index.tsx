@@ -1,4 +1,4 @@
-import { NewsItem } from "@/types/news";
+import type { NewsItem } from "@/types/news";
 
 import ImageUploadInput from "@/components/molecules/ImageUploadInput";
 import Input from "@/components/atoms/Input";

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-import { NewsItem } from "@/types/news";
+import type { NewsItem } from "@/types/news";
 import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
 

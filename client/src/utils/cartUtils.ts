@@ -1,4 +1,4 @@
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 
 export const preventInvalidInput = (
   e: React.KeyboardEvent<HTMLInputElement>,

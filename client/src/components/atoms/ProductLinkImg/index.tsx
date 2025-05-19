@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 
 interface ProductLinkImgProps {
   product: Partial<Product>;

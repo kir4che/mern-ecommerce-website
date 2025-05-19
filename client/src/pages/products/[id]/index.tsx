@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
