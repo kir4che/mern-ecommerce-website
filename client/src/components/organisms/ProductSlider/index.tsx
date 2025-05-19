@@ -3,34 +3,24 @@ import { Link } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 
-import { Product } from "@/types/product";
-import { useCart } from "@/context/CartContext";
+import type { Product } from "@/types/product";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
-import {
-  preventInvalidInput,
-  handleQuantityChange,
-  handleAddToCart,
-} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
+import AddToCartInputBtn from "@/components/molecules/AddToCartInputBtn";
 import Loading from "@/components/atoms/Loading";
+import Button from "@/components/atoms/Button";
 import ProductLinkImg from "@/components/atoms/ProductLinkImg";
 
-import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
 import { ReactComponent as RefreshIcon } from "@/assets/icons/refresh.inline.svg";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
 const ProductSlider = () => {
-  const { cart, addToCart } = useCart();
   const { data, isLoading, isError, refresh } = useAxios("/products");
   const products = data?.products as Product[];
-
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [retryState, setRetryState] = useState({
     count: 0,
     delay: 1000,
@@ -156,54 +146,7 @@ const ProductSlider = () => {
                       <p className="text-2xl font-semibold">
                         NT$ {addComma(product.price)}
                       </p>
-                      <div className="flex items-center gap-3">
-                        <Input
-                          type="number"
-                          label="數量"
-                          min={1}
-                          max={product.countInStock}
-                          value={quantities[product._id] || 1}
-                          onChange={(e) =>
-                            handleQuantityChange(
-                              Number(e.target.value),
-                              product,
-                              (value) =>
-                                setQuantities((prev) => ({
-                                  ...prev,
-                                  [product._id]: value,
-                                })),
-                            )
-                          }
-                          onKeyDown={preventInvalidInput}
-                          disabled={product.countInStock <= 0}
-                          wrapperStyle="flex items-center gap-2"
-                          inputStyle="rounded-none"
-                        />
-                        <Button
-                          key={product._id}
-                          variant="icon"
-                          icon={PlusIcon}
-                          onClick={() =>
-                            handleAddToCart(
-                              product,
-                              quantities[product._id],
-                              addToCart,
-                              (value) =>
-                                setQuantities((prev) => ({
-                                  ...prev,
-                                  [product._id]: value,
-                                })),
-                            )
-                          }
-                          disabled={
-                            product.countInStock <= 0 ||
-                            cart.find((item) => item.productId === product._id)
-                              ?.quantity >= product.countInStock
-                          }
-                          className="w-6 h-6 border-primary hover:border-primary hover:bg-primary"
-                          iconStyle="hover:stroke-secondary"
-                        />
-                      </div>
+                      <AddToCartInputBtn product={product} />
                     </div>
                     <p
                       className={`overflow-hidden line-clamp-3 text-ellipsis ${product.allergens.length > 0 ? "mb-6" : ""}`}

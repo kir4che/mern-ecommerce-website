@@ -3,34 +3,25 @@ import { useNavigate, useParams, Link } from "react-router";
 import { useInView } from "react-intersection-observer";
 
 import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
-import { Product } from "@/types/product";
-import { useCart } from "@/context/CartContext";
 import { useAxios } from "@/hooks/useAxios";
 import { filterProductsByCategory } from "@/utils/productFilters";
 import { linkToCategory } from "@/utils/linkToCategory";
-import {
-  preventInvalidInput,
-  handleQuantityChange,
-  handleAddToCart,
-} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
+import AddToCartInput from "@/components/molecules/AddToCartInputBtn/AddToCartInput";
+import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn";
 import Loading from "@/components/atoms/Loading";
 import ProductLinkImg from "@/components/atoms/ProductLinkImg";
 import Button from "@/components/atoms/Button";
-import Input from "@/components/atoms/Input";
-
-import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
 const ITEMS_PER_PAGE = 10; // 每頁顯示的商品數量
 
 const Collections = () => {
   const navigate = useNavigate();
   const { category } = useParams();
-  const { cart, addToCart } = useCart();
   const { data, error, isLoading, isError } = useAxios("/products");
   const products = data?.products as Product[];
 
@@ -132,61 +123,39 @@ const Collections = () => {
                       </li>
                     ))}
                   </ul>
-                  <div className="flex items-center justify-between mt-2 mb-4 gap-x-2">
+                  <div className="flex items-center justify-between mt-2 mb-3 gap-x-2">
                     <p className="text-xl font-semibold text-nowrap">
                       NT$ {addComma(product.price)}
                     </p>
-                    <Input
-                      type="number"
-                      label="數量"
-                      min={1}
-                      max={product.countInStock}
-                      value={quantities[product._id] || 1}
-                      onChange={(e) => {
-                        const quantity = Number(e.target.value);
-                        if (product._id && typeof product.countInStock === 'number') {
-                          handleQuantityChange(
-                            quantity,
-                            product as Product,
-                            (value) =>
-                              setQuantities((prev) => ({
-                                ...prev,
-                                [product._id]: value,
-                              })),
-                          );
-                        }
-                      }}
-                      onKeyDown={preventInvalidInput}
-                      disabled={product.countInStock <= 0}
+                    <AddToCartInput
+                      product={product}
+                      quantity={quantities[product._id] || 1}
+                      setQuantity={(quantity) =>
+                        setQuantities((prev) => ({
+                          ...prev,
+                          [product._id!]:
+                            typeof quantity === "function"
+                              ? quantity(prev[product._id!] || 1)
+                              : quantity,
+                        }))
+                      }
                       wrapperStyle="flex items-center gap-2"
                       inputStyle="rounded-none"
                       labelStyle="border-r text-xs border-gray-300 pr-1.5"
                     />
                   </div>
-                  <Button
-                    key={product._id}
-                    icon={product.countInStock !== 0 && CartPlusIcon}
-                    onClick={() =>
-                      handleAddToCart(
-                        product,
-                        quantities[product._id],
-                        addToCart,
-                        (value) =>
-                          setQuantities((prev) => ({
-                            ...prev,
-                            [product._id]: value,
-                          }))
-                      )
-                    }
-                    disabled={
-                      product.countInStock <= 0 ||
-                      cart.find((item) => item.productId === product._id)
-                        ?.quantity >= product.countInStock
-                    }
-                    className="ml-auto text-sm w-fit h-9 text-primary"
-                  >
-                    {product.countInStock <= 0 ? "補貨中" : "加入購物車"}
-                  </Button>
+                  <AddToCartBtn
+                    product={product}
+                    quantity={quantities[product._id] || 1}
+                    btnType="text"
+                    btnStyle="ml-auto text-sm w-fit h-9 text-primary"
+                    onAddSuccess={() => {
+                      setQuantities((prev) => ({
+                        ...prev,
+                        [product._id!]: 1,
+                      }));
+                    }}
+                  />
                 </div>
               </div>
             ))}

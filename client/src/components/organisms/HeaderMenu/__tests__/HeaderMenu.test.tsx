@@ -1,12 +1,14 @@
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { AuthProvider } from "@/context/AuthContext";
+import { Provider } from "react-redux";
+
+import { store } from "@/store";
 import HeaderMenu from "@/components/organisms/HeaderMenu";
 
 global.window.scrollTo = jest.fn();
 
 // 模擬 useCart 回傳 totalQuantity 為 3
-jest.mock("@/context/CartContext", () => ({
+jest.mock("@/hooks/useCart", () => ({
   useCart: () => ({ totalQuantity: 3 }),
 }));
 
@@ -19,8 +21,8 @@ const mockAuthContext = {
   logout: jest.fn(),
 };
 
-jest.mock("@/context/AuthContext", () => ({
-  ...jest.requireActual("@/context/AuthContext"),
+jest.mock("@/hooks/useAuth", () => ({
+  ...jest.requireActual("@/hooks/useAuth"),
   useAuth: () => mockAuthContext,
 }));
 
@@ -33,11 +35,11 @@ describe("HeaderMenu Component", () => {
 
   const renderHeaderMenu = (isMenuOpen: boolean, setIsMenuOpen: () => void) => {
     return render(
-      <MemoryRouter>
-        <AuthProvider>
+      <Provider store={store}>
+        <MemoryRouter>
           <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-        </AuthProvider>
-      </MemoryRouter>,
+        </MemoryRouter>
+      </Provider>,
     );
   };
 

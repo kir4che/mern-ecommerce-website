@@ -2,20 +2,20 @@ import { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { Product } from "@/types/product";
-import { useCart } from "@/context/CartContext";
+import type { Product } from "@/types/product";
+import { useCart } from "@/hooks/useCart";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 import {
   preventInvalidInput,
   handleQuantityChange,
-  handleAddToCart,
   calculateFreeShipping,
 } from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import Modal from "@/components/molecules/Modal";
+import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 
@@ -36,7 +36,6 @@ const Cart = () => {
     error: cartError,
     subtotal,
     removeFromCart,
-    addToCart,
     changeQuantity,
     clearCart,
   } = useCart();
@@ -293,17 +292,14 @@ const Cart = () => {
                       <p className="line-clamp-1">{product.title}</p>
                       <p>NT$ {addComma(product.price)}</p>
                     </Link>
-                    <Button
-                      onClick={() => handleAddToCart(product, 1, addToCart)}
-                      className="w-full h-8 mt-4 text-sm rounded-sm text-primary"
-                      disabled={
-                        product.countInStock <= 0 ||
-                        cart.find((item) => item.productId === product._id)
-                          ?.quantity >= product.countInStock
-                      }
-                    >
-                      {product.countInStock <= 0 ? "補貨中" : "我要加購"}
-                    </Button>
+                    <AddToCartBtn
+                      btnType="text"
+                      title="我要加購"
+                      btnStyle="w-full h-8 mt-4 text-sm rounded-sm text-primary"
+                      showIcon={false}
+                      product={product}
+                      quantity={1}
+                    />
                   </SwiperSlide>
                 ))}
             </Swiper>

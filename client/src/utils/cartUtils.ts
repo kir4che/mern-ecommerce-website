@@ -14,6 +14,7 @@ export const handleQuantityChange = (
   value: number | React.ChangeEvent<HTMLInputElement>,
   product: { _id: string; countInStock: number } | null,
   setQuantity: (value: number) => void,
+  existingQuantity: number = 0,
 ) => {
   let inputValue: string;
 
@@ -25,32 +26,36 @@ export const handleQuantityChange = (
     value.target.value = inputValue; // 更新輸入框的值
   }
 
+  // 計算可用庫存（總庫存減去購物車中的數量）
+  const availableStock = (product?.countInStock || 0) - existingQuantity;
+
   const newQuantity = Math.max(
     1,
-    Math.min(parseInt(inputValue, 10), product?.countInStock || Infinity),
+    Math.min(parseInt(inputValue, 10), availableStock),
   );
   if (!isNaN(newQuantity)) setQuantity(newQuantity);
 };
-
-interface AddToCartParams {
-  productId: string;
-  quantity: number;
-}
 
 // 加入商品到購物車
 export const handleAddToCart = async (
   product: Partial<Product> | null,
   quantity: number,
-  addToCart: (params: AddToCartParams) => Promise<void>,
+  addToCart: (params: { productId: string; quantity: number }) => Promise<void>,
   setQuantity?: (value: number) => void,
 ) => {
   if (!product) return;
 
   try {
-    await addToCart({ productId: product._id, quantity: quantity ?? 1 });
+    const validQuantity = Math.max(1, quantity || 1);
+
+    try {
+      await addToCart({ productId: product._id, quantity: validQuantity });
+    } catch (err: any) {
+      throw new Error("加入商品失敗：" + err.message);
+    }
     setQuantity?.(product.countInStock > 0 ? 1 : 0);
   } catch (err: any) {
-    console.error("Failed to add to cart:", err);
+    throw new Error("加入商品失敗：" + err.message);
   }
 };
 
@@ -62,10 +67,7 @@ export const handleRemoveFromCart = async (
   try {
     await removeFromCart(productId);
   } catch (err: any) {
-    console.error(
-      `Failed to remove product with ID ${productId} from cart:`,
-      err,
-    );
+    throw new Error("移除商品失敗：" + err.message);
   }
 };
 

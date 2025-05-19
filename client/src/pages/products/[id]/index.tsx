@@ -1,27 +1,19 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 
-import { Product } from "@/types/product";
-import { useCart } from "@/context/CartContext";
+import type { Product } from "@/types/product";
+import { useCart } from "@/hooks/useCart";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
-import {
-  preventInvalidInput,
-  handleQuantityChange,
-  handleAddToCart,
-} from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import ProductSlider from "@/components/organisms/ProductSlider";
 import Accordion from "@/components/molecules/Accordion";
+import AddToCartInputBtn from "@/components/molecules/AddToCartInputBtn";
 import Loading from "@/components/atoms/Loading";
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
 import BlurImage from "@/components/atoms/BlurImage";
-
-import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
 
 const ProductInfo = ({
   label,
@@ -45,7 +37,7 @@ const ProductPage = () => {
   const { id } = useParams();
   const { cart, addToCart } = useCart();
   const { data, error, isLoading, isError, refresh } = useAxios(
-    `/products/${id}`,
+    `/products/${id}`
   );
   const product = data?.product as Product;
   const isOutOfStock = product?.countInStock <= 0;
@@ -96,41 +88,7 @@ const ProductPage = () => {
               <p className="text-3xl font-semibold">
                 NT$ {addComma(product.price)}
               </p>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="number"
-                  label="數量"
-                  min={1}
-                  max={product.countInStock}
-                  value={quantity}
-                  defaultValue={1}
-                  onChange={(e) =>
-                    handleQuantityChange(
-                      Number(e.target.value),
-                      product,
-                      setQuantity,
-                    )
-                  }
-                  onKeyDown={preventInvalidInput}
-                  disabled={isOutOfStock}
-                  wrapperStyle="items-center gap-2"
-                  inputStyle="rounded-none"
-                />
-                <Button
-                  icon={product.countInStock !== 0 && CartPlusIcon}
-                  onClick={() =>
-                    handleAddToCart(product, quantity, addToCart, setQuantity)
-                  }
-                  disabled={
-                    isOutOfStock ||
-                    cart.find((item) => item.productId === product._id)
-                      ?.quantity >= product.countInStock
-                  }
-                  className="h-10"
-                >
-                  {isOutOfStock ? "補貨中" : "加入購物車"}
-                </Button>
-              </div>
+              <AddToCartInputBtn product={product} btnType="text" />
             </div>
             {product.ingredients && (
               <Accordion title="製作材料">{product.ingredients}</Accordion>
