@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 import Layout from "@/layouts/AppLayout";
 import OrderTable from "@/components/organisms/OrdersTable";
