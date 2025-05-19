@@ -46,10 +46,11 @@ const Login = () => {
       <form className="flex flex-col gap-4 md:text-sm" onSubmit={handleLogin}>
         <Input
           value={email}
-          type="text"
+          type="email"
           placeholder="Email"
           icon={MailIcon}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
           required
         />
         <Input
@@ -58,6 +59,7 @@ const Login = () => {
           placeholder="密碼"
           icon={LockIcon}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
           required
         />
         <div className="flex items-center justify-between">
