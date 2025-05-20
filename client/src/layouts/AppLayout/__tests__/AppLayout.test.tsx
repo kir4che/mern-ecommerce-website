@@ -4,7 +4,6 @@ import { Provider } from "react-redux";
 import AppLayout from "@/layouts/AppLayout";
 import { store } from "@/store";
 import { AlertProvider } from "@/context/AlertContext";
-import { CartProvider } from "@/context/CartContext";
 import { MemoryRouter } from "react-router";
 
 describe("AppLayout", () => {
@@ -13,9 +12,7 @@ describe("AppLayout", () => {
       <Provider store={store}>
         <MemoryRouter>
           <AlertProvider>
-            <CartProvider>
-              <AppLayout>Test Children</AppLayout>
-            </CartProvider>
+            <AppLayout>Test Children</AppLayout>
           </AlertProvider>
         </MemoryRouter>
         ,

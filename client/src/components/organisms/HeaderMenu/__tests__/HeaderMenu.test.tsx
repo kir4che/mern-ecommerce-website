@@ -8,7 +8,7 @@ import HeaderMenu from "@/components/organisms/HeaderMenu";
 global.window.scrollTo = jest.fn();
 
 // 模擬 useCart 回傳 totalQuantity 為 3
-jest.mock("@/context/CartContext", () => ({
+jest.mock("@/hooks/useCart", () => ({
   useCart: () => ({ totalQuantity: 3 }),
 }));
 

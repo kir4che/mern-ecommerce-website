@@ -4,7 +4,6 @@ import { Provider } from "react-redux";
 
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AlertProvider } from "@/context/AlertContext";
-import { CartProvider } from "@/context/CartContext";
 import { store } from "@/store";
 import { router } from "@/routes";
 
@@ -14,9 +13,7 @@ createRoot(document.getElementById("root") as HTMLElement).render(
   <Provider store={store}>
     <ThemeProvider>
       <AlertProvider>
-        <CartProvider>
-          <RouterProvider router={router} />
-        </CartProvider>
+        <RouterProvider router={router} />
       </AlertProvider>
     </ThemeProvider>
   </Provider>,

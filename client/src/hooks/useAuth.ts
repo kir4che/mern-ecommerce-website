@@ -24,7 +24,7 @@ export const useAuth = () => {
     return dispatch(logoutAction()).unwrap();
   }, [dispatch]);
 
-  // 回傳登入狀態與方法給元件使用
+  // 回傳登入狀態與方法給組件使用
   return {
     user,
     loading,
