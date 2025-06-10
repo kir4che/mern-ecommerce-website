@@ -6,22 +6,16 @@ import type { Product } from "@/types/product";
 import { useCart } from "@/hooks/useCart";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
-import {
-  preventInvalidInput,
-  handleQuantityChange,
-  calculateFreeShipping,
-} from "@/utils/cartUtils";
+import { calculateFreeShipping } from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
 import Layout from "@/layouts/AppLayout";
 import Modal from "@/components/molecules/Modal";
 import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn";
+import QuantityInput from "@/components/molecules/QuantityInput";
 import Button from "@/components/atoms/Button";
-import Input from "@/components/atoms/Input";
 
 import { ReactComponent as CartImg } from "@/assets/images/ecommerce-cart-illustration.inline.svg";
-import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
-import { ReactComponent as MinusIcon } from "@/assets/icons/minus.inline.svg";
 import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
 import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
 import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
@@ -29,14 +23,16 @@ import { ReactComponent as DeliveryTrunkIcon } from "@/assets/icons/delivery-tru
 
 import "swiper/css";
 
+import { clearCartError } from "@/store/slices/cartSlice";
+
 const Cart = () => {
   const navigate = useNavigate();
   const {
+    dispatch,
     cart,
     error: cartError,
     subtotal,
     removeFromCart,
-    changeQuantity,
     clearCart,
   } = useCart();
   const { showAlert } = useAlert();
@@ -44,7 +40,7 @@ const Cart = () => {
 
   const sortedCart = [...cart].sort(
     (a, b) =>
-      Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0),
+      Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0)
   );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
@@ -68,7 +64,7 @@ const Cart = () => {
           variant: "error",
           message: "訂單送出失敗，請稍後再試！",
         }),
-    },
+    }
   );
 
   const handleCheckout = () => {
@@ -85,8 +81,11 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    if (cartError) showAlert({ variant: "error", message: cartError });
-  }, [cartError, showAlert]);
+    if (cartError) {
+      showAlert({ variant: "error", message: cartError });
+      dispatch(clearCartError());
+    }
+  }, [cartError, showAlert, dispatch]);
 
   return !cart || cart.length === 0 ? (
     <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
@@ -170,60 +169,7 @@ const Cart = () => {
                     {item.product.countInStock <= 0 ? (
                       <span className="font-semibold text-red-500">已售完</span>
                     ) : (
-                      <div className="flex items-center">
-                        <Button
-                          variant="icon"
-                          icon={MinusIcon}
-                          className="border-gray-200 rounded-none h-7"
-                          onClick={() =>
-                            handleQuantityChange(
-                              item.quantity - 1,
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock,
-                              },
-                              (value) => changeQuantity(item._id, value),
-                            )
-                          }
-                          disabled={item.quantity <= 1}
-                        />
-                        <Input
-                          type="number"
-                          min={1}
-                          max={item.product.countInStock}
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleQuantityChange(
-                              Number(e.target.value),
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock,
-                              },
-                              (value) => changeQuantity(item._id, value),
-                            )
-                          }
-                          onKeyDown={preventInvalidInput}
-                          disabled={item.product.countInStock <= 0}
-                          wrapperStyle="noInnerSpin"
-                          inputStyle="min-h-7 rounded-none border-gray-200"
-                        />
-                        <Button
-                          variant="icon"
-                          icon={PlusIcon}
-                          className="border-gray-200 rounded-none h-7"
-                          onClick={() =>
-                            handleQuantityChange(
-                              item.quantity + 1,
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock,
-                              },
-                              (value) => changeQuantity(item._id, value),
-                            )
-                          }
-                          disabled={item.quantity >= item.product.countInStock}
-                        />
-                      </div>
+                      <QuantityInput item={item} />
                     )}
                     <p
                       className={`text-lg font-semibold ${item.product.countInStock <= 0 ? "text-gray-400" : ""}`}

@@ -54,6 +54,7 @@ const Register = () => {
             value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
             message: "請輸入有效的 Email 格式",
           }}
+          autoComplete="email"
           required
         />
         <Input
@@ -66,6 +67,7 @@ const Register = () => {
             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
             message: "密碼需包含大小寫英文及數字，且至少 8 字元",
           }}
+          autoComplete="current-password"
           required
         />
         <Button
