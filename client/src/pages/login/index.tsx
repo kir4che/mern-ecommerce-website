@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useAlert } from "@/context/AlertContext";
@@ -14,6 +14,8 @@ import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { user, error, login } = useAuth();
   const { showAlert } = useAlert();
 
@@ -27,7 +29,24 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (user) navigate("/");
+    if (user) {
+      const fromQuery = searchParams.get("from");
+      const fromState = (location.state as any)?.from;
+
+      const isSafePath = (p?: string) =>
+        typeof p === "string" && p.startsWith("/");
+      const stateTarget = fromState?.pathname
+        ? `${fromState.pathname}${fromState.search || ""}`
+        : undefined;
+
+      const target = isSafePath(fromQuery)
+        ? fromQuery!
+        : isSafePath(stateTarget)
+          ? stateTarget!
+          : "/";
+
+      navigate(target, { replace: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -46,10 +65,11 @@ const Login = () => {
       <form className="flex flex-col gap-4 md:text-sm" onSubmit={handleLogin}>
         <Input
           value={email}
-          type="text"
+          type="email"
           placeholder="Email"
           icon={MailIcon}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
           required
         />
         <Input
@@ -58,6 +78,7 @@ const Login = () => {
           placeholder="密碼"
           icon={LockIcon}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
           required
         />
         <div className="flex items-center justify-between">

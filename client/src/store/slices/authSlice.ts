@@ -1,5 +1,10 @@
 import axios from "axios";
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  isAnyOf,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 
 interface User {
   readonly id: string;
@@ -14,92 +19,107 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-// 若有則從 localStorage 取得先前登入的使用者資料
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
+  user: null,
   loading: false,
   error: null,
-  isAuthenticated: Boolean(localStorage.getItem("user")),
+  isAuthenticated: false,
 };
 
 export const login = createAsyncThunk(
   "auth/login",
-  async ({
-    email,
-    password,
-    rememberMe,
-  }: {
-    email: string;
-    password: string;
-    rememberMe: boolean;
-  }) => {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/user/login`,
-      { email, password, rememberMe },
-      { withCredentials: true },
-    );
-    if (response.data.success && response.data.user) {
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      return response.data.user;
-    }
+  async (
+    {
+      email,
+      password,
+      rememberMe,
+    }: {
+      email: string;
+      password: string;
+      rememberMe: boolean;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/user/login`,
+        { email, password, rememberMe },
+        { withCredentials: true },
+      );
 
-    throw new Error(response.data.message || "登入失敗，請稍後再試。");
+      if (res.data.success && res.data.user) return res.data.user;
+      return rejectWithValue(res.data.message || "登入失敗，請稍後再試。");
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "登入失敗，請稍後再試。",
+      );
+    }
   },
 );
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-  const response = await axios.post(
-    `${process.env.REACT_APP_API_URL}/user/logout`,
-  );
-  if (response.data.success) {
-    localStorage.removeItem("user");
-    return;
-  }
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/user/logout`,
+      );
+      if (res.data.success) return;
+      return rejectWithValue(res.data.message || "登出失敗，請稍後再試。");
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "登出失敗，請稍後再試。",
+      );
+    }
+  },
+);
 
-  throw new Error(response.data.message || "登出失敗，請稍後再試。");
-});
+const authActionPending = isAnyOf(login.pending, logout.pending);
+const authActionRejected = isAnyOf(login.rejected, logout.rejected);
 
-// 使用 createSlice 建立 auth slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
-  // 使用 extraReducers 新增非同步 action 的處理程序
+  reducers: {
+    initializeAuth: (state) => {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        state.user = JSON.parse(userStr);
+        state.isAuthenticated = true;
+      } else {
+        state.user = null;
+        state.isAuthenticated = false;
+      }
+    },
+  },
   extraReducers: (builder) => {
-    // 設定 login 和 logout 的狀態轉換
     builder
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload;
-        state.error = null;
         state.isAuthenticated = true;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.error.message || "登入過程中發生錯誤，請稍後再試。";
-        state.isAuthenticated = false;
-      })
-      .addCase(logout.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(logout.fulfilled, (state) => {
         state.loading = false;
         state.user = null;
-        state.error = null;
         state.isAuthenticated = false;
+        state.error = null;
       })
-      .addCase(logout.rejected, (state, action) => {
+      // 使用 matcher 處理共通的 pending 和 rejected 狀態
+      .addMatcher(authActionPending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addMatcher(authActionRejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.error.message || "登出過程中發生錯誤，請稍後再試。";
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = (action.payload as string) || "操作失敗，請稍後再試。";
       });
   },
 });
+
+export const { initializeAuth } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,23 +1,8 @@
 import axios from "axios";
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 
 import type { RootState } from "@/store";
-
-interface CartItemInput {
-  productId: string;
-  quantity: number;
-}
-
-interface CartItem extends CartItemInput {
-  _id: string;
-  cartId: string;
-  product: {
-    title: string;
-    price: number;
-    imageUrl: string;
-    countInStock: number;
-  };
-}
+import type { CartItem, CartItemInput } from "@/types/cart";
 
 interface CartState {
   cart: CartItem[];
@@ -38,34 +23,60 @@ const handleError = (err: any) => {
   return "發生未知錯誤，請稍後再試。";
 };
 
-// 處理非同步邏輯：取得購物車內容
+// 取得購物車內容
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
-    const state = getState() as RootState;
-    const isAuthenticated = state.auth.isAuthenticated;
-
     try {
-      if (!isAuthenticated) {
-        // 未登入：從本地取得購物車內容
-        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-        // 從後端取得商品詳細資訊
-        const cartWithDetails = await Promise.all(
-          localCart.map(async (item: CartItemInput) => {
-            return {
-              productId: item.productId,
-              quantity: item.quantity,
-            };
-          }),
-        );
-        return cartWithDetails;
+      const {
+        auth: { isAuthenticated },
+      } = getState() as RootState;
+
+      const validateCartQuantities = (cart: CartItem[]) => {
+        if (!Array.isArray(cart)) return [];
+
+        return cart
+          .map((item) => {
+            const stock = item.product?.countInStock || 0;
+            if (item.quantity > stock) {
+              return { ...item, quantity: stock };
+            }
+            return item;
+          })
+          .filter((item) => item.quantity > 0);
+      };
+
+      if (isAuthenticated) {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
+          withCredentials: true,
+        });
+        const serverCart = res.data.cart || [];
+        return validateCartQuantities(serverCart);
       } else {
-        // 已登入：從後端獲取購物車
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { withCredentials: true },
+        const localCart: CartItemInput[] = JSON.parse(
+          localStorage.getItem("cart") || "[]",
         );
-        return response.data.cart || [];
+        if (localCart.length === 0) return [];
+
+        const productPromises = localCart.map((item) =>
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/products/${item.productId}`,
+          ),
+        );
+
+        const productResponses = await Promise.all(productPromises);
+
+        const hydratedCart: CartItem[] = localCart.map((item, index) => {
+          const productDetails = productResponses[index].data.product;
+          return {
+            ...item,
+            _id: `${item.productId}_local`,
+            cartId: "local_cart",
+            product: productDetails,
+          };
+        });
+
+        return validateCartQuantities(hydratedCart);
       }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
@@ -83,16 +94,12 @@ export const syncLocalCart = createAsyncThunk(
       ) as CartItemInput[];
       if (localCart.length === 0) return [];
 
-      const response = await axios.post(
+      const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/cart/sync`,
         { localCart },
         { withCredentials: true },
       );
-
-      // 清空本地購物車
-      localStorage.setItem("cart", "[]");
-
-      return response.data.cart || [];
+      return res.data.cart || [];
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
@@ -103,45 +110,53 @@ export const syncLocalCart = createAsyncThunk(
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (
-    { productId, quantity }: { productId: string; quantity: number },
-    { getState, rejectWithValue, dispatch },
+    { productId, quantity }: CartItemInput,
+    { getState, rejectWithValue },
   ) => {
-    const state = getState() as RootState; // 當前 store 的所有狀態
-    const isAuthenticated = state.auth.isAuthenticated;
-
     try {
-      if (!isAuthenticated) {
-        // 尚未登入：加入商品至本地購物車
-        const localCart = JSON.parse(
-          localStorage.getItem("cart") || "[]",
-        ) as CartItemInput[];
+      const {
+        auth: { isAuthenticated },
+        cart: { cart: currentCart },
+      } = getState() as RootState;
 
-        // 檢查商品是否已存在於本地購物車
-        const existingItemIndex = localCart.findIndex(
-          (item) => item.productId === productId,
-        );
+      if (!Array.isArray(currentCart)) {
+        return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
+      }
 
-        // 更新商品數量或加入商品
-        if (existingItemIndex !== -1)
-          localCart[existingItemIndex].quantity += quantity;
-        else localCart.push({ productId, quantity });
-
-        localStorage.setItem("cart", JSON.stringify(localCart));
-
-        // 重新取得購物車內容以更新 store
-        return dispatch(fetchCart()).unwrap();
-      } else {
-        // 已登入：加入商品至後端購物車
+      if (isAuthenticated) {
         await axios.post(
           `${process.env.REACT_APP_API_URL}/cart`,
           { productId, quantity },
           { withCredentials: true },
         );
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { withCredentials: true },
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
+          withCredentials: true,
+        });
+        return res.data.cart || [];
+      } else {
+        const newCart = [...currentCart];
+        const existingItemIndex = newCart.findIndex(
+          (item) => item.productId === productId,
         );
-        return response.data.cart || [];
+
+        if (existingItemIndex !== -1) {
+          const updatedItem = { ...newCart[existingItemIndex] };
+          updatedItem.quantity += quantity;
+          newCart[existingItemIndex] = updatedItem;
+        } else {
+          const productRes = await axios.get(
+            `${process.env.REACT_APP_API_URL}/products/${productId}`,
+          );
+          const productDetails = productRes.data.product;
+          newCart.push({
+            productId,
+            quantity,
+            _id: `${productId}_local`,
+            cartId: "local_cart",
+            product: productDetails,
+          });
+        }
+        return newCart;
       }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
@@ -152,17 +167,30 @@ export const addToCart = createAsyncThunk(
 // 從購物車移除商品
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async (cartItemId: string, { rejectWithValue }) => {
+  async (cartItemId: string, { getState, rejectWithValue }) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
-        { withCredentials: true },
-      );
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/cart`,
-        { withCredentials: true },
-      );
-      return response.data.cart || [];
+      const {
+        auth: { isAuthenticated },
+        cart: { cart: currentCart },
+      } = getState() as RootState;
+
+      if (!Array.isArray(currentCart)) {
+        return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
+      }
+
+      if (isAuthenticated) {
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
+          { withCredentials: true },
+        );
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
+          withCredentials: true,
+        });
+        return res.data.cart || [];
+      } else {
+        // 本地端則用 _id 過濾
+        return currentCart.filter((item) => item._id !== cartItemId);
+      }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
@@ -170,23 +198,38 @@ export const removeFromCart = createAsyncThunk(
 );
 
 // 更新購物車商品數量
-export const updateQuantity = createAsyncThunk(
-  "cart/updateQuantity",
+export const changeQuantity = createAsyncThunk(
+  "cart/changeQuantity",
   async (
     { cartItemId, quantity }: { cartItemId: string; quantity: number },
-    { rejectWithValue },
+    { getState, rejectWithValue },
   ) => {
     try {
-      await axios.patch(
-        `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
-        { quantity },
-        { withCredentials: true },
-      );
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/cart`,
-        { withCredentials: true },
-      );
-      return response.data.cart || [];
+      const {
+        auth: { isAuthenticated },
+        cart: { cart: currentCart },
+      } = getState() as RootState;
+
+      if (!Array.isArray(currentCart))
+        return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
+
+      if (isAuthenticated) {
+        await axios.patch(
+          `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
+          { quantity },
+          { withCredentials: true },
+        );
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
+          withCredentials: true,
+        });
+        return res.data.cart || [];
+      } else {
+        return currentCart
+          .map((item) =>
+            item._id === cartItemId ? { ...item, quantity } : item,
+          )
+          .filter((item) => item.quantity > 0);
+      }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
@@ -196,11 +239,16 @@ export const updateQuantity = createAsyncThunk(
 // 清空購物車
 export const clearCart = createAsyncThunk(
   "cart/clearCart",
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/cart`, {
-        withCredentials: true,
-      });
+      const {
+        auth: { isAuthenticated },
+      } = getState() as RootState;
+      if (isAuthenticated) {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/cart`, {
+          withCredentials: true,
+        });
+      }
       return [];
     } catch (err: any) {
       return rejectWithValue(handleError(err));
@@ -208,90 +256,72 @@ export const clearCart = createAsyncThunk(
   },
 );
 
-// 使用 createSlice 建立 cart slice
+const cartActionPending = isAnyOf(
+  fetchCart.pending,
+  syncLocalCart.pending,
+  addToCart.pending,
+  removeFromCart.pending,
+  changeQuantity.pending,
+  clearCart.pending,
+);
+
+const cartActionRejected = isAnyOf(
+  fetchCart.rejected,
+  syncLocalCart.rejected,
+  addToCart.rejected,
+  removeFromCart.rejected,
+  changeQuantity.rejected,
+  clearCart.rejected,
+);
+
+const cartActionFulfilled = isAnyOf(
+  fetchCart.fulfilled,
+  syncLocalCart.fulfilled,
+  addToCart.fulfilled,
+  removeFromCart.fulfilled,
+  changeQuantity.fulfilled,
+  clearCart.fulfilled,
+);
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
-  reducers: {},
+  reducers: {
+    clearCartError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(syncLocalCart.pending, (state) => {
+      .addMatcher(cartActionPending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(syncLocalCart.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.cart = action.payload;
-      })
-      .addCase(syncLocalCart.rejected, (state, action) => {
+      .addMatcher(cartActionRejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchCart.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchCart.fulfilled, (state, action) => {
+      .addMatcher(cartActionFulfilled, (state, action) => {
         state.isLoading = false;
         state.cart = action.payload;
         state.error = null;
-      })
-      .addCase(fetchCart.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(addToCart.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(addToCart.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.cart = action.payload;
-        state.error = null;
-      })
-      .addCase(addToCart.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(removeFromCart.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.cart = action.payload;
-        state.error = null;
-      })
-      .addCase(removeFromCart.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(updateQuantity.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.cart = action.payload;
-        state.error = null;
-      })
-      .addCase(updateQuantity.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
-      .addCase(clearCart.fulfilled, (state) => {
-        state.cart = [];
-        state.error = null;
-      })
-      .addCase(clearCart.rejected, (state, action) => {
-        state.error = action.payload as string;
       });
   },
 });
 
-// 提供組件取得購物車內容的方式
+export const { clearCartError } = cartSlice.actions;
+
 export const selectCart = (state: RootState) => state.cart.cart;
 export const selectCartLoading = (state: RootState) => state.cart.isLoading;
 export const selectCartError = (state: RootState) => state.cart.error;
+
 export const selectTotalQuantity = (state: RootState) =>
-  state.cart.cart.reduce((total, item) => total + item.quantity, 0);
+  (state.cart.cart || []).reduce(
+    (total, item) => total + (item.quantity || 0),
+    0,
+  );
 export const selectSubtotal = (state: RootState) =>
-  state.cart.cart.reduce(
+  (state.cart.cart || []).reduce(
     (total, item) => total + (item.quantity || 0) * (item.product?.price || 0),
     0,
   );

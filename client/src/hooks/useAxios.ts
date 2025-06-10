@@ -62,7 +62,7 @@ export function useAxios(
       }
 
       try {
-        const response = await axios({
+        const res = await axios({
           url: requestUrl,
           method: newConfig?.method || config.method || "GET",
           data: params,
@@ -75,11 +75,11 @@ export function useAxios(
           },
         });
 
-        if (!response?.data?.success) {
+        if (!res?.data?.success) {
           const errorDetails: ErrorResponse = {
-            message: response?.data?.message || "Request failed!",
-            statusCode: response?.status,
-            details: response?.data?.details,
+            message: res?.data?.message || "Request failed!",
+            statusCode: res?.status,
+            details: res?.data?.details,
           };
           setError(errorDetails);
           onError?.(errorDetails);
@@ -87,12 +87,12 @@ export function useAxios(
           return;
         }
 
-        setData(response.data || {});
+        setData(res.data || {});
 
-        onSuccess?.(response.data);
+        onSuccess?.(res.data);
         setStatus("success");
 
-        return response.data;
+        return res.data;
       } catch (err: any) {
         const errorDetails: ErrorResponse = {
           message:

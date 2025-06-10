@@ -48,6 +48,18 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [alert]);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        const ce = e as CustomEvent<Alert>;
+        if (ce?.detail) showAlert(ce.detail);
+      } catch {}
+    };
+    window.addEventListener("app:alert", handler as EventListener);
+    return () =>
+      window.removeEventListener("app:alert", handler as EventListener);
+  }, []);
+
   return (
     <AlertContext.Provider value={{ alert, showAlert, hideAlert }}>
       {children}

@@ -34,8 +34,57 @@ export const router = createBrowserRouter([
   { path: "/reset-password", element: <RequestResetLink /> },
   { path: "/reset-password/:token", element: <ResetPassword /> },
   {
-    path: "/cart",
-    element: <PrivateRoute component={Cart} />,
+    path: "/",
+    element: <AppLayout />,
+    children: [
+      { index: true, element: <App /> },
+      { path: "about", element: <About /> },
+      { path: "news", element: <News /> },
+      { path: "news/:id", element: <New /> },
+      { path: "faq", element: <FAQ /> },
+      { path: "contact", element: <Contact /> },
+      { path: "collections/:category", element: <Collections /> },
+      { path: "products/:id", element: <Product /> },
+      { path: "register", element: <Register /> },
+      { path: "login", element: <Login /> },
+      { path: "reset-password", element: <RequestResetLink /> },
+      { path: "reset-password/:token", element: <ResetPassword /> },
+      {
+        path: "cart",
+        element: (
+          <PrivateRoute>
+            <Cart />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "checkout/:id",
+        element: (
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "my-account",
+        element: (
+          <PrivateRoute>
+            <UserDashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "admin/dashboard",
+        element: (
+          <PrivateRoute>
+            <AdminGate>
+              <AdminDashboard />
+            </AdminGate>
+          </PrivateRoute>
+        ),
+      },
+      { path: "*", element: <NotFound /> },
+    ],
   },
   {
     path: "/checkout/:id",

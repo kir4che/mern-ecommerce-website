@@ -24,10 +24,18 @@ interface AuthRequest extends Request {
 const getUserData = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ success: false, message: "User ID not found in request." });
+    if (!userId)
+      return res
+        .status(401)
+        .json({ success: false, message: "User ID not found in request." });
 
-    const user = await UserModel.findById(userId).select("email role createdAt");
-    if (!user) return res.status(404).json({ success: false, message: "User not found!" });
+    const user = await UserModel.findById(userId).select(
+      "email role createdAt"
+    );
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
 
     res.status(200).json({
       success: true,
@@ -38,9 +46,12 @@ const getUserData = async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (err: any) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ success: false, message: "Token has expired." });
-    } else return res.status(401).json({ success: false, message: "Unauthorized!" });
+    if (err.name === "TokenExpiredError")
+      return res
+        .status(401)
+        .json({ success: false, message: "Token has expired." });
+    else
+      return res.status(401).json({ success: false, message: "Unauthorized!" });
   }
 };
 
@@ -51,7 +62,9 @@ const createNewUser = async (req: Request, res: Response) => {
     // 先確認該 email 是否已經被註冊過
     const isNewUser = await UserModel.findOne({ email });
     if (isNewUser)
-      return res.status(400).json({ success: false, message: "User already Exists!" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User already Exists!" });
 
     // 將 password 進行 hash
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -62,7 +75,9 @@ const createNewUser = async (req: Request, res: Response) => {
     const newCart = new CartModel({ userId: newUser._id, items: [] });
     await newCart.save();
 
-    res.status(201).json({ success: true, message: "User registered Successfully!" });
+    res
+      .status(201)
+      .json({ success: true, message: "User registered Successfully!" });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -74,12 +89,17 @@ const loginUser = async (req: Request, res: Response) => {
   try {
     // 確認該 email 是否已經被註冊過
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(400).json({ success: false, message: "User doesn't exist!" });
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: "User doesn't exist!" });
 
     // 確認 password 是否正確
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch)
-      return res.status(400).json({ success: false, message: "Invalid Password!" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Password!" });
 
     // 設定 JWT 過期時間
     const token = jwt.sign(
@@ -87,7 +107,7 @@ const loginUser = async (req: Request, res: Response) => {
       process.env.JWT_SECRET as string,
       {
         expiresIn: rememberMe ? "7d" : "1d",
-      },
+      }
     );
 
     // 將 token 儲存在 httpOnly cookie 中
@@ -121,7 +141,17 @@ const logoutUser = async (req: Request, res: Response) => {
     req.session.destroy((err: any) => {
       if (err) throw new Error(err);
     });
-    res.status(200).json({ success: true, message: "User logged out Successfully!" });
+
+    // 清除 httpOnly JWT cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "User logged out Successfully!" });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -132,7 +162,10 @@ const resetPassword = async (req: Request, res: Response) => {
 
   try {
     const user = await UserModel.findOne({ email });
-    if (!user) return res.status(404).json({ success: false, message: "Email not found!" });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "Email not found!" });
 
     // 生成一次性 Token
     const resetToken = crypto.randomBytes(32).toString("hex");
@@ -167,7 +200,9 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ success: true, message: "Password reset email sent!" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset email sent!" });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -182,7 +217,10 @@ const updatePassword = async (req: Request, res: Response) => {
       resetTokenExpiration: { $gt: new Date() },
     });
 
-    if (!user) return res.status(400).json({ success: false, message: "Invalid or expired token!" });
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired token!" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
@@ -190,10 +228,19 @@ const updatePassword = async (req: Request, res: Response) => {
     user.resetTokenExpiration = undefined;
     await user.save();
 
-    res.status(200).json({ success: true, message: "Password updated successfully!" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully!" });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export { createNewUser, getUserData, loginUser, logoutUser, resetPassword, updatePassword, };
+export {
+  createNewUser,
+  getUserData,
+  loginUser,
+  logoutUser,
+  resetPassword,
+  updatePassword,
+};
