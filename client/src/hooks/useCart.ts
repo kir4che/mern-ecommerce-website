@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { throttle } from "lodash";
+import axios from "axios";
 
 import type { AppDispatch } from "@/store";
 import {
@@ -20,7 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const useCart = () => {
   const dispatch = useDispatch<AppDispatch>(); // 取得 dispatch 函式
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   // 透過 useSelector 從 store 讀取購物車的資料與狀態
   const cart = useSelector(selectCart);
   const isLoading = useSelector(selectCartLoading);
@@ -30,14 +31,29 @@ export const useCart = () => {
 
   // 在組件掛載時自動載入購物車內容
   useEffect(() => {
-    const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
-    // 已登入：先同步本地購物車到後端，然後再獲取購物車內容。
-    if (isAuthenticated && localCart.length > 0) {
-      dispatch(syncLocalCart()).unwrap();
-      localStorage.removeItem("cart");
-    }
-    dispatch(fetchCart());
-  }, [dispatch, isAuthenticated]);
+    const fetchAll = async () => {
+      const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+      // 已登入：先同步本地購物車到後端，然後再獲取購物車內容。
+      if (isAuthenticated && localCart.length > 0) {
+        try {
+          await dispatch(syncLocalCart()).unwrap();
+          localStorage.removeItem("cart");
+        } catch (err) {
+          console.error("同步購物車失敗", err);
+        }
+      }
+
+      try {
+        await dispatch(fetchCart()).unwrap();
+      } catch (err: any) {
+        // 若已登入但 401，自動登出。
+        if (isAuthenticated && err.response?.status === 401) await logout();
+      }
+    };
+
+    fetchAll();
+  }, [dispatch, isAuthenticated, logout]);
 
   // 使用 throttle 避免快速點擊加入商品，造成頻繁發送請求（限制每 300ms 只會發出一次請求）。
   const throttledAddToCart = throttle(

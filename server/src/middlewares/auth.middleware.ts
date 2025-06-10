@@ -9,7 +9,7 @@ interface AuthRequest extends Request {
 
 export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.userId || req.role !== "admin")
-    return res.status(403).json({ message: "Access denied!" });
+    return res.status(403).json({ code: 403, message: "Access denied!" });
   next();
 };
 
@@ -32,9 +32,9 @@ export const authMiddleware = async (
     next();
   } catch (err: any) {
     if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid JWT token." });
+      return res.status(401).json({ code: 401, message: "Invalid JWT token." });
     } else if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token has expired." });
-    } else return res.status(401).json({ message: "Unauthorized request." });
+      return res.status(401).json({ code: 401, message: "Token has expired." });
+    } else return res.status(401).json({ code: 401, message: "Unauthorized request." });
   }
 };
