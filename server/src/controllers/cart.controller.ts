@@ -141,40 +141,37 @@ const clearCart = async (req: AuthRequest, res: Response) => {
 
 const syncLocalCart = async (req: AuthRequest, res: Response) => {
   const { localCart } = req.body;
-  if (!Array.isArray(localCart)) {
+  if (!Array.isArray(localCart))
     return res.status(400).json({ success: false, message: "Invalid local cart data." });
-  }
 
   try {
     const userId = req.userId;
+    // 查找或建立使用者的購物車
     let cart = await CartModel.findOne({ userId });
-    
     if (!cart) {
       cart = new CartModel({ userId, items: [] });
       await cart.save();
     }
 
-    // Process each local cart item
+    // 把本地購物車的商品同步到資料庫
     for (const item of localCart) {
       const { productId, quantity } = item;
       
-      // Verify product exists and check stock
       const product = await ProductModel.findById(productId);
       if (!product) continue;
 
-      // Find existing cart item
       const existingCartItem = await CartItemModel.findOne({
         cartId: cart._id,
         productId,
       });
 
+      // 若購物車中已存在相同商品，則更新數量。
       if (existingCartItem) {
-        // Calculate new quantity (sum of local and backend), respecting stock limit
+        // 不能超過庫存
         const newQuantity = Math.min(existingCartItem.quantity + quantity, product.countInStock);
         existingCartItem.quantity = newQuantity;
         await existingCartItem.save();
-      } else {
-        // Create new cart item with quantity limited by stock
+      } else { // 不存在就新增商品
         const newQuantity = Math.min(quantity, product.countInStock);
         const cartItem = new CartItemModel({
           cartId: cart._id,
@@ -188,11 +185,11 @@ const syncLocalCart = async (req: AuthRequest, res: Response) => {
 
     await cart.save();
 
-    // Return updated cart with product details
     const updatedCart = await CartModel.findOne({ userId }).populate<{
       items: ICartItem[];
     }>("items");
 
+    // 填入購物車中的商品資料
     const populatedItems = await Promise.all(
       updatedCart!.items.map(async (item: ICartItem) => {
         const product = await ProductModel.findById(item.productId);
