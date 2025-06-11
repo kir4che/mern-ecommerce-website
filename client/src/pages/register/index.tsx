@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 
-import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
@@ -38,7 +37,7 @@ const Register = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+    <div className="w-full max-w-sm px-5 mx-auto md:px-8">
       <h2 className="mb-8 -mt-12 text-2xl text-center">註冊會員</h2>
       <form
         className="flex flex-col gap-4 md:text-sm"
@@ -84,7 +83,7 @@ const Register = () => {
           </Link>
         </p>
       </form>
-    </Layout>
+    </div>
   );
 };
 

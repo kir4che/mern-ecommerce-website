@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import { useAxios } from "@/hooks/useAxios";
 import { useAuth } from "@/hooks/useAuth";
 
-import Layout from "@/layouts/AppLayout";
 import OrderTable from "@/components/organisms/OrdersTable";
 import ProductsManager from "@/components/organisms/ProductsManager";
 import NewsManager from "@/components/organisms/NewsManager";
@@ -47,7 +46,7 @@ const AdminDashboard = () => {
   }, [productsLoading, newsLoading]);
 
   return (
-    <Layout className="px-4 py-4 md:px-8">
+    <div className="px-4 py-4 md:px-8">
       <h2 className="mb-3">管理員後台</h2>
       {initialLoading ? (
         <Loading />
@@ -102,7 +101,7 @@ const AdminDashboard = () => {
       )}
       {/* 訂單管理 */}
       <OrderTable isAdmin={true} />
-    </Layout>
+    </div>
   );
 };
 

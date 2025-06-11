@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 
-import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
@@ -52,7 +51,7 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-4 mx-auto">
+    <div className="w-full max-w-sm px-4 mx-auto">
       <h2 className="mb-8 -mt-12 text-xl text-center ">重設密碼</h2>
       <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
         <Input
@@ -77,7 +76,7 @@ const ResetPassword: React.FC = () => {
           重設密碼
         </Button>
       </form>
-    </Layout>
+    </div>
   );
 };
 

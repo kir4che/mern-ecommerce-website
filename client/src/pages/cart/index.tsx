@@ -13,7 +13,6 @@ import {
 } from "@/utils/cartUtils";
 import { addComma } from "@/utils/addComma";
 
-import Layout from "@/layouts/AppLayout";
 import Modal from "@/components/molecules/Modal";
 import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn";
 import Button from "@/components/atoms/Button";
@@ -44,7 +43,8 @@ const Cart = () => {
 
   const sortedCart = [...cart].sort(
     (a, b) =>
-      Number(b.product.countInStock > 0) - Number(a.product.countInStock > 0),
+      Number((b.product.countInStock ?? 0) > 0) -
+      Number((a.product.countInStock ?? 0) > 0),
   );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
@@ -89,7 +89,7 @@ const Cart = () => {
   }, [cartError, showAlert]);
 
   return !cart || cart.length === 0 ? (
-    <Layout className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
+    <div className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
       <CartImg className="w-full max-w-96 sm:w-96" />
       <div className="space-y-6 text-center md:text-left">
         <p className="text-xl">購物車是空的，快去選購吧！</p>
@@ -97,9 +97,9 @@ const Cart = () => {
           繼續購物
         </Button>
       </div>
-    </Layout>
+    </div>
   ) : (
-    <Layout className="relative flex flex-col w-full max-w-screen-xl px-5 py-8 mx-auto bg-secondary xl:px-0 md:flex-row gap-x-12">
+    <div className="relative flex flex-col w-full max-w-screen-xl px-5 py-8 mx-auto bg-secondary xl:px-0 md:flex-row gap-x-12">
       <div className="space-y-4 md:w-3/4">
         <div className="flex items-center justify-between">
           <h2>購物車</h2>
@@ -125,13 +125,13 @@ const Cart = () => {
           <ul className="flex flex-col py-5 gap-y-6">
             {sortedCart.map((item) => (
               <li
-                className={`flex w-full gap-x-4 ${item.product.countInStock <= 0 ? "opacity-50" : ""}`}
+                className={`flex w-full gap-x-4 ${(item.product.countInStock ?? 0) <= 0 ? "opacity-50" : ""}`}
                 key={item.productId}
               >
                 <Link
                   to={`/products/${item.productId}`}
                   target="_blank"
-                  className={`w-36 ${item.product.countInStock <= 0 ? "pointer-events-none" : ""}`}
+                  className={`w-36 ${(item.product.countInStock ?? 0) <= 0 ? "pointer-events-none" : ""}`}
                 >
                   <img
                     src={item.product.imageUrl}
@@ -148,7 +148,7 @@ const Cart = () => {
                   <div className="flex items-center justify-between">
                     <Link
                       to={`/products/${item.productId}`}
-                      className={`font-medium ${item.product.countInStock <= 0 ? "text-gray-400 pointer-events-none" : ""}`}
+                      className={`font-medium ${(item.product.countInStock ?? 0) <= 0 ? "text-gray-400 pointer-events-none" : ""}`}
                     >
                       {item.product.title}
                     </Link>
@@ -161,13 +161,15 @@ const Cart = () => {
                   </div>
                   <p
                     className={
-                      item.product.countInStock <= 0 ? "text-gray-400" : ""
+                      (item.product.countInStock ?? 0) <= 0
+                        ? "text-gray-400"
+                        : ""
                     }
                   >
                     NT$ {addComma(item.product.price)}
                   </p>
                   <div className="flex items-center justify-between mt-auto">
-                    {item.product.countInStock <= 0 ? (
+                    {(item.product.countInStock ?? 0) <= 0 ? (
                       <span className="font-semibold text-red-500">已售完</span>
                     ) : (
                       <div className="flex items-center">
@@ -180,7 +182,7 @@ const Cart = () => {
                               item.quantity - 1,
                               {
                                 _id: item._id,
-                                countInStock: item.product.countInStock,
+                                countInStock: item.product.countInStock ?? 0,
                               },
                               (value) => changeQuantity(item._id, value),
                             )
@@ -190,20 +192,20 @@ const Cart = () => {
                         <Input
                           type="number"
                           min={1}
-                          max={item.product.countInStock}
+                          max={item.product.countInStock ?? 0}
                           value={item.quantity}
                           onChange={(e) =>
                             handleQuantityChange(
                               Number(e.target.value),
                               {
                                 _id: item._id,
-                                countInStock: item.product.countInStock,
+                                countInStock: item.product.countInStock ?? 0,
                               },
                               (value) => changeQuantity(item._id, value),
                             )
                           }
                           onKeyDown={preventInvalidInput}
-                          disabled={item.product.countInStock <= 0}
+                          disabled={(item.product.countInStock ?? 0) <= 0}
                           wrapperStyle="noInnerSpin"
                           inputStyle="min-h-7 rounded-none border-gray-200"
                         />
@@ -216,17 +218,19 @@ const Cart = () => {
                               item.quantity + 1,
                               {
                                 _id: item._id,
-                                countInStock: item.product.countInStock,
+                                countInStock: item.product.countInStock ?? 0,
                               },
                               (value) => changeQuantity(item._id, value),
                             )
                           }
-                          disabled={item.quantity >= item.product.countInStock}
+                          disabled={
+                            item.quantity >= (item.product.countInStock ?? 0)
+                          }
                         />
                       </div>
                     )}
                     <p
-                      className={`text-lg font-semibold ${item.product.countInStock <= 0 ? "text-gray-400" : ""}`}
+                      className={`text-lg font-semibold ${(item.product.countInStock ?? 0) <= 0 ? "text-gray-400" : ""}`}
                     >
                       NT$ {addComma(item.product.price * item.quantity)}
                     </p>
@@ -276,7 +280,7 @@ const Cart = () => {
                   <SwiperSlide className="block min-w-28" key={product._id}>
                     <Link
                       to={`/products/${product._id}`}
-                      className={`flex flex-col gap-2 ${product.countInStock <= 0 ? "opacity-50 pointer-events-none" : ""}`}
+                      className={`flex flex-col gap-2 ${(product.countInStock ?? 0) <= 0 ? "opacity-50 pointer-events-none" : ""}`}
                       target="_blank"
                     >
                       <img
@@ -327,7 +331,7 @@ const Cart = () => {
           前往付款
         </Button>
       </div>
-    </Layout>
+    </div>
   );
 };
 

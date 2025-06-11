@@ -8,7 +8,6 @@ import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
-import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import DropdownMenu from "@/components/atoms/DropdownMenu";
 import BlurImage from "@/components/atoms/BlurImage";
@@ -32,7 +31,7 @@ const App = () => {
   );
 
   return (
-    <Layout>
+    <>
       {/* 跑馬燈 & 商品類別 */}
       <section className="px-5 pb-8 md:px-8">
         <div className="relative">
@@ -171,7 +170,7 @@ const App = () => {
         <div className="absolute top-0 left-0 z-10 w-full h-full bg-black/50"></div>
       </section>
       {/* Shop List */}
-      <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
+      <section className="max-w-screen-xl w-full px-5 mx-auto my-12 space-y-3 md:px-8">
         <hr className="w-full border-primary/30" />
         {renderTitle("Shop List", "店家一覽")}
         <div className="flex flex-col gap-y-4 gap-x-12 md:flex-row">
@@ -209,7 +208,7 @@ const App = () => {
       </section>
       {/* News */}
       {(data?.news ?? []).length > 0 && (
-        <section className="max-w-screen-xl px-5 mx-auto my-12 space-y-3 md:px-8">
+        <section className="max-w-screen-xl w-full px-5 mx-auto my-12 space-y-3 md:px-8">
           <hr className="w-full border-primary/30" />
           <div className="flex items-center justify-between">
             {renderTitle("News", "最新消息")}
@@ -243,7 +242,7 @@ const App = () => {
           </ul>
         </section>
       )}
-    </Layout>
+    </>
   );
 };
 

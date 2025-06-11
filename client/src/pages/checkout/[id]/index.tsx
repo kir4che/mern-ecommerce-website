@@ -4,7 +4,6 @@ import { useParams } from "react-router";
 import { useAxios } from "@/hooks/useAxios";
 import { addComma } from "@/utils/addComma";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import Loading from "@/components/atoms/Loading";
 import Input from "@/components/atoms/Input";
@@ -107,7 +106,7 @@ const Checkout: React.FC = () => {
     return <NotFound message={error?.message} />;
 
   return (
-    <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
+    <div className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
       <form className="flex-1 order-2" onSubmit={handleSubmit}>
         {/* 購買人資訊 */}
         <div className="mb-8 space-y-4">
@@ -249,7 +248,7 @@ const Checkout: React.FC = () => {
           className="textarea textarea-bordered"
         />
       </div>
-    </Layout>
+    </div>
   );
 };
 

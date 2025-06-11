@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
 
-import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
@@ -57,7 +56,7 @@ const RequestResetLink: React.FC = () => {
   };
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+    <div className="w-full max-w-sm px-5 mx-auto md:px-8">
       <h2 className="mb-8 -mt-12 text-2xl text-center">重設密碼</h2>
       <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
         <Input
@@ -81,7 +80,7 @@ const RequestResetLink: React.FC = () => {
           {countdown > 0 ? `${countdown} 秒後可以重新發送` : "發送重設連結"}
         </Button>
       </form>
-    </Layout>
+    </div>
   );
 };
 

@@ -4,7 +4,6 @@ import { Link } from "react-router";
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
 import Pagination from "@/components/molecules/Pagination";
@@ -87,7 +86,7 @@ const News = () => {
   if (isError) return <NotFound message={error?.message} />;
 
   return (
-    <Layout>
+    <>
       <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
       {isLoading ? (
         <div className="flex justify-center py-20">
@@ -109,7 +108,7 @@ const News = () => {
           )}
         </>
       )}
-    </Layout>
+    </>
   );
 };
 
