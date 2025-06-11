@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 
 import { useAxios } from "@/hooks/useAxios";
@@ -112,4 +112,4 @@ const News = () => {
   );
 };
 
-export default memo(News);
+export default News;

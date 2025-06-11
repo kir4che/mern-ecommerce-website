@@ -20,9 +20,13 @@ const QuantityInput: React.FC<QuantityInputProps> = ({ item }) => {
   const [inputValue, setInputValue] = useState(item.quantity);
 
   const debouncedChangeQuantity = useCallback(
-    debounce((cartItemId: string, newQuantity: number) => {
-      if (newQuantity > 0) changeQuantity(cartItemId, newQuantity);
-    }, 500),
+    debounce(
+      (cartItemId: string, newQuantity: number) => {
+        if (newQuantity > 0) changeQuantity(cartItemId, newQuantity);
+      },
+      300,
+      { leading: false, trailing: true },
+    ),
     [changeQuantity],
   );
 

@@ -40,7 +40,7 @@ const Cart = () => {
   const sortedCart = [...cart].sort(
     (a, b) =>
       Number((b.product.countInStock ?? 0) > 0) -
-      Number((a.product.countInStock ?? 0) > 0),
+      Number((a.product.countInStock ?? 0) > 0)
   );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
@@ -183,7 +183,7 @@ const Cart = () => {
                                 _id: item._id,
                                 countInStock: item.product.countInStock ?? 0,
                               },
-                              (value) => changeQuantity(item._id, value),
+                              (value) => changeQuantity(item._id, value)
                             )
                           }
                           disabled={item.quantity <= 1}
@@ -200,7 +200,7 @@ const Cart = () => {
                                 _id: item._id,
                                 countInStock: item.product.countInStock ?? 0,
                               },
-                              (value) => changeQuantity(item._id, value),
+                              (value) => changeQuantity(item._id, value)
                             )
                           }
                           onKeyDown={preventInvalidInput}
@@ -219,7 +219,7 @@ const Cart = () => {
                                 _id: item._id,
                                 countInStock: item.product.countInStock ?? 0,
                               },
-                              (value) => changeQuantity(item._id, value),
+                              (value) => changeQuantity(item._id, value)
                             )
                           }
                           disabled={
