@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation, useSearchParams } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useAlert } from "@/context/AlertContext";
 
-import Layout from "@/layouts/AppLayout";
 import Input from "@/components/atoms/Input";
 import Checkbox from "@/components/atoms/Checkbox";
 import Button from "@/components/atoms/Button";
@@ -60,7 +59,7 @@ const Login = () => {
   }, [error]);
 
   return (
-    <Layout className="relative flex flex-col justify-center w-full max-w-sm px-5 mx-auto md:px-8">
+    <div className="w-full max-w-sm px-5 mx-auto md:px-8">
       <h2 className="mb-8 -mt-12 text-2xl text-center">登入會員</h2>
       <form className="flex flex-col gap-4 md:text-sm" onSubmit={handleLogin}>
         <Input
@@ -105,7 +104,7 @@ const Login = () => {
           </Link>
         </p>
       </form>
-    </Layout>
+    </div>
   );
 };
 

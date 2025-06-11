@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams, Link } from "react-router";
 
 import type { Product } from "@/types/product";
-import { useCart } from "@/hooks/useCart";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { addComma } from "@/utils/addComma";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import ProductSlider from "@/components/organisms/ProductSlider";
 import Accordion from "@/components/molecules/Accordion";
@@ -35,14 +33,10 @@ const ProductInfo = ({
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { cart, addToCart } = useCart();
   const { data, error, isLoading, isError, refresh } = useAxios(
     `/products/${id}`
   );
   const product = data?.product as Product;
-  const isOutOfStock = product?.countInStock <= 0;
-
-  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -54,7 +48,7 @@ const ProductPage = () => {
     return <NotFound message={error?.message} />;
 
   return (
-    <Layout className="px-5 md:px-8">
+    <div className="px-5 md:px-8">
       {isLoading ? (
         <Loading />
       ) : (
@@ -115,7 +109,7 @@ const ProductPage = () => {
           <ProductSlider />
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

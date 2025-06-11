@@ -6,11 +6,12 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
+    "test:coverage": "craco test --coverage --watchAll",
     "test:watch": "craco test --watchAll=false",
     "test:watchAll": "craco test --watchAll",
-    "test:coverage": "craco test --coverage --watchAll",
-    "eject": "craco eject",
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --quiet --fix",
     "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --quiet --fix",
     "generate-tests": "node generate-test-files.js"
   },
   "eslintConfig": {
@@ -34,7 +35,6 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/line-clamp": "^0.4.4",
-    "@types/lodash": "^4.17.16",
     "axios": "^1.7.7",
     "fs-extra": "^11.3.0",
     "lodash": "^4.17.21",
@@ -58,6 +58,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/axios-mock-adapter": "^1.9.0",
     "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

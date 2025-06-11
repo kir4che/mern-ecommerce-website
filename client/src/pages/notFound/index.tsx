@@ -2,7 +2,6 @@ import { useNavigate } from "react-router";
 
 import { useAlert } from "@/context/AlertContext";
 
-import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import { useEffect } from "react";
 
@@ -27,7 +26,7 @@ const NotFound: React.FC<NotFoundProps> = ({ message }) => {
   }, []);
 
   return (
-    <Layout className="relative flex flex-col items-center justify-center">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-20rem)]">
       <h2 className="text-4xl">404</h2>
       <p className="mt-4 mb-10 text-2xl">
         {message ? GENERAL_ERROR_MESSAGE : DEFAULT_ERROR_MESSAGE}
@@ -35,7 +34,7 @@ const NotFound: React.FC<NotFoundProps> = ({ message }) => {
       <Button onClick={() => navigate("/")} className="px-8">
         返回首頁
       </Button>
-    </Layout>
+    </div>
   );
 };
 

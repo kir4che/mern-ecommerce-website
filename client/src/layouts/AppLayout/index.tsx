@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Outlet } from "react-router";
 
 import HeaderMenu from "@/components/organisms/HeaderMenu";
 import Footer from "@/components/organisms/Footer";
@@ -6,7 +7,7 @@ import Alert from "@/components/atoms/Alert";
 
 import shopImage from "@/assets/images/about/shop1.jpg";
 
-const AppLayout = ({ className = "", children }) => {
+const AppLayout = ({ className = "" }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -30,9 +31,11 @@ const AppLayout = ({ className = "", children }) => {
           />
         </div>
       </div>
-      <main className={`flex-1 ${className}`}>
+      <main
+        className={`flex-1 relative flex flex-col justify-center w-full ${className}`}
+      >
         <Alert />
-        {children}
+        <Outlet />
       </main>
       <Footer />
     </div>

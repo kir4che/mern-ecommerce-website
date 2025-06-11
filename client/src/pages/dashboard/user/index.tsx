@@ -2,7 +2,6 @@ import { Link } from "react-router";
 
 import { useAuth } from "@/hooks/useAuth";
 
-import Layout from "@/layouts/AppLayout";
 import OrderTable from "@/components/organisms/OrdersTable";
 import Button from "@/components/atoms/Button";
 
@@ -13,7 +12,7 @@ const UserDashboard = () => {
   const { user, logout } = useAuth();
 
   return (
-    <Layout className="w-full max-w-6xl px-5 pt-8 pb-4 mx-auto md:px-8">
+    <div className="w-full max-w-6xl px-5 pt-8 pb-4 mx-auto md:px-8">
       <h2>帳戶</h2>
       <div className="flex items-center gap-4 mb-6">
         <p className="text-base">{user.email}</p>
@@ -34,7 +33,7 @@ const UserDashboard = () => {
       >
         聯繫客服 <ArrowRightIcon className="w-5 h-5" />
       </Link>
-    </Layout>
+    </div>
   );
 };
 

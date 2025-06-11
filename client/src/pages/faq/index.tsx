@@ -1,10 +1,9 @@
 import { FAQ as faqData } from "@/data";
 
-import Layout from "@/layouts/AppLayout";
 import PageHeader from "@/components/molecules/PageHeader";
 
 const FAQ = () => (
-  <Layout>
+  <>
     <PageHeader breadcrumbText="常見問題" titleEn="FAQ" titleCh="常見問題" />
     <div className="max-w-3xl px-5 py-20 mx-auto md:px-8">
       <div className="w-full space-y-4 rounded-none join join-vertical">
@@ -22,7 +21,7 @@ const FAQ = () => (
         ))}
       </div>
     </div>
-  </Layout>
+  </>
 );
 
 export default FAQ;

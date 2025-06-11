@@ -4,7 +4,6 @@ import ReactMarkdown from "react-markdown";
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
 import Loading from "@/components/atoms/Loading";
@@ -28,7 +27,7 @@ const New = () => {
   if (isError) return <NotFound message={error?.message} />;
 
   return (
-    <Layout>
+    <>
       <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
       <article className="max-w-screen-lg px-5 py-10 mx-auto whitespace-pre-line md:px-8">
         <div className="flex flex-col gap-2 pb-6 border-b md:items-center md:flex-row border-primary/50">
@@ -56,7 +55,7 @@ const New = () => {
           {newsItem.content}
         </ReactMarkdown>
       </article>
-      <div className="pt-4 border-t border-gray-400">
+      <div className="p-5 border-t border-gray-400">
         <Link
           to="/news"
           className="flex items-center justify-end gap-2 text-base hover:underline-offset-4 hover:underline"
@@ -65,7 +64,7 @@ const New = () => {
           回上一頁
         </Link>
       </div>
-    </Layout>
+    </>
   );
 };
 

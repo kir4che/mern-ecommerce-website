@@ -8,7 +8,6 @@ import { filterProductsByCategory } from "@/utils/productFilters";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { addComma } from "@/utils/addComma";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
 import AddToCartInput from "@/components/molecules/AddToCartInputBtn/AddToCartInput";
@@ -77,7 +76,7 @@ const Collections = () => {
   if (isError) return <NotFound message={error?.message} />;
 
   return (
-    <Layout>
+    <>
       <PageHeader
         breadcrumbText="商品"
         titleEn="Collections"
@@ -170,7 +169,7 @@ const Collections = () => {
           )}
         </div>
       )}
-    </Layout>
+    </>
   );
 };
 
