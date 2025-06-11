@@ -11,6 +11,7 @@
     "test:coverage": "craco test --coverage --watchAll",
     "eject": "craco eject",
     "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --quiet --fix",
     "generate-tests": "node generate-test-files.js"
   },
   "eslintConfig": {

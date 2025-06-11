@@ -12,11 +12,15 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   text,
 }) => (
   <p className={`flex items-center space-x-1 text-xs ${textColor}`}>
-    <Link to="/" className="hover:underline">
+    <Link to="/" data-testid="home-link" className="hover:underline">
       首頁
     </Link>
     <span>{">"}</span>
-    <Link to={`/${link}`} className="hover:underline">
+    <Link
+      to={`/${link}`}
+      data-testid="breadcrumb-link"
+      className="hover:underline"
+    >
       {text}
     </Link>
   </p>

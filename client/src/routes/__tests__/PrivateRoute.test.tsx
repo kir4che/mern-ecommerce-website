@@ -13,7 +13,11 @@ describe("PrivateRoute", () => {
   beforeEach(() => jest.clearAllMocks());
 
   test("redirects to login if user is not authenticated", () => {
-    (useAuth as jest.Mock).mockReturnValue({ user: null, logout: jest.fn() });
+    (useAuth as jest.Mock).mockReturnValue({
+      user: null,
+      loading: false,
+      logout: jest.fn(),
+    });
 
     render(
       <MemoryRouter initialEntries={["/protected"]}>
@@ -32,7 +36,8 @@ describe("PrivateRoute", () => {
 
   test("renders the component if user is authenticated", () => {
     (useAuth as jest.Mock).mockReturnValue({
-      user: { id: "123" },
+      user: { id: "123", email: "test@example.com" },
+      loading: false,
       logout: jest.fn(),
     });
 
@@ -43,6 +48,7 @@ describe("PrivateRoute", () => {
             path="/protected"
             element={<PrivateRoute component={MockComponent} />}
           />
+          <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
       </MemoryRouter>,
     );
