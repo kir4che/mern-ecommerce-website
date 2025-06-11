@@ -213,7 +213,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
 
   useEffect(() => {
     refreshOrders();
-  }, [currentPage, filterType, sortBy, orderBy, searchKeyword, refreshOrders]);
+  }, [currentPage, filterType, sortBy, orderBy, searchKeyword]);
 
   return (
     <>
