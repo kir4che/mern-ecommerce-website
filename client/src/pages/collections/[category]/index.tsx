@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, memo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router";
 import { useInView } from "react-intersection-observer";
 
@@ -173,4 +173,4 @@ const Collections = () => {
   );
 };
 
-export default memo(Collections);
+export default Collections;

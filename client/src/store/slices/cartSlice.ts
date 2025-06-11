@@ -54,14 +54,14 @@ export const fetchCart = createAsyncThunk(
         return validateCartQuantities(serverCart);
       } else {
         const localCart: CartItemInput[] = JSON.parse(
-          localStorage.getItem("cart") || "[]",
+          localStorage.getItem("cart") || "[]"
         );
         if (localCart.length === 0) return [];
 
         const productPromises = localCart.map((item) =>
           axios.get(
-            `${process.env.REACT_APP_API_URL}/products/${item.productId}`,
-          ),
+            `${process.env.REACT_APP_API_URL}/products/${item.productId}`
+          )
         );
 
         const productResponses = await Promise.all(productPromises);
@@ -81,7 +81,7 @@ export const fetchCart = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 // 同步本地購物車到後端
@@ -90,20 +90,20 @@ export const syncLocalCart = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const localCart = JSON.parse(
-        localStorage.getItem("cart") || "[]",
+        localStorage.getItem("cart") || "[]"
       ) as CartItemInput[];
       if (localCart.length === 0) return [];
 
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/cart/sync`,
         { localCart },
-        { withCredentials: true },
+        { withCredentials: true }
       );
       return res.data.cart || [];
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 // 加入商品至購物車
@@ -111,7 +111,7 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (
     { productId, quantity }: CartItemInput,
-    { getState, rejectWithValue },
+    { getState, rejectWithValue }
   ) => {
     try {
       const {
@@ -127,7 +127,7 @@ export const addToCart = createAsyncThunk(
         await axios.post(
           `${process.env.REACT_APP_API_URL}/cart`,
           { productId, quantity },
-          { withCredentials: true },
+          { withCredentials: true }
         );
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
           withCredentials: true,
@@ -136,7 +136,7 @@ export const addToCart = createAsyncThunk(
       } else {
         const newCart = [...currentCart];
         const existingItemIndex = newCart.findIndex(
-          (item) => item.productId === productId,
+          (item) => item.productId === productId
         );
 
         if (existingItemIndex !== -1) {
@@ -145,7 +145,7 @@ export const addToCart = createAsyncThunk(
           newCart[existingItemIndex] = updatedItem;
         } else {
           const productRes = await axios.get(
-            `${process.env.REACT_APP_API_URL}/products/${productId}`,
+            `${process.env.REACT_APP_API_URL}/products/${productId}`
           );
           const productDetails = productRes.data.product;
           newCart.push({
@@ -161,7 +161,7 @@ export const addToCart = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 // 從購物車移除商品
@@ -181,7 +181,7 @@ export const removeFromCart = createAsyncThunk(
       if (isAuthenticated) {
         await axios.delete(
           `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
-          { withCredentials: true },
+          { withCredentials: true }
         );
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
           withCredentials: true,
@@ -194,7 +194,7 @@ export const removeFromCart = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 // 更新購物車商品數量
@@ -202,7 +202,7 @@ export const changeQuantity = createAsyncThunk(
   "cart/changeQuantity",
   async (
     { cartItemId, quantity }: { cartItemId: string; quantity: number },
-    { getState, rejectWithValue },
+    { getState, rejectWithValue }
   ) => {
     try {
       const {
@@ -217,23 +217,25 @@ export const changeQuantity = createAsyncThunk(
         await axios.patch(
           `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
           { quantity },
-          { withCredentials: true },
+          { withCredentials: true }
         );
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
-          withCredentials: true,
-        });
-        return res.data.cart || [];
+        const updatedCart = currentCart
+          .map((item) =>
+            item._id === cartItemId ? { ...item, quantity } : item
+          )
+          .filter((item) => item.quantity > 0);
+        return updatedCart;
       } else {
         return currentCart
           .map((item) =>
-            item._id === cartItemId ? { ...item, quantity } : item,
+            item._id === cartItemId ? { ...item, quantity } : item
           )
           .filter((item) => item.quantity > 0);
       }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 // 清空購物車
@@ -253,7 +255,7 @@ export const clearCart = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(handleError(err));
     }
-  },
+  }
 );
 
 const cartActionPending = isAnyOf(
@@ -262,7 +264,7 @@ const cartActionPending = isAnyOf(
   addToCart.pending,
   removeFromCart.pending,
   changeQuantity.pending,
-  clearCart.pending,
+  clearCart.pending
 );
 
 const cartActionRejected = isAnyOf(
@@ -271,7 +273,7 @@ const cartActionRejected = isAnyOf(
   addToCart.rejected,
   removeFromCart.rejected,
   changeQuantity.rejected,
-  clearCart.rejected,
+  clearCart.rejected
 );
 
 const cartActionFulfilled = isAnyOf(
@@ -280,7 +282,7 @@ const cartActionFulfilled = isAnyOf(
   addToCart.fulfilled,
   removeFromCart.fulfilled,
   changeQuantity.fulfilled,
-  clearCart.fulfilled,
+  clearCart.fulfilled
 );
 
 const cartSlice = createSlice({
@@ -318,12 +320,12 @@ export const selectCartError = (state: RootState) => state.cart.error;
 export const selectTotalQuantity = (state: RootState) =>
   (state.cart.cart || []).reduce(
     (total, item) => total + (item.quantity || 0),
-    0,
+    0
   );
 export const selectSubtotal = (state: RootState) =>
   (state.cart.cart || []).reduce(
     (total, item) => total + (item.quantity || 0) * (item.product?.price || 0),
-    0,
+    0
   );
 
 export default cartSlice.reducer;

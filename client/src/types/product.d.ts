@@ -16,6 +16,4 @@ export interface Product {
   salesCount: number;
   tags: string[];
   imageUrl: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
