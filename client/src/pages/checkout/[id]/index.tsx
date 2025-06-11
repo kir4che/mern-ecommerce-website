@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { useAxios } from "@/hooks/useAxios";
 import { addComma } from "@/utils/addComma";
 
-import Layout from "@/layouts/AppLayout";
 import NotFound from "@/pages/notFound";
 import Loading from "@/components/atoms/Loading";
 import Input from "@/components/atoms/Input";
@@ -104,7 +103,7 @@ const Checkout: React.FC = () => {
   if (!isLoading && (error || !data)) return <NotFound message={["無法加載訂單資料，請稍後再試！"]} />;
 
   return (
-    <Layout className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
+    <div className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
       <form className="flex-1 order-2" onSubmit={handleSubmit}>
         {/* 購買人資訊 */}
         <div className="mb-8 space-y-4">
@@ -219,8 +218,7 @@ const Checkout: React.FC = () => {
           className="textarea textarea-bordered"
         />
       </div>
-      {errorMessage && <Alert type="error" message={errorMessage} className="absolute transform -translate-x-1/2 w-fit top-6 left-1/2" />}
-    </Layout>
+    </div>
   );
 };
 

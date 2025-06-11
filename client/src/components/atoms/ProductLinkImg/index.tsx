@@ -1,5 +1,8 @@
 import { Link } from "react-router";
-import { Product } from "@/types/product";
+
+import type { Product } from "@/types/product";
+
+import BlurImage from "@/components/atoms/BlurImage";
 
 interface ProductLinkImgProps {
   product: Partial<Product>;
@@ -19,14 +22,10 @@ const ProductLinkImg: React.FC<ProductLinkImgProps> = ({
       to={data?.products ? `/products/${product._id}` : "#"}
       className={`relative inline-block overflow-hidden rounded-full aspect-square ${!isError ? "img-with-overlay" : "bg-gray-200"} ${className}`}
     >
-      <img
+      <BlurImage
         src={product.imageUrl}
         alt={product.title}
-        className={`relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2] opacity-0 ${isError ? "opacity-50" : ""}`}
-        onLoad={(e) => (e.currentTarget.style.opacity = "1")}
-        onError={(e) =>
-          (e.currentTarget.src = "https://placehold.co/300x300?text=No Image")
-        }
+        className="relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2]"
       />
       {data?.products && (
         <div className="hidden overlay">

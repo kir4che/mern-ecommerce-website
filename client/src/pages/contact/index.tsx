@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { useAlert } from "@/context/AlertContext";
 
-import Layout from "@/layouts/AppLayout";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 
@@ -39,7 +38,7 @@ const Contact = () => {
   };
 
   return (
-    <Layout className="flex flex-col items-center justify-center w-full max-w-lg px-5 mx-auto md:px-8">
+    <div className="flex flex-col items-center justify-center w-full max-w-lg px-5 mx-auto md:px-8">
       <h2 className="mb-10 text-2xl text-center">聯繫我們</h2>
       <form onSubmit={handleSubmit} className="w-full space-y-4">
         <div className="flex flex-col gap-4 md:flex-row">
@@ -79,7 +78,7 @@ const Contact = () => {
           傳送
         </Button>
       </form>
-    </Layout>
+    </div>
   );
 };
 

@@ -4,7 +4,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import { ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
 
-import Layout from "@/layouts/AppLayout";
 import Breadcrumb from "@/components/molecules/Breadcrumb";
 import BlurImage from "@/components/atoms/BlurImage";
 
@@ -22,7 +21,7 @@ const About = () => {
   }, []);
 
   return (
-    <Layout>
+    <div>
       <section className="px-5 pt-4 bg-center bg-no-repeat bg-cover md:px-8 bg-about-cover">
         <Breadcrumb
           text={ABOUT.title}
@@ -139,7 +138,7 @@ const About = () => {
           </div>
         ))}
       </section>
-    </Layout>
+    </div>
   );
 };
 
