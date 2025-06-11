@@ -61,11 +61,15 @@ export const fetchCart = createAsyncThunk(
         return cartWithDetails;
       } else {
         // 已登入：從後端獲取購物車
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { withCredentials: true },
-        );
-        return response.data.cart || [];
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_API_URL}/cart`,
+            { withCredentials: true },
+          );
+          return response.data.cart || [];
+        } catch (err: any) {
+          throw err;
+        }
       }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
@@ -132,16 +136,20 @@ export const addToCart = createAsyncThunk(
         return dispatch(fetchCart()).unwrap();
       } else {
         // 已登入：加入商品至後端購物車
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { productId, quantity },
-          { withCredentials: true },
-        );
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { withCredentials: true },
-        );
-        return response.data.cart || [];
+        try {
+          await axios.post(
+            `${process.env.REACT_APP_API_URL}/cart`,
+            { productId, quantity },
+            { withCredentials: true },
+          );
+          const response = await axios.get(
+            `${process.env.REACT_APP_API_URL}/cart`,
+            { withCredentials: true },
+          );
+          return response.data.cart || [];
+        } catch (err: any) {
+          throw err;
+        }
       }
     } catch (err: any) {
       return rejectWithValue(handleError(err));
@@ -170,8 +178,8 @@ export const removeFromCart = createAsyncThunk(
 );
 
 // 更新購物車商品數量
-export const updateQuantity = createAsyncThunk(
-  "cart/updateQuantity",
+export const changeQuantity = createAsyncThunk(
+  "cart/changeQuantity",
   async (
     { cartItemId, quantity }: { cartItemId: string; quantity: number },
     { rejectWithValue },
@@ -266,12 +274,12 @@ const cartSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(updateQuantity.fulfilled, (state, action) => {
+      .addCase(changeQuantity.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cart = action.payload;
         state.error = null;
       })
-      .addCase(updateQuantity.rejected, (state, action) => {
+      .addCase(changeQuantity.rejected, (state, action) => {
         state.error = action.payload as string;
       })
       .addCase(clearCart.fulfilled, (state) => {

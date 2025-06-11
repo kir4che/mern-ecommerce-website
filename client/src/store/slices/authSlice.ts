@@ -14,12 +14,21 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-// 若有則從 localStorage 取得先前登入的使用者資料
+// 從 localStorage 取得先前登入的使用者資料，確保只讀取一次。
+const getUserFromStorage = () => {
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const isAuthenticated = Boolean(user);
+  return { user, isAuthenticated };
+};
+
+const { user, isAuthenticated } = getUserFromStorage();
+
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
+  user,
   loading: false,
   error: null,
-  isAuthenticated: Boolean(localStorage.getItem("user")),
+  isAuthenticated,
 };
 
 export const login = createAsyncThunk(
@@ -63,7 +72,13 @@ export const logout = createAsyncThunk("auth/logout", async () => {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setAuthState: (state, action) => {
+      const { isAuthenticated: newAuthState } = action.payload;
+      if (state.isAuthenticated !== newAuthState)
+        state.isAuthenticated = newAuthState;
+    },
+  },
   // 使用 extraReducers 新增非同步 action 的處理程序
   extraReducers: (builder) => {
     // 設定 login 和 logout 的狀態轉換
