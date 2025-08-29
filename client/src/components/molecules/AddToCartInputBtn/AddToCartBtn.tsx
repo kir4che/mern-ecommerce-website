@@ -1,8 +1,8 @@
 import React from "react";
 
 import type { Product } from "@/types/product";
-import { handleAddToCart } from "@/utils/cartUtils";
 import { useCart } from "@/hooks/useCart";
+import { useAlert } from "@/context/AlertContext";
 
 import Button from "@/components/atoms/Button";
 
@@ -17,7 +17,6 @@ interface AddToCartBtnProps {
   product: Partial<Product>;
   quantity: number;
   onAddSuccess?: () => void;
-  onQuantityChange?: (quantity: number) => void;
 }
 
 const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
@@ -28,10 +27,9 @@ const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
   product,
   quantity,
   onAddSuccess,
-  onQuantityChange,
 }) => {
   const { cart, addToCart } = useCart();
-  const [isAdding, setIsAdding] = React.useState(false);
+  const { showAlert } = useAlert();
 
   // 檢查購物車中已存在的商品數量
   const existingQuantity =
@@ -42,28 +40,16 @@ const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
   // 檢查商品是否已無庫存或達到最大購買數量
   const isOutOfStock = availableStock <= 0;
 
-  const handleAdd = async () => {
-    if (!product._id || isOutOfStock || isAdding || quantity > availableStock)
+  const handleAdd = () => {
+    if (!product._id || isOutOfStock || quantity > availableStock) {
       return;
-
-    try {
-      setIsAdding(true);
-      await handleAddToCart(
-        {
-          _id: product._id,
-          countInStock: product.countInStock || 0,
-        },
-        Math.min(quantity, availableStock),
-        (params: { productId: string; quantity: number }) =>
-          addToCart(params.productId, params.quantity),
-        (newValue) => onQuantityChange?.(newValue),
-      );
-      onAddSuccess?.();
-    } catch (err: any) {
-      throw new Error("加入商品失敗：" + err.message);
-    } finally {
-      setIsAdding(false);
     }
+
+    onAddSuccess?.();
+
+    addToCart(product._id, quantity).catch((err) => {
+      showAlert({ variant: "error", message: err as string });
+    });
   };
 
   if (btnType === "icon") {
@@ -73,8 +59,8 @@ const AddToCartBtn: React.FC<AddToCartBtnProps> = ({
         icon={PlusIcon}
         onClick={handleAdd}
         disabled={isOutOfStock}
-        className="w-6 h-6 border-primary hover:border-primary hover:bg-primary"
-        iconStyle="hover:stroke-secondary"
+        className={`w-6 h-6 border-primary hover:border-primary hover:bg-primary`}
+        iconStyle={"hover:stroke-secondary"}
       />
     );
   }

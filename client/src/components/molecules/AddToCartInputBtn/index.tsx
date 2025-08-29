@@ -38,9 +38,6 @@ const AddToCartInputBtn: React.FC<AddToCartInputBtnProps> = ({
           setQuantity(1);
           onAddSuccess?.();
         }}
-        onQuantityChange={(newValue) => {
-          onQuantityChange?.(newValue);
-        }}
       />
     </div>
   );

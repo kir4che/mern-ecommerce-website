@@ -40,23 +40,16 @@ export const handleQuantityChange = (
 export const handleAddToCart = async (
   product: Partial<Product> | null,
   quantity: number,
-  addToCart: (params: { productId: string; quantity: number }) => Promise<void>,
+  addToCart: (params: { productId: string; quantity: number }) => Promise<any>,
   setQuantity?: (value: number) => void,
 ) => {
-  if (!product) return;
+  if (!product?._id) return;
 
-  try {
-    const validQuantity = Math.max(1, quantity || 1);
+  const validQuantity = Math.max(1, quantity || 1);
 
-    try {
-      await addToCart({ productId: product._id, quantity: validQuantity });
-    } catch (err: any) {
-      throw new Error("加入商品失敗：" + err.message);
-    }
-    setQuantity?.(product.countInStock > 0 ? 1 : 0);
-  } catch (err: any) {
-    throw new Error("加入商品失敗：" + err.message);
-  }
+  await addToCart({ productId: product._id, quantity: validQuantity });
+
+  setQuantity?.(product.countInStock > 0 ? 1 : 0);
 };
 
 // 移除購物車中商品

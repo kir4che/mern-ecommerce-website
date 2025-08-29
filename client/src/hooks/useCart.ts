@@ -26,21 +26,20 @@ export const useCart = () => {
   const subtotal = useSelector(selectSubtotal);
 
   // 新增商品到購物車（throttled）
-  const throttledAddToCart = throttle(
-    async (productId: string, quantity: number) => {
-      if (!productId) return;
+  const throttledAddToCart = useCallback(
+    throttle(
+      (productId: string, quantity: number) => {
+        if (!productId) return Promise.reject("商品 ID 不存在");
 
-      const validQuantity = Math.max(1, quantity || 1);
-      try {
-        await dispatch(
+        const validQuantity = Math.max(1, quantity || 1);
+        return dispatch(
           addToCart({ productId, quantity: validQuantity }),
         ).unwrap();
-      } catch (err: any) {
-        throw new Error("加入商品失敗：" + (err.message || "未知錯誤"));
-      }
-    },
-    300,
-    { leading: true, trailing: false },
+      },
+      1000,
+      { leading: true, trailing: false },
+    ),
+    [dispatch],
   );
 
   // 移除購物車商品
@@ -63,6 +62,7 @@ export const useCart = () => {
   }, [dispatch]);
 
   return {
+    dispatch,
     cart,
     isLoading,
     error,

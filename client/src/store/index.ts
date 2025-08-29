@@ -1,12 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
 
-import authReducer from "@/store/slices/authSlice";
-import cartReducer from "@/store/slices/cartSlice";
-import {
-  cartListenerMiddleware,
-  initializeCart,
-} from "@/store/middleware/cartMiddleware";
+import authReducer, { initializeAuth } from "@/store/slices/authSlice";
+import cartReducer, { fetchCart } from "@/store/slices/cartSlice";
+import { authListenerMiddleware } from "@/store/middleware/authMiddleware";
+import { cartListenerMiddleware } from "@/store/middleware/cartMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -15,11 +13,15 @@ export const store = configureStore({
   },
   // prepend：優先執行 cartListenerMiddleware
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(cartListenerMiddleware.middleware),
+    getDefaultMiddleware().prepend(
+      authListenerMiddleware.middleware,
+      cartListenerMiddleware.middleware,
+    ),
 });
 
-// 初始化購物車
-store.dispatch(initializeCart());
+// 初始化驗證和購物車狀態
+store.dispatch(initializeAuth());
+store.dispatch(fetchCart());
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
