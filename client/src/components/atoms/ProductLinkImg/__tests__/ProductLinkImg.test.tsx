@@ -8,17 +8,11 @@ describe("ProductLinkImg Component", () => {
     imageUrl: "https://example.com/product.jpg",
     title: "Test Product",
   };
-  const mockData = { products: true };
-  const mockIsError = false;
 
   test("renders a link image with the correct 'to' attribute", () => {
     render(
       <MemoryRouter>
-        <ProductLinkImg
-          product={mockProduct}
-          data={mockData}
-          isError={mockIsError}
-        />
+        <ProductLinkImg product={mockProduct} />
       </MemoryRouter>,
     );
 
@@ -26,6 +20,8 @@ describe("ProductLinkImg Component", () => {
       "href",
       `/products/${mockProduct._id}`,
     );
+
+    // 圖片的 src 是否為指定圖片網址
     expect(screen.getByRole("img")).toHaveAttribute(
       "src",
       mockProduct.imageUrl,

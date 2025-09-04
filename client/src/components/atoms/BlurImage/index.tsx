@@ -11,20 +11,22 @@ const BlurImage = ({ src, alt, className }: BlurImageProps) => {
   const [isLoading, setLoading] = useState(true);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className={`relative overflow-hidden ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 bg-center bg-cover blur-md" />
+        <div
+          data-testid="blur-background"
+          className="absolute inset-0 bg-center bg-cover blur-md scale-110"
+          style={{ backgroundImage: `url(${src})` }}
+        />
       )}
       <img
         src={src}
         alt={alt}
-        className={`
-          duration-700 ease-in-out
-          ${isLoading ? "scale-110 blur-md" : "scale-100 blur-0"}
-          ${className}
-        `}
-        onLoad={() => setLoading(false)}
         loading="lazy"
+        onLoad={() => setLoading(false)}
+        onError={handleError}
+        data-testid="blur-image"
+        className={`relative w-full h-full object-cover object-center duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
       />
     </div>
   );
