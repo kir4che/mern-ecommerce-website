@@ -20,8 +20,6 @@ import "swiper/css/navigation";
 
 interface ProductCardProps {
   product: Product;
-  data: any;
-  isError: boolean;
 }
 
 const ProductSlider = () => {
@@ -84,7 +82,7 @@ const ProductSlider = () => {
       </div>
     );
 
-  if (isError) {
+  if (isError)
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <p className="mb-4 text-xl text-gray-800">抱歉，暫時無法取得商品資訊</p>
@@ -112,7 +110,6 @@ const ProductSlider = () => {
         )}
       </div>
     );
-  }
 
   if (!recommendedProducts.length)
     return (
@@ -124,11 +121,10 @@ const ProductSlider = () => {
   return (
     <div className="relative">
       <Swiper
-        centeredSlides
-        spaceBetween={24}
+        spaceBetween={20}
         modules={[Autoplay, Navigation]}
         autoplay={{
-          delay: 10000,
+          delay: 5000,
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
@@ -140,7 +136,7 @@ const ProductSlider = () => {
       >
         {recommendedProducts.map((product) => (
           <SwiperSlide key={product._id}>
-            <ProductCard product={product} data={data} isError={isError} />
+            <ProductCard product={product} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -148,21 +144,11 @@ const ProductSlider = () => {
   );
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  data,
-  isError,
-}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
-    <section
-      className={`relative sm:max-w-80 ${isError ? "pointer-events-none" : ""}`}
-    >
+    <section className="relative sm:max-w-80">
       <div className="absolute z-10 p-2">
-        <h3
-          className={`px-2 mb-2 text-xl w-fit bg-primary text-secondary rounded ${
-            isError ? "bg-opacity-50" : ""
-          }`}
-        >
+        <h3 className="px-2 mb-2 text-xl w-fit bg-primary text-secondary rounded">
           {product.title}
         </h3>
         <ul className="flex items-center gap-1.5 flex-wrap">
@@ -178,7 +164,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           ))}
         </ul>
       </div>
-      <ProductLinkImg product={product} data={data} isError={isError} />
+      <ProductLinkImg product={product} />
       <div className="flex flex-col gap-4 py-2 pl-4 border-l-2 border-primary">
         <div className="flex items-center justify-between">
           <p className="text-2xl font-semibold text-primary">
@@ -186,13 +172,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </p>
           <AddToCartInputBtn product={product} />
         </div>
-        <p
-          className={`overflow-hidden line-clamp-3 text-ellipsis text-gray-700 ${
-            product.allergens.length > 0 ? "mb-2" : ""
-          }`}
-        >
-          {product.description}
-        </p>
+        <div className="h-20">
+          <p
+            className={`overflow-hidden line-clamp-3 leading-6 text-ellipsis text-gray-700 ${
+              product.allergens.length > 0 ? "mb-2" : ""
+            }`}
+          >
+            {product.description}
+          </p>
+        </div>
         {product.allergens.length > 0 && (
           <div className="flex justify-between items-center text-nowrap border-t pt-2">
             <p className="text-xs text-gray-400">過敏原標示</p>
