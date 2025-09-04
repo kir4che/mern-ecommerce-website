@@ -28,6 +28,7 @@ const Collections = () => {
   const [selectedCategory, setSelectedCategory] = useState(category || "all");
   const [currentPage, setCurrentPage] = useState(1);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // 偵測 DOM 元素是否進入視窗範圍，用以實現無限滾動。
   const { ref, inView } = useInView({
@@ -60,19 +61,27 @@ const Collections = () => {
     return filteredProducts.slice(0, currentPage * ITEMS_PER_PAGE);
   }, [filteredProducts, currentPage]);
 
-  // 當商品進入視窗範圍 (inView 為 true) 且有更多商品可加載時，更新 currentPage。
+  // 當商品進入視窗範圍且有更多商品可加載時，更新 currentPage。
   useEffect(() => {
-    if (inView && filteredProducts.length > displayedProducts.length) {
-      // 提前加載更多商品
-      const loadMoreProducts = () => {
-        setCurrentPage((prev) => prev + 1);
-      };
-
-      // 使用 setTimeout 來延遲加載，讓使用者感覺更順。
-      const timeoutId = setTimeout(loadMoreProducts, 100);
-      return () => clearTimeout(timeoutId);
+    if (
+      inView &&
+      !isLoadingMore &&
+      filteredProducts.length > displayedProducts.length
+    ) {
+      setIsLoadingMore(true);
+      setCurrentPage((prev) => prev + 1);
     }
-  }, [inView, filteredProducts.length, displayedProducts.length]);
+  }, [
+    inView,
+    isLoadingMore,
+    filteredProducts.length,
+    displayedProducts.length,
+  ]);
+
+  useEffect(() => {
+    if (isLoadingMore) setIsLoadingMore(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayedProducts]);
 
   if (isError) return <NotFound message={error?.message} />;
 
