@@ -31,10 +31,17 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
 
-    if (document.documentElement.scrollHeight > window.innerHeight)
-      window.addEventListener("scroll", handleScroll);
+    handleScroll();
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    } as AddEventListenerOptions);
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   // 開啟選單時禁止滾動
@@ -57,25 +64,26 @@ const HeaderMenu: React.FC<HeaderMenuProps> = ({
     <div
       className={
         isMenuOpen
-          ? "flex-1 md:overflow-auto bg-primary duration-700"
-          : "bg-secondary"
+          ? "flex-1 bg-primary duration-700"
+          : "bg-secondary overflow-hidden"
       }
     >
       <header
         role="banner"
         className={`flex px-4 md:px-8 w-full items-center justify-between ${
           !isMenuOpen && isScrolled
-            ? "fixed h-16 border bg-secondary border-b-primary duration-300"
+            ? "fixed top-0 left-0 right-0 z-50 h-16 border-b bg-secondary border-b-primary duration-300"
             : "relative h-20 md:h-24"
         }`}
       >
         <Button
           icon={isMenuOpen ? CloseIcon : MenuIcon}
-          className={`h-fit p-2 border-[1.5px] ${
+          className={`h-fit p-2 border-[1.5px] focus:outline-none ${
             isMenuOpen
               ? "hover:bg-primary border-secondary hover:border-secondary"
               : "hover:bg-secondary"
           }`}
+          aria-label={isMenuOpen ? "關閉選單" : "開啟選單"}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           iconStyle={isMenuOpen ? "stroke-secondary" : ""}
         />

@@ -39,7 +39,7 @@ describe("HeaderMenu Component", () => {
         <MemoryRouter>
           <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         </MemoryRouter>
-      </Provider>,
+      </Provider>
     );
   };
 
