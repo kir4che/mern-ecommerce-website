@@ -16,5 +16,5 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         <RouterProvider router={router} />
       </AlertProvider>
     </ThemeProvider>
-  </Provider>,
+  </Provider>
 );

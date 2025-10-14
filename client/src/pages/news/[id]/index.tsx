@@ -8,7 +8,7 @@ import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
 import Loading from "@/components/atoms/Loading";
 
-import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
+import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
 
 const New = () => {
   const { id } = useParams();

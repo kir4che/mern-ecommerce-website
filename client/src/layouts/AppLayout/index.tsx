@@ -7,7 +7,11 @@ import Alert from "@/components/atoms/Alert";
 
 import shopImage from "@/assets/images/about/shop1.jpg";
 
-const AppLayout = ({ className = "" }) => {
+interface AppLayoutProps {
+  className?: string;
+}
+
+const AppLayout = ({ className = "" }: AppLayoutProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {

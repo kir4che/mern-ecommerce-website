@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import axios, { AxiosRequestConfig } from "axios";
+import { useEffect, useCallback, useRef, useState } from "react";
+import axios, { AxiosRequestConfig, Method } from "axios";
 
 type RequestStatus = "idle" | "loading" | "success" | "error";
 
@@ -10,116 +10,175 @@ interface ErrorResponse {
   details?: any;
 }
 
-export function useAxios(
+interface AxiosState<TData> {
+  data: TData | null;
+  status: RequestStatus;
+  error: ErrorResponse | null;
+}
+
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
+
+export const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+export function useAxios<TData = any>(
   url: string | ((params?: Record<string, any>) => string),
   config: AxiosRequestConfig = {},
   options: {
     immediate?: boolean;
     skip?: boolean;
-    onSuccess?: (data: any) => void;
+    onSuccess?: (data: TData) => void;
     onError?: (err: ErrorResponse) => void;
+    transformResponse?: (raw: any) => TData;
+    initialData?: TData | null;
   } = {},
 ) {
-  const [data, setData] = useState(null);
-  const [status, setStatus] = useState<RequestStatus>("idle");
-  const [error, setError] = useState<ErrorResponse | null>(null);
+  const {
+    immediate = true,
+    skip = false,
+    onSuccess,
+    onError,
+    transformResponse,
+    initialData = null,
+  } = options;
 
-  const { immediate = true, skip = false, onSuccess, onError } = options;
+  const initialDataRef = useRef(initialData);
+  const configRef = useRef(config);
+  const requestIdRef = useRef(0);
 
-  // 解析 URL
+  const [state, setState] = useState<AxiosState<TData>>({
+    data: initialDataRef.current,
+    status: initialDataRef.current ? "success" : "idle",
+    error: null,
+  });
+
+  const callbackRef = useRef({ onSuccess, onError, transformResponse });
+  useEffect(() => {
+    callbackRef.current = { onSuccess, onError, transformResponse };
+  }, [onSuccess, onError, transformResponse]);
+
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
+
   const resolveUrl = useCallback(
     (params?: Record<string, any>) => {
-      const baseUrl = process.env.REACT_APP_API_URL || "";
       if (typeof url === "function") {
-        const resolved = url(params);
-        if (!resolved || typeof resolved !== "string") return;
-        return `${baseUrl}${resolved}`;
+        return url(params);
       }
-      return `${baseUrl}${url}`;
+      return url;
     },
     [url],
   );
 
   const fetchData = useCallback(
     async (
-      params?: Record<string, any>,
-      newConfig?: Partial<AxiosRequestConfig>,
+      callParams?: Record<string, any>,
+      overrideConfig?: Partial<AxiosRequestConfig>,
+      signal?: AbortSignal,
     ) => {
-      if (skip || status === "loading") return;
+      if (skip) return;
 
-      setStatus("loading");
-      setError(null);
+      const currentRequestId = ++requestIdRef.current;
+      setState((prev) => ({ ...prev, status: "loading", error: null }));
+      const requestUrl = resolveUrl(callParams);
 
-      const requestUrl = resolveUrl(params);
       if (!requestUrl) {
         const errorDetails: ErrorResponse = {
           message: "The request URL is invalid!",
         };
-        setError(errorDetails);
-        onError?.(errorDetails);
-        setStatus("error");
+        if (currentRequestId === requestIdRef.current) {
+          setState({ data: null, status: "error", error: errorDetails });
+          callbackRef.current.onError?.(errorDetails);
+        }
         return;
       }
 
       try {
-        const res = await axios({
+        const baseConfig = configRef.current ?? {};
+        const mergedConfig: AxiosRequestConfig = {
+          ...baseConfig,
+          ...overrideConfig,
+        };
+        const method: Method =
+          (mergedConfig.method?.toUpperCase() as Method) || "GET";
+        const isGetLike = ["GET", "DELETE", "HEAD", "OPTIONS"].includes(method);
+        const requestDataKey = isGetLike ? "params" : "data";
+
+        const res = await api.request({
+          ...mergedConfig,
           url: requestUrl,
-          method: newConfig?.method || config.method || "GET",
-          data: params,
-          ...config,
-          ...newConfig,
+          method,
+          signal,
           headers: {
             "Content-Type": "application/json",
-            ...config.headers,
-            ...newConfig?.headers,
+            ...baseConfig.headers,
+            ...overrideConfig?.headers,
           },
+          [requestDataKey]: callParams,
         });
 
-        if (!res?.data?.success) {
-          const errorDetails: ErrorResponse = {
-            message: res?.data?.message || "Request failed!",
-            statusCode: res?.status,
-            details: res?.data?.details,
-          };
-          setError(errorDetails);
-          onError?.(errorDetails);
-          setStatus("error");
-          return;
+        const transformedData = callbackRef.current.transformResponse
+          ? callbackRef.current.transformResponse(res.data)
+          : (res.data as TData);
+
+        if (currentRequestId === requestIdRef.current) {
+          setState({ data: transformedData, status: "success", error: null });
+          callbackRef.current.onSuccess?.(transformedData);
         }
 
-        setData(res.data || {});
+        return transformedData;
+      } catch (err) {
+        if (!axios.isCancel(err)) {
+          const error = err as any;
+          const errorDetails: ErrorResponse = {
+            message:
+              error?.response?.data?.message ||
+              error?.message ||
+              "Request failed!",
+            code: error?.response?.data?.code,
+            statusCode: error?.response?.status,
+            details: error?.response?.data?.details,
+          };
 
-        onSuccess?.(res.data);
-        setStatus("success");
-
-        return res.data;
-      } catch (err: any) {
-        const errorDetails: ErrorResponse = {
-          message:
-            err.response?.data?.message || err.message || "Request failed!",
-          code: err.response?.data?.code,
-          statusCode: err.response?.status,
-          details: err.response?.data?.details,
-        };
-        setError(errorDetails);
-        onError?.(errorDetails);
-        setStatus("error");
+          if (currentRequestId === requestIdRef.current) {
+            setState({ data: null, status: "error", error: errorDetails });
+            callbackRef.current.onError?.(errorDetails);
+          }
+        }
       }
     },
-    [config, onError, resolveUrl, skip, status, onSuccess],
+    [skip, resolveUrl],
   );
 
   useEffect(() => {
-    if (immediate && !skip) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, skip, url]);
+    if (immediate && !skip) {
+      const controller = new AbortController();
+      fetchData(undefined, undefined, controller.signal);
+
+      return () => {
+        controller.abort();
+      };
+    }
+  }, [immediate, skip, fetchData]);
 
   return {
-    data,
-    error,
-    isLoading: status === "loading",
-    isSuccess: status === "success",
-    isError: status === "error",
-    refresh: fetchData,
+    ...state,
+    isLoading: state.status === "loading",
+    isSuccess: state.status === "success",
+    isError: state.status === "error",
+    refresh: (
+      params?: Record<string, any>,
+      overrideConfig?: Partial<AxiosRequestConfig>,
+    ) => fetchData(params, overrideConfig),
+    reset: () =>
+      setState({
+        data: initialDataRef.current,
+        status: initialDataRef.current ? "success" : "idle",
+        error: null,
+      }),
   };
 }

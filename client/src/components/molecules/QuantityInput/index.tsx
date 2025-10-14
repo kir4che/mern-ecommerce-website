@@ -8,8 +8,8 @@ import type { CartItem } from "@/types/cart";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 
-import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
-import { ReactComponent as MinusIcon } from "@/assets/icons/minus.inline.svg";
+import PlusIcon from "@/assets/icons/plus.inline.svg?react";
+import MinusIcon from "@/assets/icons/minus.inline.svg?react";
 
 interface QuantityInputProps {
   item: CartItem;

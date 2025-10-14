@@ -1,4 +1,4 @@
-import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.inline.svg";
+import ArrowDownIcon from "@/assets/icons/nav-arrow-down.inline.svg?react";
 
 interface AccordionProps {
   title: string;

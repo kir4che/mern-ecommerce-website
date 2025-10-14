@@ -7,9 +7,9 @@ import { useAlert } from "@/context/AlertContext";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as UploadIcon } from "@/assets/icons/upload.inline.svg";
-import { ReactComponent as SuccessIcon } from "@/assets/icons/success.inline.svg";
-import { ReactComponent as ErrorIcon } from "@/assets/icons/error.inline.svg";
+import UploadIcon from "@/assets/icons/upload.inline.svg?react";
+import SuccessIcon from "@/assets/icons/success.inline.svg?react";
+import ErrorIcon from "@/assets/icons/error.inline.svg?react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 

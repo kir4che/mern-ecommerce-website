@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 
-import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.inline.svg";
+import ArrowDownIcon from "@/assets/icons/nav-arrow-down.inline.svg?react";
 
 interface DropdownMenuProps {
   title: string;

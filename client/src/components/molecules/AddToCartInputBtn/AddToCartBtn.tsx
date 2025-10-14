@@ -6,8 +6,8 @@ import { useAlert } from "@/context/AlertContext";
 
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as CartPlusIcon } from "@/assets/icons/cart-plus.inline.svg";
-import { ReactComponent as PlusIcon } from "@/assets/icons/plus.inline.svg";
+import CartPlusIcon from "@/assets/icons/cart-plus.inline.svg?react";
+import PlusIcon from "@/assets/icons/plus.inline.svg?react";
 
 interface AddToCartBtnProps {
   btnType?: "icon" | "text";

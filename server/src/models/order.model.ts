@@ -1,8 +1,15 @@
 import { Document, Schema, Types, model } from "mongoose";
 
-export const ORDER_STATUS = ["created", "paid", "shipped", "canceled", "completed", "returned"] as const;
+export const ORDER_STATUS = [
+  "created",
+  "paid",
+  "shipped",
+  "canceled",
+  "completed",
+  "returned",
+] as const;
 export const SHIPPING_STATUS = ["pending", "in_transit", "delivered"] as const;
-export const PAYMENT_STATUS = ['unpaid', 'paid'] as const;
+export const PAYMENT_STATUS = ["unpaid", "paid"] as const;
 
 export interface IOrderItem {
   productId: Types.ObjectId;
@@ -26,13 +33,13 @@ export interface IOrder extends Document<Types.ObjectId> {
   couponCode?: string;
   discount?: number; // 折扣金額
   totalAmount: number; // 最終應付金額（商品金額 + 運費 - 折扣）
-  status: typeof ORDER_STATUS[number];
+  status: (typeof ORDER_STATUS)[number];
   shippingTrackingNo?: string;
-  shippingStatus: typeof SHIPPING_STATUS[number];
+  shippingStatus: (typeof SHIPPING_STATUS)[number];
   paymentMethod?: string;
   tradeNo?: string; // 綠界交易編號
   itemName?: string;
-  paymentStatus: typeof PAYMENT_STATUS[number];
+  paymentStatus: (typeof PAYMENT_STATUS)[number];
   paymentDate?: Date;
   note?: string;
   createdAt: Date;
@@ -65,16 +72,24 @@ const orderSchema = new Schema<IOrder>(
     shippingTrackingNo: { type: String, unique: true, sparse: true },
     shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "pending" },
     paymentMethod: { type: String },
-    tradeNo: { type: String, unique: true, sparse: true },
+    tradeNo: { type: String },
     itemName: { type: String },
-    paymentStatus: { type: String, enum: PAYMENT_STATUS, default: 'unpaid' },    paymentDate: { type: Date },
+    paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "unpaid" },
+    paymentDate: { type: Date },
     note: { type: String, default: "" },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ status: 1 });
-orderSchema.index({ tradeNo: 1 }, { unique: true, sparse: true, partialFilterExpression: { paymentStatus: { $in: ['paid', 'refunded'] } } });
+orderSchema.index(
+  { tradeNo: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { paymentStatus: { $in: ["paid", "refunded"] } },
+  }
+);
 
 export const OrderModel = model<IOrder>("Order", orderSchema);

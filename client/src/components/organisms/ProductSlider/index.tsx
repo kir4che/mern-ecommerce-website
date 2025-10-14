@@ -13,7 +13,7 @@ import Loading from "@/components/atoms/Loading";
 import Button from "@/components/atoms/Button";
 import ProductLinkImg from "@/components/atoms/ProductLinkImg";
 
-import { ReactComponent as RefreshIcon } from "@/assets/icons/refresh.inline.svg";
+import RefreshIcon from "@/assets/icons/refresh.inline.svg?react";
 
 import "swiper/css";
 import "swiper/css/navigation";

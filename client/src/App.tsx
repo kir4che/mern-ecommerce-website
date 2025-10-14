@@ -6,7 +6,7 @@ import Marquee from "react-fast-marquee";
 
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
-import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
+import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/constants/data";
 
 import Button from "@/components/atoms/Button";
 import DropdownMenu from "@/components/atoms/DropdownMenu";
@@ -16,8 +16,8 @@ import ProductSlider from "@/components/organisms/ProductSlider";
 import bg1 from "@/assets/images/about/bg1.jpg";
 import bg2 from "@/assets/images/about/bg2.jpg";
 import bg3 from "@/assets/images/about/bg3.jpg";
-import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
-import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
+import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
+import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
 
 const App = () => {
   const swiperRef = useRef(null);

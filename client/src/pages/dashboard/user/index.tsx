@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import OrderTable from "@/components/organisms/OrdersTable";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as LogoutIcon } from "@/assets/icons/logout.inline.svg";
-import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
+import LogoutIcon from "@/assets/icons/logout.inline.svg?react";
+import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();

@@ -8,8 +8,8 @@ import Input from "@/components/atoms/Input";
 import Checkbox from "@/components/atoms/Checkbox";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
-import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
+import MailIcon from "@/assets/icons/mail.inline.svg?react";
+import LockIcon from "@/assets/icons/lock.inline.svg?react";
 
 const Login = () => {
   const navigate = useNavigate();

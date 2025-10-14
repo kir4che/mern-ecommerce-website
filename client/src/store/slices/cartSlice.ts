@@ -16,244 +16,261 @@ const initialState: CartState = {
   error: null,
 };
 
-// 處理錯誤訊息
-const handleError = (err: any) => {
-  if (axios.isAxiosError(err))
-    return err.response?.data?.message || "伺服器發生錯誤，請稍後再試。";
-  return "發生未知錯誤，請稍後再試。";
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
+
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+const toErrorMessage = (
+  err: unknown,
+  fallback: string = "伺服器發生錯誤，請稍後再試。"
+) => {
+  if (axios.isAxiosError(err)) return err.response?.data?.message || fallback;
+  if (err instanceof Error) return err.message || fallback;
+  return fallback;
+};
+
+const readLocalCart = (): CartItemInput[] => {
+  try {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const validateCartQuantities = (cart: CartItem[]) => {
+  if (!Array.isArray(cart)) return [];
+
+  return cart.reduce<CartItem[]>((acc, item) => {
+    const stock = Math.max(item.product?.countInStock ?? 0, 0);
+    const desiredQuantity = Math.max(item.quantity ?? 0, 0);
+    const quantity = Math.min(desiredQuantity, stock);
+
+    if (quantity > 0) {
+      acc.push({ ...item, quantity });
+    }
+
+    return acc;
+  }, []);
+};
+
+const fetchServerCart = async (): Promise<CartItem[]> => {
+  const { data } = await api.get("/cart");
+  const serverCart = (data?.cart ?? []) as CartItem[];
+  return validateCartQuantities(serverCart);
+};
+
+const hydrateLocalCart = async (
+  localCart: CartItemInput[]
+): Promise<CartItem[]> => {
+  if (!Array.isArray(localCart) || localCart.length === 0) return [];
+
+  const productResponses = await Promise.all(
+    localCart.map((item) => api.get(`/products/${item.productId}`))
+  );
+
+  const hydrated = localCart.reduce<CartItem[]>((acc, item, index) => {
+    const productDetails = productResponses[index]?.data?.product;
+    if (!productDetails) return acc;
+
+    acc.push({
+      ...item,
+      _id: `${item.productId}_local`,
+      cartId: "local_cart",
+      product: productDetails,
+    });
+
+    return acc;
+  }, []);
+
+  return validateCartQuantities(hydrated);
+};
+
+type CartThunkConfig = {
+  state: RootState;
+  rejectValue: string;
 };
 
 // 取得購物車內容
-export const fetchCart = createAsyncThunk(
+export const fetchCart = createAsyncThunk<CartItem[], void, CartThunkConfig>(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
     try {
       const {
         auth: { isAuthenticated },
-      } = getState() as RootState;
-
-      const validateCartQuantities = (cart: CartItem[]) => {
-        if (!Array.isArray(cart)) return [];
-
-        return cart
-          .map((item) => {
-            const stock = item.product?.countInStock || 0;
-            if (item.quantity > stock) {
-              return { ...item, quantity: stock };
-            }
-            return item;
-          })
-          .filter((item) => item.quantity > 0);
-      };
+      } = getState();
 
       if (isAuthenticated) {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
-          withCredentials: true,
-        });
-        const serverCart = res.data.cart || [];
-        return validateCartQuantities(serverCart);
-      } else {
-        const localCart: CartItemInput[] = JSON.parse(
-          localStorage.getItem("cart") || "[]"
-        );
-        if (localCart.length === 0) return [];
-
-        const productPromises = localCart.map((item) =>
-          axios.get(
-            `${process.env.REACT_APP_API_URL}/products/${item.productId}`
-          )
-        );
-
-        const productResponses = await Promise.all(productPromises);
-
-        const hydratedCart: CartItem[] = localCart.map((item, index) => {
-          const productDetails = productResponses[index].data.product;
-          return {
-            ...item,
-            _id: `${item.productId}_local`,
-            cartId: "local_cart",
-            product: productDetails,
-          };
-        });
-
-        return validateCartQuantities(hydratedCart);
+        return await fetchServerCart();
       }
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
+
+      const localCart = readLocalCart();
+      if (localCart.length === 0) return [];
+
+      return await hydrateLocalCart(localCart);
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err));
     }
   }
 );
 
 // 同步本地購物車到後端
-export const syncLocalCart = createAsyncThunk(
-  "cart/syncLocalCart",
-  async (_, { rejectWithValue }) => {
-    try {
-      const localCart = JSON.parse(
-        localStorage.getItem("cart") || "[]"
-      ) as CartItemInput[];
-      if (localCart.length === 0) return [];
+export const syncLocalCart = createAsyncThunk<
+  CartItem[],
+  void,
+  CartThunkConfig
+>("cart/syncLocalCart", async (_, { rejectWithValue }) => {
+  try {
+    const localCart = readLocalCart();
 
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/cart/sync`,
-        { localCart },
-        { withCredentials: true }
-      );
-      return res.data.cart || [];
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
-    }
+    if (localCart.length === 0) return [];
+
+    const { data } = await api.post("/cart/sync", { localCart });
+    const syncedCart = (data?.cart ?? []) as CartItem[];
+    return validateCartQuantities(syncedCart);
+  } catch (err) {
+    return rejectWithValue(toErrorMessage(err));
   }
-);
+});
 
 // 加入商品至購物車
-export const addToCart = createAsyncThunk(
+export const addToCart = createAsyncThunk<
+  CartItem[],
+  CartItemInput,
+  CartThunkConfig
+>(
   "cart/addToCart",
-  async (
-    { productId, quantity }: CartItemInput,
-    { getState, rejectWithValue }
-  ) => {
+  async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
       const {
         auth: { isAuthenticated },
         cart: { cart: currentCart },
-      } = getState() as RootState;
+      } = getState();
 
       if (!Array.isArray(currentCart)) {
         return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
       }
 
       if (isAuthenticated) {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/cart`,
-          { productId, quantity },
-          { withCredentials: true }
-        );
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
-          withCredentials: true,
-        });
-        return res.data.cart || [];
-      } else {
-        const newCart = [...currentCart];
-        const existingItemIndex = newCart.findIndex(
-          (item) => item.productId === productId
-        );
-
-        if (existingItemIndex !== -1) {
-          const updatedItem = { ...newCart[existingItemIndex] };
-          updatedItem.quantity += quantity;
-          newCart[existingItemIndex] = updatedItem;
-        } else {
-          const productRes = await axios.get(
-            `${process.env.REACT_APP_API_URL}/products/${productId}`
-          );
-          const productDetails = productRes.data.product;
-          newCart.push({
-            productId,
-            quantity,
-            _id: `${productId}_local`,
-            cartId: "local_cart",
-            product: productDetails,
-          });
-        }
-        return newCart;
+        await api.post("/cart", { productId, quantity });
+        return await fetchServerCart();
       }
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
+
+      const existingIndex = currentCart.findIndex(
+        (item) => item.productId === productId
+      );
+
+      if (existingIndex !== -1) {
+        const updatedCart = currentCart.map((item, index) =>
+          index === existingIndex
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+        return validateCartQuantities(updatedCart);
+      }
+
+      const { data: productData } = await api.get(`/products/${productId}`);
+      const productDetails = productData?.product;
+
+      if (!productDetails) {
+        return rejectWithValue("找不到商品資訊，請稍後再試。");
+      }
+
+      const newCart = [
+        ...currentCart,
+        {
+          productId,
+          quantity,
+          _id: `${productId}_local`,
+          cartId: "local_cart",
+          product: productDetails,
+        },
+      ];
+
+      return validateCartQuantities(newCart);
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err));
     }
   }
 );
 
 // 從購物車移除商品
-export const removeFromCart = createAsyncThunk(
-  "cart/removeFromCart",
-  async (cartItemId: string, { getState, rejectWithValue }) => {
+export const removeFromCart = createAsyncThunk<
+  CartItem[],
+  string,
+  CartThunkConfig
+>("cart/removeFromCart", async (cartItemId, { getState, rejectWithValue }) => {
+  try {
+    const {
+      auth: { isAuthenticated },
+      cart: { cart: currentCart },
+    } = getState();
+
+    if (!Array.isArray(currentCart)) {
+      return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
+    }
+
+    if (isAuthenticated) {
+      await api.delete(`/cart/${cartItemId}`);
+      return await fetchServerCart();
+    }
+
+    return currentCart.filter((item) => item._id !== cartItemId);
+  } catch (err) {
+    return rejectWithValue(toErrorMessage(err));
+  }
+});
+
+// 更新購物車商品數量
+export const changeQuantity = createAsyncThunk<
+  CartItem[],
+  { cartItemId: string; quantity: number },
+  CartThunkConfig
+>(
+  "cart/changeQuantity",
+  async ({ cartItemId, quantity }, { getState, rejectWithValue }) => {
     try {
       const {
         auth: { isAuthenticated },
         cart: { cart: currentCart },
-      } = getState() as RootState;
+      } = getState();
 
       if (!Array.isArray(currentCart)) {
         return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
       }
 
       if (isAuthenticated) {
-        await axios.delete(
-          `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
-          { withCredentials: true }
-        );
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/cart`, {
-          withCredentials: true,
-        });
-        return res.data.cart || [];
-      } else {
-        // 本地端則用 _id 過濾
-        return currentCart.filter((item) => item._id !== cartItemId);
+        await api.patch(`/cart/${cartItemId}`, { quantity });
+        return await fetchServerCart();
       }
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
-    }
-  }
-);
 
-// 更新購物車商品數量
-export const changeQuantity = createAsyncThunk(
-  "cart/changeQuantity",
-  async (
-    { cartItemId, quantity }: { cartItemId: string; quantity: number },
-    { getState, rejectWithValue }
-  ) => {
-    try {
-      const {
-        auth: { isAuthenticated },
-        cart: { cart: currentCart },
-      } = getState() as RootState;
-
-      if (!Array.isArray(currentCart))
-        return rejectWithValue("購物車狀態異常，請刷新頁面後再試。");
-
-      if (isAuthenticated) {
-        await axios.patch(
-          `${process.env.REACT_APP_API_URL}/cart/${cartItemId}`,
-          { quantity },
-          { withCredentials: true }
-        );
-        const updatedCart = currentCart
-          .map((item) =>
-            item._id === cartItemId ? { ...item, quantity } : item
-          )
-          .filter((item) => item.quantity > 0);
-        return updatedCart;
-      } else {
-        return currentCart
-          .map((item) =>
-            item._id === cartItemId ? { ...item, quantity } : item
-          )
-          .filter((item) => item.quantity > 0);
-      }
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
+      const updatedCart = currentCart.map((item) =>
+        item._id === cartItemId ? { ...item, quantity } : item
+      );
+      return validateCartQuantities(updatedCart);
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err));
     }
   }
 );
 
 // 清空購物車
-export const clearCart = createAsyncThunk(
+export const clearCart = createAsyncThunk<CartItem[], void, CartThunkConfig>(
   "cart/clearCart",
   async (_, { getState, rejectWithValue }) => {
     try {
       const {
         auth: { isAuthenticated },
-      } = getState() as RootState;
+      } = getState();
       if (isAuthenticated) {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/cart`, {
-          withCredentials: true,
-        });
+        await api.delete("/cart");
       }
       return [];
-    } catch (err: any) {
-      return rejectWithValue(handleError(err));
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err));
     }
   }
 );

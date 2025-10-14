@@ -1,4 +1,4 @@
-import { FAQ as faqData } from "@/data";
+import { FAQ as faqData } from "@/constants/data";
 
 import PageHeader from "@/components/molecules/PageHeader";
 
