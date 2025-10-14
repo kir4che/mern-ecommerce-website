@@ -6,8 +6,8 @@ describe("Modal Component", () => {
   const onClose = jest.fn();
 
   beforeAll(() => {
-    global.HTMLDialogElement.prototype.showModal = jest.fn();
-    global.HTMLDialogElement.prototype.close = jest.fn();
+    (globalThis.HTMLDialogElement.prototype.showModal as any) = jest.fn();
+    (globalThis.HTMLDialogElement.prototype.close as any) = jest.fn();
   });
 
   const renderDefaultModal = () => {

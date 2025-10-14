@@ -4,11 +4,17 @@ interface BlurImageProps {
   src: string;
   alt: string;
   className?: string;
+  onError?: () => void;
 }
 
 // 當圖片載入時，先顯示模糊背景，載入完成後再顯示圖片。
-const BlurImage = ({ src, alt, className }: BlurImageProps) => {
+const BlurImage = ({ src, alt, className, onError }: BlurImageProps) => {
   const [isLoading, setLoading] = useState(true);
+
+  const handleError = () => {
+    if (onError) onError();
+    setLoading(false);
+  };
 
   return (
     <div className={`relative overflow-hidden ${className}`}>

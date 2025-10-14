@@ -1,9 +1,9 @@
 import { addComma } from "@/utils/addComma";
 
 interface PriceRowProps {
-	label: string;
-	value: number;
-	className?: string;
+  label: string;
+  value: number;
+  className?: string;
 }
 
 const PriceRow: React.FC<PriceRowProps> = ({ label, value, className }) => {

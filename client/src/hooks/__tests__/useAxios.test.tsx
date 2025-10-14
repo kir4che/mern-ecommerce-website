@@ -1,9 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-import { useAxios } from "@/hooks/useAxios";
+import { api, useAxios } from "@/hooks/useAxios";
 
-const mock = new AxiosMockAdapter(axios);
+const mock = new AxiosMockAdapter(api);
 
 const TestComponent = ({
   url,
