@@ -19,7 +19,7 @@ const createCategoryFilter =
 // 根據分類篩選商品
 export const filterProductsByCategory = (
   products: Partial<Product>[],
-  category: string,
+  category: string
 ): Partial<Product>[] => {
   if (!products?.length) return [];
 

@@ -50,7 +50,7 @@ const News = () => {
   // 獲取當前頁數據
   const { data, error, isLoading, isError } = useAxios(
     `/news?page=${page}&limit=${limit}`,
-    { method: "GET" },
+    { method: "GET" }
   );
 
   // 預加載下一頁數據
@@ -58,7 +58,7 @@ const News = () => {
   const { data: nextPageData } = useAxios(
     `/news?page=${page + 1}&limit=${limit}`,
     { method: "GET" },
-    { skip: shouldSkipPreload },
+    { skip: shouldSkipPreload }
   );
 
   // 更新當前頁的新聞數據
@@ -80,7 +80,7 @@ const News = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     },
-    [page, nextPageData, totalPages],
+    [page, nextPageData, totalPages]
   );
 
   if (isError) return <NotFound message={error?.message} />;

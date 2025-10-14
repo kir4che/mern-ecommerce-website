@@ -33,7 +33,7 @@ describe("HeaderMenu Component", () => {
     return render(
       <MemoryRouter>
         <HeaderMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
   };
 

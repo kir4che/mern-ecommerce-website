@@ -1,5 +1,4 @@
-// 檢查值是否存在
-export const isExist = (value: any) =>
+export const isExist = (value: unknown): boolean =>
   value !== null &&
   value !== "" &&
   typeof value !== "undefined" &&

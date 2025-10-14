@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --quiet --fix",
-    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\"",
+    "format:fix": "prettier --write .",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
@@ -30,6 +30,18 @@
       "react": {
         "version": "detect"
       }
+    },
+    "rules": {
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "no-empty": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_"
+        }
+      ]
     },
     "ignorePatterns": [
       "dist",

@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-interface InputProps {
+type NativeInputProps = React.InputHTMLAttributes<HTMLInputElement>;
+
+type PatternRule = { value: RegExp; message: string };
+
+interface InputProps
+  extends Omit<NativeInputProps, "type" | "value" | "onChange" | "pattern"> {
   id?: string;
   name?: string;
   type?: "text" | "number" | "email" | "password" | "tel" | "date" | "file";
@@ -9,10 +14,7 @@ interface InputProps {
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
-  pattern?: {
-    value: RegExp;
-    message: string;
-  };
+  pattern?: PatternRule;
   errorMessage?: string;
   helperText?: string;
   containerStyle?: string;
@@ -20,8 +22,7 @@ interface InputProps {
   labelStyle?: string;
   inputStyle?: string;
   numberStyle?: string;
-  icon?: React.FC<React.SVGProps<SVGSVGElement>>;
-  [key: string]: any;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const Input: React.FC<InputProps> = ({

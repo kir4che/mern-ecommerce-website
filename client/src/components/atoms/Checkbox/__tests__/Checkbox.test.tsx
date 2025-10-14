@@ -10,7 +10,7 @@ test("renders checkbox with label", () => {
       id="test-checkbox"
       label="Test Checkbox"
       onChange={mockOnChange}
-    />,
+    />
   );
 
   expect(screen.getByTestId("test-checkbox")).toBeInTheDocument(); // 確認 Checkbox 有渲染到畫面上
@@ -22,7 +22,7 @@ test("click checkbox", () => {
       id="test-checkbox"
       label="Test Checkbox"
       onChange={mockOnChange}
-    />,
+    />
   );
 
   fireEvent.click(screen.getByTestId("test-checkbox"));

@@ -10,6 +10,14 @@ import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
 import type { Order } from "@/types/order";
+
+interface OrdersResponse {
+  orders: Order[];
+  totalOrders: number;
+  totalPages: number;
+  currentPage: number;
+}
+
 import {
   ORDER_STATUS,
   PAYMENT_STATUS,
@@ -193,7 +201,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     isLoading,
     error,
     refresh: refreshOrders,
-  } = useAxios(
+  } = useAxios<OrdersResponse>(
     apiUrl,
     {},
     {

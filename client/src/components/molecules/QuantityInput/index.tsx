@@ -25,9 +25,9 @@ const QuantityInput: React.FC<QuantityInputProps> = ({ item }) => {
         if (newQuantity > 0) changeQuantity(cartItemId, newQuantity);
       },
       300,
-      { leading: false, trailing: true },
+      { leading: false, trailing: true }
     ),
-    [changeQuantity],
+    [changeQuantity]
   );
 
   useEffect(() => {

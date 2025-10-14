@@ -46,8 +46,8 @@ const getUserData = async (req: AuthRequest, res: Response) => {
         role: user.role,
       },
     });
-  } catch (err: any) {
-    if (err.name === "TokenExpiredError")
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === "TokenExpiredError")
       return res
         .status(401)
         .json({ success: false, message: "Token has expired." });
@@ -79,8 +79,10 @@ const createNewUser = async (req: Request, res: Response) => {
     res
       .status(201)
       .json({ success: true, message: "User registered Successfully!" });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -136,15 +138,18 @@ const loginUser = async (req: Request, res: Response) => {
         role: user.role as "user" | "admin",
       },
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
 const logoutUser = async (req: Request, res: Response) => {
   try {
-    req.session.destroy((err: any) => {
-      if (err) throw new Error(err);
+    req.session.destroy((err: unknown) => {
+      if (err instanceof Error) throw err;
+      if (err) throw new Error("Failed to destroy session");
     });
 
     // 清除 httpOnly JWT cookie
@@ -157,8 +162,10 @@ const logoutUser = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "User logged out Successfully!" });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -208,8 +215,10 @@ const resetPassword = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "Password reset email sent!" });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -236,8 +245,10 @@ const updatePassword = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "Password updated successfully!" });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 

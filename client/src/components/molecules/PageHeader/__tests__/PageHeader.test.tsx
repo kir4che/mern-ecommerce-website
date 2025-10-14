@@ -6,7 +6,7 @@ test("renders breadcrumb and titles correctly", () => {
   render(
     <MemoryRouter>
       <PageHeader breadcrumbText="首頁" titleEn="Home" titleCh="首頁" />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
   const homeLinks = screen.getAllByText("首頁");

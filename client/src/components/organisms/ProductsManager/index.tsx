@@ -55,8 +55,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
   const filterFormData = (data: Partial<Product>) => {
     return Object.fromEntries(
       Object.entries(data).filter(
-        ([_, value]) => value !== "" && value !== null,
-      ),
+        ([_, value]) => value !== "" && value !== null
+      )
     );
   };
 
@@ -70,7 +70,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           variant: "error",
           message: "新增商品失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
 
   const updateProduct = useAxios(
@@ -83,7 +83,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           variant: "error",
           message: "更新商品失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
 
   const deleteProduct = useAxios(
@@ -96,19 +96,19 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           variant: "error",
           message: "刪除商品失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
 
   const refreshProduct = useAxios(
     (params) => `/products/${params?.id}`,
     { withCredentials: true },
-    { immediate: false },
+    { immediate: false }
   ).refresh;
 
   // 新增、更新、刪除商品
   const handleProduct = async (
     action: "add" | "update" | "delete",
-    productData: Partial<Product> & { _id?: string },
+    productData: Partial<Product> & { _id?: string }
   ) => {
     if ((action === "add" || action === "update") && !productData.imageUrl) {
       showAlert({
@@ -135,8 +135,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
         Object.entries(filteredData).filter(
           ([key, value]) =>
             JSON.stringify(value) !==
-            JSON.stringify(originalDataRef.current[key]),
-        ),
+            JSON.stringify(originalDataRef.current[key])
+        )
       );
       if (Object.keys(changedData).length === 0) return false;
       res = await updateProduct({ id: productData._id }, { data: changedData });
@@ -202,7 +202,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                       setFormKey((prev) => prev + 1);
                       (
                         document.getElementById(
-                          `updateProductModal-${item._id}`,
+                          `updateProductModal-${item._id}`
                         ) as HTMLDialogElement
                       ).showModal();
                     }
@@ -231,7 +231,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
                   onClick={() =>
                     (
                       document.getElementById(
-                        `deleteProductModal-${item._id}`,
+                        `deleteProductModal-${item._id}`
                       ) as HTMLDialogElement
                     ).showModal()
                   }

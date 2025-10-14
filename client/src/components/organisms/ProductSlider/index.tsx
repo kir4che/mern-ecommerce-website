@@ -64,7 +64,7 @@ const ProductSlider = () => {
       1440: { slidesPerView: 4 },
       1720: { slidesPerView: 5 },
     }),
-    [],
+    []
   );
 
   const swiperStyles = useMemo(
@@ -72,7 +72,7 @@ const ProductSlider = () => {
       "--swiper-navigation-color": "#252525",
       "--swiper-navigation-size": "2rem",
     }),
-    [],
+    []
   );
 
   if (isLoading)

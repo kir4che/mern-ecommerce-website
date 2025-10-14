@@ -28,7 +28,7 @@ const Register = () => {
           variant: "error",
           message: err.message,
         }),
-    },
+    }
   );
 
   const handleRegister = async (e) => {

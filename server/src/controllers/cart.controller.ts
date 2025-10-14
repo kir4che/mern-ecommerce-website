@@ -21,7 +21,9 @@ const getCart = async (req: AuthRequest, res: Response) => {
     if (!cart) {
       const newCart = new CartModel({ userId, items: [] });
       await newCart.save();
-      return res.status(200).json({ message: "New cart created successfully!", cart: [] });
+      return res
+        .status(200)
+        .json({ message: "New cart created successfully!", cart: [] });
     }
 
     // 透過 Promise.all() 方法，將所有的購物車項目進行填入。
@@ -43,23 +45,33 @@ const getCart = async (req: AuthRequest, res: Response) => {
               }
             : null,
         };
-      }),
+      })
     );
 
-    res.status(200).json({ message: "Cart fetched successfully!", cart: populatedItems });
-  } catch (err: any) {
-    res.status(401).json({ success: false, message: err.message });
+    res
+      .status(200)
+      .json({ message: "Cart fetched successfully!", cart: populatedItems });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(401).json({ success: false, message });
   }
 };
 
 const addToCart = async (req: AuthRequest, res: Response) => {
   const { productId, quantity } = req.body;
-  if (!productId || !quantity) return res.status(400).json({ success: false, message: "Please provide all fields." });
+  if (!productId || !quantity)
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide all fields." });
 
   try {
     const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
+    if (!cart)
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found." });
 
     // 檢查購物車中是否已經存在相同產品
     const existingCartItem = await CartItemModel.findOne({
@@ -83,9 +95,15 @@ const addToCart = async (req: AuthRequest, res: Response) => {
       await cart.save();
     }
 
-    res.status(200).json({ success: true, message: "Item added to cart successfully!", cart });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(200).json({
+      success: true,
+      message: "Item added to cart successfully!",
+      cart,
+    });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -95,15 +113,23 @@ const removeFromCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
+    if (!cart)
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found." });
 
     const cartItem = await CartItemModel.findById(itemId);
-    if (!cartItem) return res.status(404).json({ message: "Item not found in the cart." });
+    if (!cartItem)
+      return res.status(404).json({ message: "Item not found in the cart." });
 
     await cartItem.deleteOne({ _id: itemId });
-    res.status(200).json({ message: "Selected items removed successfully!", cart });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    res
+      .status(200)
+      .json({ message: "Selected items removed successfully!", cart });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -111,18 +137,27 @@ const changeQuantity = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
+    if (!cart)
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found." });
 
     const cartItem = await CartItemModel.findById(req.params.id);
     if (!cartItem)
-      return res.status(404).json({ success: false, message: "Item not found in the cart." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found in the cart." });
 
     cartItem.quantity = req.body.quantity;
     await cartItem.save();
 
-    res.status(200).json({ success: true, message: "Cart updated successfully!", cart });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    res
+      .status(200)
+      .json({ success: true, message: "Cart updated successfully!", cart });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -130,19 +165,28 @@ const clearCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
     const cart = await CartModel.findOne({ userId });
-    if (!cart) return res.status(404).json({ success: false, message: "Cart not found." });
+    if (!cart)
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found." });
 
     await CartItemModel.deleteMany({ cartId: cart._id });
-    res.status(200).json({ success: true, message: "Cart cleared successfully!", cart });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+    res
+      .status(200)
+      .json({ success: true, message: "Cart cleared successfully!", cart });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
 const syncLocalCart = async (req: AuthRequest, res: Response) => {
   const { localCart } = req.body;
   if (!Array.isArray(localCart))
-    return res.status(400).json({ success: false, message: "Invalid local cart data." });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid local cart data." });
 
   try {
     const userId = req.userId;
@@ -156,7 +200,7 @@ const syncLocalCart = async (req: AuthRequest, res: Response) => {
     // 把本地購物車的商品同步到資料庫
     for (const item of localCart) {
       const { productId, quantity } = item;
-      
+
       const product = await ProductModel.findById(productId);
       if (!product) continue;
 
@@ -168,10 +212,14 @@ const syncLocalCart = async (req: AuthRequest, res: Response) => {
       // 若購物車中已存在相同商品，則更新數量。
       if (existingCartItem) {
         // 不能超過庫存
-        const newQuantity = Math.min(existingCartItem.quantity + quantity, product.countInStock);
+        const newQuantity = Math.min(
+          existingCartItem.quantity + quantity,
+          product.countInStock
+        );
         existingCartItem.quantity = newQuantity;
         await existingCartItem.save();
-      } else { // 不存在就新增商品
+      } else {
+        // 不存在就新增商品
         const newQuantity = Math.min(quantity, product.countInStock);
         const cartItem = new CartItemModel({
           cartId: cart._id,
@@ -207,7 +255,7 @@ const syncLocalCart = async (req: AuthRequest, res: Response) => {
               }
             : null,
         };
-      }),
+      })
     );
 
     res.status(200).json({
@@ -215,9 +263,18 @@ const syncLocalCart = async (req: AuthRequest, res: Response) => {
       message: "Local cart synchronized successfully!",
       cart: populatedItems,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
-export { addToCart, getCart, removeFromCart, changeQuantity, clearCart, syncLocalCart };
+export {
+  addToCart,
+  getCart,
+  removeFromCart,
+  changeQuantity,
+  clearCart,
+  syncLocalCart,
+};

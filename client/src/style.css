@@ -2,13 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   @apply max-w-[100vw] overflow-x-hidden;
 }
 
 body {
-	@apply text-base tracking-wide bg-secondary text-primary;
-  font-family: 'PingFang SC', 'Microsoft YaHei', 'Arial', 'Helvetica', 'Noto Sans', sans-serif;
+  @apply text-base tracking-wide bg-secondary text-primary;
+  font-family:
+    "PingFang SC", "Microsoft YaHei", "Arial", "Helvetica", "Noto Sans",
+    sans-serif;
 }
 
 /* 文字樣式 */
@@ -22,7 +25,7 @@ h2 {
 }
 
 h3 {
-	@apply text-xl font-medium;
+  @apply text-xl font-medium;
 }
 
 h4 {
@@ -43,12 +46,14 @@ p {
   @apply gap-1 font-medium min-h-fit;
 }
 
-.btn.btn-disabled, .btn[disabled], .btn:disabled {
+.btn.btn-disabled,
+.btn[disabled],
+.btn:disabled {
   @apply bg-gray-200 border-none;
 }
 
 .btn-primary {
-	@apply px-4 min-w-fit xl:px-5 py-1 xl:py-1.5 transition duration-300 ease-in-out border-2 rounded-full outline-none;
+  @apply px-4 min-w-fit xl:px-5 py-1 xl:py-1.5 transition duration-300 ease-in-out border-2 rounded-full outline-none;
 }
 
 .btn-link {
@@ -59,7 +64,9 @@ p {
   @apply p-0 bg-transparent shadow-none hover:shadow-none hover:bg-transparent;
 }
 
-.btn.btn-disabled.btn-icon, .btn[disabled].btn-icon, .btn:disabled.btn-icon {
+.btn.btn-disabled.btn-icon,
+.btn[disabled].btn-icon,
+.btn:disabled.btn-icon {
   @apply bg-gray-200 border-gray-300 border-solid opacity-50 cursor-not-allowed;
 }
 
@@ -67,7 +74,9 @@ p {
   @apply p-0 font-normal bg-transparent border-0 shadow-none hover:opacity-80 hover:shadow-none hover:bg-transparent;
 }
 
-.btn.btn-disabled.btn-text, .btn[disabled].btn-text, .btn:disabled.btn-text {
+.btn.btn-disabled.btn-text,
+.btn[disabled].btn-text,
+.btn:disabled.btn-text {
   @apply text-gray-300 bg-transparent cursor-not-allowed;
 }
 
@@ -80,16 +89,17 @@ input:-webkit-autofill {
 
 /* 隱藏 number input 的 spinner */
 .noInnerSpin input[type="number"]::-webkit-inner-spin-button,
-.noInnerSpin input[type="number"]::-webkit-outer-spin-button, .noInnerSpin input[type="number"] {
+.noInnerSpin input[type="number"]::-webkit-outer-spin-button,
+.noInnerSpin input[type="number"] {
   @apply appearance-none;
 }
 
 /* Image 選擇時的 overlay 樣式 */
 
 .img-with-overlay:hover .overlay {
-	@apply block;
+  @apply block;
 }
 
 .img-with-overlay:hover img {
-	@apply scale-100;
+  @apply scale-100;
 }

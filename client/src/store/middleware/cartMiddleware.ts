@@ -16,16 +16,17 @@ export const cartListenerMiddleware = createListenerMiddleware();
 cartListenerMiddleware.startListening({
   matcher: isAnyOf(login.fulfilled, logout.fulfilled),
   effect: async (action, listenerApi) => {
-    // 登入成功後，同步本地購物車到後端。
     if (action.type === login.fulfilled.type) {
       try {
         const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
         if (localCart.length > 0) {
           await listenerApi.dispatch(syncLocalCart());
-          localStorage.removeItem("cart"); // 同步後清除本地購物車
+          localStorage.removeItem("cart");
         }
-      } catch (err: any) {
-        console.error("同步本地購物車失敗：", err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error)
+          console.error("同步本地購物車失敗：", err.message);
+        else console.error("同步本地購物車失敗：", err);
       }
     }
 
@@ -38,7 +39,7 @@ const cartUpdateActions = isAnyOf(
   addToCart.fulfilled,
   removeFromCart.fulfilled,
   changeQuantity.fulfilled,
-  clearCart.fulfilled,
+  clearCart.fulfilled
 );
 
 // 監聽購物車變動

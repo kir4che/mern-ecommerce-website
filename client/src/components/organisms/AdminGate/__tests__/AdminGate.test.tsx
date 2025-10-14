@@ -47,7 +47,7 @@ describe("AdminGate", () => {
     render(
       <AdminGate>
         <div>Admin Content</div>
-      </AdminGate>,
+      </AdminGate>
     );
 
     expect(screen.getByTestId("loading-container")).toBeInTheDocument();
@@ -64,14 +64,14 @@ describe("AdminGate", () => {
     render(
       <AdminGate>
         <div>Admin Content</div>
-      </AdminGate>,
+      </AdminGate>
     );
 
     await waitFor(() =>
       expect(mockNavigate).toHaveBeenCalledWith("/login", {
         replace: true,
         state: { from: mockLocation },
-      }),
+      })
     );
     expect(mockShowAlert).not.toHaveBeenCalled();
   });
@@ -88,7 +88,7 @@ describe("AdminGate", () => {
     render(
       <AdminGate>
         <div>Admin Content</div>
-      </AdminGate>,
+      </AdminGate>
     );
 
     expect(mockShowAlert).toHaveBeenCalledWith({
@@ -114,7 +114,7 @@ describe("AdminGate", () => {
     render(
       <AdminGate>
         <div>Admin Content</div>
-      </AdminGate>,
+      </AdminGate>
     );
 
     expect(screen.getByText("Admin Content")).toBeInTheDocument();

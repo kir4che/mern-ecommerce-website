@@ -68,7 +68,7 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     const fullParams = Object.assign({}, base_param, { CheckMacValue });
 
     res.json({ success: true, params: fullParams });
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(500).json({
       success: false,
       message: "Internal server err. Please try again later.",
@@ -130,7 +130,7 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
     await order.save();
 
     res.status(200).send("1");
-  } catch (err: any) {
+  } catch (err: unknown) {
     res.status(500).send("0");
   }
 };

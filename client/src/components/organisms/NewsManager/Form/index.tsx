@@ -11,7 +11,7 @@ interface NewFormProps {
 
 const NewForm: React.FC<NewFormProps> = ({ formData, setFormData }) => {
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

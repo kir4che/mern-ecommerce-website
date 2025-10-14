@@ -16,7 +16,7 @@ test("ThemeContext works correctly", () => {
   render(
     <ThemeProvider>
       <TestComponent />
-    </ThemeProvider>,
+    </ThemeProvider>
   );
 
   expect(screen.getByText("light")).toBeInTheDocument();

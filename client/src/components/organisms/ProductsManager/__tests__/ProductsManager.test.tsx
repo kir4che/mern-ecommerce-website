@@ -12,13 +12,21 @@ jest.mock("@/context/AlertContext", () => ({
   useAlert: jest.fn(),
 }));
 
-jest.mock("@/components/organisms/ProductsManager/Form", () => () => (
-  <div data-testid="product-form" />
-));
+jest.mock("@/components/organisms/ProductsManager/Form", () => {
+  const MockProductForm: React.FC = () => <div data-testid="product-form" />;
+  MockProductForm.displayName = "MockProductForm";
+  return MockProductForm;
+});
 
-jest.mock("@/components/molecules/Modal", () => (props: any) => (
-  <div data-testid={`modal-${props.id}`}>{props.children}</div>
-));
+type ModalMockProps = { id: string; children?: React.ReactNode };
+
+jest.mock("@/components/molecules/Modal", () => {
+  const MockModal: React.FC<ModalMockProps> = (props) => (
+    <div data-testid={`modal-${props.id}`}>{props.children}</div>
+  );
+  MockModal.displayName = "MockModal";
+  return MockModal;
+});
 
 jest.mock("@/assets/icons/edit.inline.svg", () => ({
   ReactComponent: () => <svg data-testid="edit-icon" />,
@@ -84,7 +92,7 @@ describe("ProductsManager", () => {
     setupAxiosMocks();
 
     render(
-      <ProductsManager products={[baseProduct]} refreshProducts={jest.fn()} />,
+      <ProductsManager products={[baseProduct]} refreshProducts={jest.fn()} />
     );
 
     expect(screen.getByText("商品管理")).toBeInTheDocument();

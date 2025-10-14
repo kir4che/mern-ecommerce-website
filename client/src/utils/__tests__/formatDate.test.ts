@@ -11,7 +11,7 @@ describe("formatDate function", () => {
 
   test("handles Unix timestamp", () => {
     expect(formatDate(new Date(1672531199000).toISOString())).toBe(
-      "2023/01/01",
+      "2023/01/01"
     );
   });
 

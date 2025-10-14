@@ -4,7 +4,7 @@ import Input from "@/components/atoms/Input";
 describe("Input Component", () => {
   test("renders input with label", () => {
     render(
-      <Input id="test-input" label="Test Input" placeholder="Enter text" />,
+      <Input id="test-input" label="Test Input" placeholder="Enter text" />
     );
 
     expect(screen.getByLabelText("Test Input")).toBeInTheDocument();
@@ -19,7 +19,7 @@ describe("Input Component", () => {
 
   test("accepts input value", () => {
     render(
-      <Input id="test-input" label="Test Input" placeholder="Enter text" />,
+      <Input id="test-input" label="Test Input" placeholder="Enter text" />
     );
 
     const input = screen.getByPlaceholderText("Enter text");
@@ -34,7 +34,7 @@ describe("Input Component", () => {
         label="Test Required Input"
         required
         errorMessage="This field is required"
-      />,
+      />
     );
 
     // 觸發失去焦點事件後，確認有顯示 error message。
@@ -49,7 +49,7 @@ describe("Input Component", () => {
         label="Test Input"
         required
         errorMessage="This field is required"
-      />,
+      />
     );
 
     const input = screen.getByTestId("test-input");
@@ -68,7 +68,7 @@ describe("Input Component", () => {
         id="test-input"
         label="Test Input"
         pattern={{ value: /^[0-9]+$/, message: "Only numbers allowed" }}
-      />,
+      />
     );
 
     const input = screen.getByTestId("test-input");
@@ -85,7 +85,7 @@ describe("Input Component", () => {
   test("calls onChange when input changes", () => {
     const handleChange = jest.fn();
     render(
-      <Input id="test-input" label="Test Input" onChange={handleChange} />,
+      <Input id="test-input" label="Test Input" onChange={handleChange} />
     );
 
     fireEvent.change(screen.getByTestId("test-input"), {

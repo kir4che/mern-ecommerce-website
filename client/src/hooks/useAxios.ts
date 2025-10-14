@@ -2,12 +2,13 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import axios, { AxiosRequestConfig, Method } from "axios";
 
 type RequestStatus = "idle" | "loading" | "success" | "error";
+type UrlParams = Record<string, unknown>;
 
 interface ErrorResponse {
   message: string;
   code?: string;
   statusCode?: number;
-  details?: any;
+  details?: unknown;
 }
 
 interface AxiosState<TData> {
@@ -24,17 +25,17 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-export function useAxios<TData = any>(
-  url: string | ((params?: Record<string, any>) => string),
+export function useAxios<TData = unknown>(
+  url: string | ((params?: UrlParams) => string),
   config: AxiosRequestConfig = {},
   options: {
     immediate?: boolean;
     skip?: boolean;
     onSuccess?: (data: TData) => void;
     onError?: (err: ErrorResponse) => void;
-    transformResponse?: (raw: any) => TData;
+    transformResponse?: (raw: unknown) => TData;
     initialData?: TData | null;
-  } = {},
+  } = {}
 ) {
   const {
     immediate = true,
@@ -65,20 +66,18 @@ export function useAxios<TData = any>(
   }, [config]);
 
   const resolveUrl = useCallback(
-    (params?: Record<string, any>) => {
-      if (typeof url === "function") {
-        return url(params);
-      }
+    (params?: UrlParams) => {
+      if (typeof url === "function") return url(params);
       return url;
     },
-    [url],
+    [url]
   );
 
   const fetchData = useCallback(
     async (
-      callParams?: Record<string, any>,
+      callParams?: UrlParams,
       overrideConfig?: Partial<AxiosRequestConfig>,
-      signal?: AbortSignal,
+      signal?: AbortSignal
     ) => {
       if (skip) return;
 
@@ -106,9 +105,8 @@ export function useAxios<TData = any>(
         const method: Method =
           (mergedConfig.method?.toUpperCase() as Method) || "GET";
         const isGetLike = ["GET", "DELETE", "HEAD", "OPTIONS"].includes(method);
-        const requestDataKey = isGetLike ? "params" : "data";
 
-        const res = await api.request({
+        const reqConfig: AxiosRequestConfig = {
           ...mergedConfig,
           url: requestUrl,
           method,
@@ -118,11 +116,15 @@ export function useAxios<TData = any>(
             ...baseConfig.headers,
             ...overrideConfig?.headers,
           },
-          [requestDataKey]: callParams,
-        });
+        };
+
+        if (isGetLike) reqConfig.params = callParams;
+        else reqConfig.data = callParams;
+
+        const res = await api.request(reqConfig);
 
         const transformedData = callbackRef.current.transformResponse
-          ? callbackRef.current.transformResponse(res.data)
+          ? callbackRef.current.transformResponse(res.data as unknown)
           : (res.data as TData);
 
         if (currentRequestId === requestIdRef.current) {
@@ -131,37 +133,48 @@ export function useAxios<TData = any>(
         }
 
         return transformedData;
-      } catch (err) {
-        if (!axios.isCancel(err)) {
-          const error = err as any;
+      } catch (err: unknown) {
+        if (axios.isCancel(err)) return;
+
+        if (axios.isAxiosError(err)) {
+          type ErrorPayload = {
+            message?: string;
+            code?: string;
+            details?: unknown;
+          };
+          const d = (err.response?.data ?? {}) as ErrorPayload;
+
           const errorDetails: ErrorResponse = {
-            message:
-              error?.response?.data?.message ||
-              error?.message ||
-              "Request failed!",
-            code: error?.response?.data?.code,
-            statusCode: error?.response?.status,
-            details: error?.response?.data?.details,
+            message: d.message ?? err.message ?? "Request failed!",
+            code: d.code,
+            statusCode: err.response?.status,
+            details: d.details,
           };
 
           if (currentRequestId === requestIdRef.current) {
             setState({ data: null, status: "error", error: errorDetails });
             callbackRef.current.onError?.(errorDetails);
           }
+          return;
+        }
+
+        const fallback: ErrorResponse = {
+          message: (err as Error)?.message ?? "Request failed!",
+        };
+        if (currentRequestId === requestIdRef.current) {
+          setState({ data: null, status: "error", error: fallback });
+          callbackRef.current.onError?.(fallback);
         }
       }
     },
-    [skip, resolveUrl],
+    [skip, resolveUrl]
   );
 
   useEffect(() => {
     if (immediate && !skip) {
       const controller = new AbortController();
       fetchData(undefined, undefined, controller.signal);
-
-      return () => {
-        controller.abort();
-      };
+      return () => controller.abort();
     }
   }, [immediate, skip, fetchData]);
 
@@ -171,8 +184,8 @@ export function useAxios<TData = any>(
     isSuccess: state.status === "success",
     isError: state.status === "error",
     refresh: (
-      params?: Record<string, any>,
-      overrideConfig?: Partial<AxiosRequestConfig>,
+      params?: UrlParams,
+      overrideConfig?: Partial<AxiosRequestConfig>
     ) => fetchData(params, overrideConfig),
     reset: () =>
       setState({

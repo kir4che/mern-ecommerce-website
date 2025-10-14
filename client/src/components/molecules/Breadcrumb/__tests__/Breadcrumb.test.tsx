@@ -7,7 +7,7 @@ describe("Breadcrumb Component", () => {
     render(
       <MemoryRouter>
         <Breadcrumb link="products" text="產品" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByText("首頁")).toBeInTheDocument();
@@ -17,7 +17,7 @@ describe("Breadcrumb Component", () => {
     render(
       <MemoryRouter>
         <Breadcrumb link="products" text="產品" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     const productLink = screen.getByText("產品");

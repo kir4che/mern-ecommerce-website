@@ -28,7 +28,7 @@ describe("AppLayout", () => {
         <AlertProvider>
           <AppLayout />
         </AlertProvider>
-      </MemoryRouter>,
+      </MemoryRouter>
     );
   };
 

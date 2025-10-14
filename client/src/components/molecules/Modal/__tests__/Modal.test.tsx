@@ -6,8 +6,20 @@ describe("Modal Component", () => {
   const onClose = jest.fn();
 
   beforeAll(() => {
-    (globalThis.HTMLDialogElement.prototype.showModal as any) = jest.fn();
-    (globalThis.HTMLDialogElement.prototype.close as any) = jest.fn();
+    const showModalMock = jest.fn();
+    const closeMock = jest.fn();
+
+    Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
+      configurable: true,
+      writable: true,
+      value: showModalMock,
+    });
+
+    Object.defineProperty(HTMLDialogElement.prototype, "close", {
+      configurable: true,
+      writable: true,
+      value: closeMock,
+    });
   });
 
   const renderDefaultModal = () => {
@@ -19,7 +31,7 @@ describe("Modal Component", () => {
         title="Test Title"
       >
         <p>This is the modal content</p>
-      </Modal>,
+      </Modal>
     );
   };
 
@@ -59,7 +71,7 @@ describe("Modal Component", () => {
         title="Test Title 2"
       >
         <p>This is the modal content</p>
-      </Modal>,
+      </Modal>
     );
 
     fireEvent.click(screen.getByText("確認"));

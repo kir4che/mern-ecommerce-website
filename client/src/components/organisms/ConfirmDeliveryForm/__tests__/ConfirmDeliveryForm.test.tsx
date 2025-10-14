@@ -28,14 +28,14 @@ const mockOrder = {
 
 describe("ConfirmDeliveryForm", () => {
   const renderConfirmDeliveryForm = (
-    setShippingTrackingNo: (value: string) => void = () => {},
+    setShippingTrackingNo: (value: string) => void = () => {}
   ) => {
     return render(
       <ConfirmDeliveryForm
         order={mockOrder}
         shippingTrackingNo=""
         setShippingTrackingNo={setShippingTrackingNo}
-      />,
+      />
     );
   };
 

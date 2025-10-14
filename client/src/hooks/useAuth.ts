@@ -8,7 +8,7 @@ import {
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const { user, loading, error, isAuthenticated } = useAppSelector(
-    (state) => state.auth,
+    (state) => state.auth
   );
 
   // 登入方法：封裝 dispatch login action，unwrap 可直接拋錯或取得 payload
@@ -16,7 +16,7 @@ export const useAuth = () => {
     async (email: string, password: string, rememberMe: boolean) => {
       return dispatch(loginAction({ email, password, rememberMe })).unwrap();
     },
-    [dispatch], // 只在 dispatch 變動時重新建立 login 函式
+    [dispatch] // 只在 dispatch 變動時重新建立 login 函式
   );
 
   // 登出方法：同樣透過 dispatch 執行 logout thunk

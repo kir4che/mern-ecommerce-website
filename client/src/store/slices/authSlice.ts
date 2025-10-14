@@ -66,7 +66,7 @@ export const login = createAsyncThunk<User, LoginPayload, RejectValue>(
     } catch (err) {
       return rejectWithValue(toErrorMessage(err, "登入失敗，請稍後再試。"));
     }
-  },
+  }
 );
 
 export const logout = createAsyncThunk<void, void, RejectValue>(
@@ -80,7 +80,7 @@ export const logout = createAsyncThunk<void, void, RejectValue>(
     } catch (err) {
       return rejectWithValue(toErrorMessage(err, "登出失敗，請稍後再試。"));
     }
-  },
+  }
 );
 
 const authActionPending = isAnyOf(login.pending, logout.pending);

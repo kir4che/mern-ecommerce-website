@@ -44,7 +44,7 @@ const renderOrdersTable = () =>
   render(
     <MemoryRouter>
       <OrdersTable isAdmin={true} />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
 const baseOrder: Order = {
@@ -139,7 +139,7 @@ describe("OrdersTable", () => {
     render(
       <MemoryRouter>
         <OrdersTable isAdmin={false} />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     const repayButton = screen.getByRole("button", { name: "重新付款" });

@@ -15,7 +15,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().prepend(
       authListenerMiddleware.middleware,
-      cartListenerMiddleware.middleware,
+      cartListenerMiddleware.middleware
     ),
 });
 
