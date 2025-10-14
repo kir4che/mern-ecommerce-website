@@ -10,13 +10,13 @@ const TestComponent = ({
   onError,
 }: {
   url: string;
-  onSuccess?: (data: any) => void;
-  onError?: (err: any) => void;
+  onSuccess?: (data: { success: boolean; data: string }) => void;
+  onError?: (err: { message: string; statusCode: number }) => void;
 }) => {
   const { data, error, isLoading, isSuccess, isError } = useAxios(
     url,
     {},
-    { onSuccess, onError },
+    { onSuccess, onError }
   );
 
   if (isLoading) return <div>Loading...</div>;

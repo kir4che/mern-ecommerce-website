@@ -41,18 +41,21 @@ export const authMiddleware = async (
     req.role = decoded.role;
 
     next();
-  } catch (err: any) {
-    if (err.name === "JsonWebTokenError") {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid JWT token." });
-    } else if (err.name === "TokenExpiredError") {
-      return res
-        .status(401)
-        .json({ success: false, message: "Token has expired." });
-    } else
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized request." });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      if (err.name === "JsonWebTokenError")
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid JWT token." });
+
+      if (err.name === "TokenExpiredError")
+        return res
+          .status(401)
+          .json({ success: false, message: "Token has expired." });
+    }
+
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized request." });
   }
 };

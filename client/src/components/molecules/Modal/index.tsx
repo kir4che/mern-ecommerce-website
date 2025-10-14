@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import Button from "@/components/atoms/Button";
 import Alert from "@/components/atoms/Alert";

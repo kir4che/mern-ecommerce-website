@@ -1,12 +1,13 @@
 import React, { ChangeEvent } from "react";
 
-interface CheckboxProps {
+type NativeInputProps = React.InputHTMLAttributes<HTMLInputElement>;
+
+interface CheckboxProps extends Omit<NativeInputProps, "type" | "onChange"> {
   id: string;
   label: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
   labelStyle?: string;
-  [key: string]: any;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({

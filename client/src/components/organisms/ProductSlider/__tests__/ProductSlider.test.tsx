@@ -13,20 +13,20 @@ jest.mock("@/utils/linkToCategory", () => ({
     {},
     {
       get: () => "category",
-    },
+    }
   ),
 }));
 
 jest.mock("@/components/molecules/AddToCartInputBtn", () =>
   jest.fn(({ product }) => (
     <div data-testid={`add-to-cart-${product._id}`}>add</div>
-  )),
+  ))
 );
 
 jest.mock("@/components/atoms/ProductLinkImg", () =>
   jest.fn(({ product }) => (
     <img data-testid={`product-image-${product._id}`} alt={product.title} />
-  )),
+  ))
 );
 
 jest.mock("@/assets/icons/refresh.inline.svg", () => ({

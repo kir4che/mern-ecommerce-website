@@ -1,3 +1,4 @@
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import NewsManager from "@/components/organisms/NewsManager";
 import type { NewsItem } from "@/types/news";
@@ -12,13 +13,21 @@ jest.mock("@/context/AlertContext", () => ({
   useAlert: jest.fn(),
 }));
 
-jest.mock("@/components/organisms/NewsManager/Form", () => () => (
-  <div data-testid="news-form" />
-));
+jest.mock("@/components/organisms/NewsManager/Form", () => {
+  const MockNewsForm: React.FC = () => <div data-testid="news-form" />;
+  MockNewsForm.displayName = "MockNewsForm";
+  return MockNewsForm;
+});
 
-jest.mock("@/components/molecules/Modal", () => (props: any) => (
-  <div data-testid={`modal-${props.id}`}>{props.children}</div>
-));
+type ModalMockProps = { id: string; children?: React.ReactNode };
+
+jest.mock("@/components/molecules/Modal", () => {
+  const MockModal: React.FC<ModalMockProps> = (props) => (
+    <div data-testid={`modal-${props.id}`}>{props.children}</div>
+  );
+  MockModal.displayName = "MockModal";
+  return MockModal;
+});
 
 jest.mock("@/assets/icons/edit.inline.svg", () => ({
   ReactComponent: () => <svg data-testid="edit-icon" />,
@@ -65,17 +74,13 @@ describe("NewsManager", () => {
 
   test("renders empty state when no news available", () => {
     setupAxiosMocks();
-
     render(<NewsManager news={[]} refreshNews={jest.fn()} />);
-
     expect(screen.getByText("尚無任何消息...")).toBeInTheDocument();
   });
 
   test("renders news list items", () => {
     setupAxiosMocks();
-
     render(<NewsManager news={[baseNews]} refreshNews={jest.fn()} />);
-
     expect(screen.getByText("消息管理")).toBeInTheDocument();
     expect(screen.getByText("新品上市")).toBeInTheDocument();
   });

@@ -36,7 +36,7 @@ const ResetPassword: React.FC = () => {
             message: "發生錯誤，請稍後再試。",
           });
       },
-    },
+    }
   );
 
   const [password, setPassword] = useState("");

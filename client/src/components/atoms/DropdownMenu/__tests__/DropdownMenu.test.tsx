@@ -12,7 +12,7 @@ describe("DropdownMenu Component", () => {
     render(
       <MemoryRouter>
         <DropdownMenu title="Menu" list={mockList} />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByText("Menu")).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe("DropdownMenu Component", () => {
     render(
       <MemoryRouter>
         <DropdownMenu title="Menu" list={mockList} />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByRole("link", { name: /Item 1/i })).toBeInTheDocument();

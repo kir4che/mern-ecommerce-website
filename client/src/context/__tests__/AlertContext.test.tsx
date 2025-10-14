@@ -75,7 +75,7 @@ describe("AlertContext", () => {
     return render(
       <AlertProvider>
         <TestComponent />
-      </AlertProvider>,
+      </AlertProvider>
     );
   };
 
@@ -130,7 +130,7 @@ describe("AlertContext", () => {
     fireEvent.click(screen.getByText("Show Success"));
     expect(screen.getByTestId("alert")).toHaveAttribute(
       "data-variant",
-      "success",
+      "success"
     );
 
     fireEvent.click(screen.getByText("Hide Alert"));
@@ -138,7 +138,7 @@ describe("AlertContext", () => {
     fireEvent.click(screen.getByText("Show Error"));
     expect(screen.getByTestId("alert")).toHaveAttribute(
       "data-variant",
-      "error",
+      "error"
     );
   });
 });

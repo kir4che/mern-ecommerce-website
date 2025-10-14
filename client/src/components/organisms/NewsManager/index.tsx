@@ -41,8 +41,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
   const filterFormData = (data: Partial<NewsItem>) => {
     return Object.fromEntries(
       Object.entries(data).filter(
-        ([_, value]) => value !== "" && value !== null,
-      ),
+        ([_, value]) => value !== "" && value !== null
+      )
     );
   };
 
@@ -56,7 +56,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
           variant: "error",
           message: "新增消息失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
   const updateNew = useAxios(
     (params) => `/news/${params?.id}`,
@@ -68,7 +68,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
           variant: "error",
           message: "更新消息失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
 
   const deleteNew = useAxios(
@@ -81,19 +81,19 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
           variant: "error",
           message: "刪除消息失敗，請稍後再試。",
         }),
-    },
+    }
   ).refresh;
 
   const refreshNew = useAxios(
     (params) => `/news/${params?.id}`,
     { withCredentials: true },
-    { immediate: false },
+    { immediate: false }
   ).refresh;
 
   // 新增、更新、刪除消息
   const handleNew = async (
     action: "add" | "update" | "delete",
-    newData: Partial<NewsItem> & { _id?: string },
+    newData: Partial<NewsItem> & { _id?: string }
   ) => {
     // 驗證表單
     if (action === "add" || action === "update") {
@@ -111,8 +111,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
         Object.entries(filteredData).filter(
           ([key, value]) =>
             JSON.stringify(value) !==
-            JSON.stringify(originalDataRef.current[key]),
-        ),
+            JSON.stringify(originalDataRef.current[key])
+        )
       );
       if (Object.keys(changedData).length === 0) return false;
       res = await updateNew({ id: newData._id }, { data: changedData });
@@ -178,7 +178,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
                       setFormKey((prev) => prev + 1);
                       (
                         document.getElementById(
-                          `updateNewsModal-${item._id}`,
+                          `updateNewsModal-${item._id}`
                         ) as HTMLDialogElement
                       ).showModal();
                     }
@@ -206,7 +206,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
                   onClick={() =>
                     (
                       document.getElementById(
-                        `deleteNewsModal-${item._id}`,
+                        `deleteNewsModal-${item._id}`
                       ) as HTMLDialogElement
                     ).showModal()
                   }

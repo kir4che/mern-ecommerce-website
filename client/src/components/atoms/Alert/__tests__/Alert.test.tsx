@@ -35,7 +35,7 @@ describe("Alert Component", () => {
     render(
       <AlertProvider>
         <TestAlertComponent autoDismiss={false} />
-      </AlertProvider>,
+      </AlertProvider>
     );
 
     // 點擊 Show Alert 按鈕，並確認 alert 有顯示。
@@ -53,7 +53,7 @@ describe("Alert Component", () => {
     render(
       <AlertProvider>
         <TestAlertComponent autoDismiss={true} dismissTimeout={1000} />
-      </AlertProvider>,
+      </AlertProvider>
     );
 
     fireEvent.click(screen.getByText("Show Alert"));

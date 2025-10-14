@@ -19,7 +19,7 @@ describe("Button Component", () => {
     render(
       <Button variant="secondary" className="custom-class">
         Click Me
-      </Button>,
+      </Button>
     );
 
     const button = screen.getByRole("button", { name: /Click Me/i });

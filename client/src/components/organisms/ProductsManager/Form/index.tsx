@@ -5,7 +5,7 @@ import Textarea from "@/components/atoms/Textarea";
 
 const ProductForm = ({ formData, setFormData }) => {
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

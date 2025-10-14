@@ -5,7 +5,10 @@ import { useAxios } from "@/hooks/useAxios";
 
 jest.mock("@/context/AlertContext");
 jest.mock("@/hooks/useAxios");
-jest.mock("lodash", () => ({ throttle: (fn: Function) => fn }));
+jest.mock("lodash", () => {
+  const throttle = <T extends (...args: unknown[]) => unknown>(fn: T): T => fn;
+  return { throttle };
+});
 
 describe("ImageUploadInput Component", () => {
   const mockShowAlert = jest.fn();

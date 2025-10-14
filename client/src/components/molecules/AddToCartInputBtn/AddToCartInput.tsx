@@ -33,7 +33,7 @@ const AddToCartInput: React.FC<AddToCartInputProps> = ({
     cart.find((item) => item.productId === product._id)?.quantity || 0;
 
   const handleChange = (
-    value: number | React.ChangeEvent<HTMLInputElement>,
+    value: number | React.ChangeEvent<HTMLInputElement>
   ) => {
     const productForQuantity = {
       _id: product._id || "",
@@ -47,7 +47,7 @@ const AddToCartInput: React.FC<AddToCartInputProps> = ({
         setQuantity(newValue);
         onQuantityChange?.(newValue);
       },
-      existingQuantity,
+      existingQuantity
     );
   };
 

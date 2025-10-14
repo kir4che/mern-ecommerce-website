@@ -44,13 +44,13 @@ const Collections = () => {
       immediate: false,
       onSuccess: (data) => {
         setProducts((prev) =>
-          data.page === 1 ? data.products : [...prev, ...data.products],
+          data.page === 1 ? data.products : [...prev, ...data.products]
         );
         setPage(data.page);
         setPages(data.pages);
         setIsLoadingMore(false);
       },
-    },
+    }
   );
 
   const fetchProducts = async (pageNum: number) => {

@@ -29,7 +29,7 @@ const Alert: React.FC = () => {
 
   if (!alert) return null;
 
-  const { variant, message, floating, top } = alert;
+  const { variant, message, floating } = alert;
   const Icon = iconMap[variant].icon;
 
   return (

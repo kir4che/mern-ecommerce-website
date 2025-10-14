@@ -33,7 +33,7 @@ const RequestResetLink: React.FC = () => {
             message: "發送連結失敗，請稍後再試。",
           });
       },
-    },
+    }
   );
 
   useEffect(() => {

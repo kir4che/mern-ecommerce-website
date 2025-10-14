@@ -8,7 +8,7 @@ test("renders all navigation items for users", () => {
   render(
     <MemoryRouter>
       <Navigation role="user" handleMenuClose={handleClose} />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
   expect(screen.getByText("首頁")).toBeInTheDocument();
@@ -24,7 +24,7 @@ test("renders admin navigation items for admins", () => {
   render(
     <MemoryRouter>
       <Navigation role="admin" handleMenuClose={handleClose} />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
   expect(screen.getByText("首頁")).toBeInTheDocument();

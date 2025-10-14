@@ -34,7 +34,7 @@ describe("Select Component", () => {
     });
     expect(defaultProps.onChange).toHaveBeenCalledWith(
       "test-select",
-      "option1",
+      "option1"
     ); // 確認 onChange 被呼叫後，傳入的值是否正確。
   });
 
@@ -44,7 +44,7 @@ describe("Select Component", () => {
     test("renders multiple select correctly", () => {
       render(<Select {...multipleProps} />);
       mockOptions.forEach((option) =>
-        expect(screen.getByLabelText(option.label)).toBeInTheDocument(),
+        expect(screen.getByLabelText(option.label)).toBeInTheDocument()
       );
     });
 
@@ -72,14 +72,14 @@ describe("Select Component", () => {
     test("allows selecting multiple options", () => {
       const onChange = jest.fn();
       const { rerender } = render(
-        <Select {...multipleProps} onChange={onChange} />,
+        <Select {...multipleProps} onChange={onChange} />
       );
 
       fireEvent.click(screen.getByLabelText("Option 1"));
       expect(onChange).toHaveBeenLastCalledWith("test-select", ["option1"]);
 
       rerender(
-        <Select {...multipleProps} onChange={onChange} value={["option1"]} />,
+        <Select {...multipleProps} onChange={onChange} value={["option1"]} />
       );
 
       fireEvent.click(screen.getByLabelText("Option 2"));

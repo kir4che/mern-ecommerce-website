@@ -29,7 +29,7 @@ describe("PrivateRoute", () => {
           />
           <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByText(/Login Page/i)).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe("PrivateRoute", () => {
           />
           <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByText(/Protected Component/i)).toBeInTheDocument();

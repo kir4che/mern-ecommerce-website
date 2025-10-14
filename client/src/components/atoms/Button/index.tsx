@@ -1,15 +1,10 @@
 import React from "react";
 
-interface ButtonProps {
-  type?: "button" | "submit";
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "link" | "icon" | "text";
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
   iconPosition?: "start" | "end";
   iconStyle?: string;
-  children?: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-  [key: string]: any;
 }
 
 const Button: React.FC<ButtonProps> = ({

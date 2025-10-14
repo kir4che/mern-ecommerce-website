@@ -63,7 +63,7 @@ const ImageUploadInput = ({
           variant: "error",
           message: "上傳圖片失敗，請稍後再試。",
         }),
-    },
+    }
   );
 
   const uploadLogic = async () => {

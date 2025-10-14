@@ -44,8 +44,10 @@ const getOrdersByUser = async (req: AuthRequest, res: Response) => {
       totalPages: Math.ceil(totalOrders / limitNumber),
       currentPage: pageNumber,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -83,8 +85,10 @@ const getOrders = async (req: AuthRequest, res: Response) => {
       totalPages: Math.ceil(totalOrders / limitNumber),
       currentPage: pageNumber,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -109,8 +113,10 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "Order fetched successfully!", order });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -144,8 +150,10 @@ const createOrder = async (req: AuthRequest, res: Response) => {
     res
       .status(201)
       .json({ success: true, message: "Order created Successfully!", order });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 
@@ -177,8 +185,10 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
       message: "Order updated successfully!",
       order: updatedOrder,
     });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
   }
 };
 

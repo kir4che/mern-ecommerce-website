@@ -11,6 +11,15 @@ import Button from "@/components/atoms/Button";
 import MailIcon from "@/assets/icons/mail.inline.svg?react";
 import LockIcon from "@/assets/icons/lock.inline.svg?react";
 
+type FromState = { from?: { pathname: string; search?: string } };
+
+const isFromState = (v: unknown): v is FromState => {
+  if (typeof v !== "object" || v === null) return false;
+  if (!("from" in v)) return true;
+  const from = (v as { from?: unknown }).from;
+  return typeof from === "object" && from !== null;
+};
+
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,41 +31,41 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await login(email, password, rememberMe);
   };
 
   useEffect(() => {
-    if (user) {
-      const fromQuery = searchParams.get("from");
-      const fromState = (location.state as any)?.from;
+    if (!user) return;
 
-      const isSafePath = (p?: string) =>
-        typeof p === "string" && p.startsWith("/");
-      const stateTarget = fromState?.pathname
-        ? `${fromState.pathname}${fromState.search || ""}`
-        : undefined;
+    const fromQuery = searchParams.get("from");
+    const fromState = isFromState(location.state)
+      ? location.state.from
+      : undefined;
 
-      const target = isSafePath(fromQuery)
-        ? fromQuery!
-        : isSafePath(stateTarget)
-          ? stateTarget!
-          : "/";
+    const isSafePath = (p?: string) =>
+      typeof p === "string" && p.startsWith("/");
+    const stateTarget = fromState?.pathname
+      ? `${fromState.pathname}${fromState.search || ""}`
+      : undefined;
 
-      navigate(target, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    const target = isSafePath(fromQuery)
+      ? fromQuery
+      : isSafePath(stateTarget)
+        ? stateTarget
+        : "/";
+
+    navigate(target!, { replace: true });
+  }, [user, navigate, searchParams, location.state]);
 
   useEffect(() => {
-    if (error)
-      showAlert({
-        variant: "error",
-        message: error,
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error]);
+    if (!error) return;
+    showAlert({
+      variant: "error",
+      message: error,
+    });
+  }, [error, showAlert]);
 
   return (
     <div className="w-full max-w-sm px-5 mx-auto md:px-8">

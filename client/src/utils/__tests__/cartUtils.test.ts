@@ -9,8 +9,16 @@ import {
 describe("preventInvalidInput function", () => {
   test("prevents invalid keys", () => {
     // 使用無效鍵 "."，確認 preventDefault 沒有被呼叫。
-    const e = { key: ".", preventDefault: jest.fn() } as any;
-    preventInvalidInput(e);
+    const e: Pick<
+      React.KeyboardEvent<HTMLInputElement>,
+      "key" | "preventDefault"
+    > = {
+      key: ".",
+      preventDefault: jest.fn(),
+    };
+
+    preventInvalidInput(e as unknown as React.KeyboardEvent<HTMLInputElement>);
+
     expect(e.preventDefault).toHaveBeenCalled();
   });
 });

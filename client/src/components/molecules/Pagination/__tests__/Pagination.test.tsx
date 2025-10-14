@@ -11,7 +11,7 @@ describe("Pagination Component", () => {
         page={page}
         totalPages={totalPages}
         handlePageChange={handlePageChange}
-      />,
+      />
     );
   };
 

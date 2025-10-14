@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { throttle } from "lodash";
-import axios from "axios";
 
 import type { AppDispatch } from "@/store";
 import {
@@ -34,26 +33,26 @@ export const useCart = () => {
 
         const validQuantity = Math.max(1, quantity || 1);
         return dispatch(
-          addToCart({ productId, quantity: validQuantity }),
+          addToCart({ productId, quantity: validQuantity })
         ).unwrap();
       },
       1000,
-      { leading: true, trailing: false },
+      { leading: true, trailing: false }
     ),
-    [dispatch],
+    [dispatch]
   );
 
   // 移除購物車商品
   const handleRemoveFromCart = useCallback(
     (cartItemId: string) => dispatch(removeFromCart(cartItemId)),
-    [dispatch],
+    [dispatch]
   );
 
   // 更新商品數量
   const handleChangeQuantity = useCallback(
     (cartItemId: string, quantity: number) =>
       dispatch(changeQuantity({ cartItemId, quantity })),
-    [dispatch],
+    [dispatch]
   );
 
   // 清空購物車

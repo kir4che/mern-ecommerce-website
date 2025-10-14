@@ -36,7 +36,7 @@ const Checkout: React.FC = () => {
   const updateBuyerInfo = useCallback(
     (patch: Partial<typeof initialBuyerInfo>) =>
       setBuyerInfo((prev) => ({ ...prev, ...patch })),
-    [],
+    []
   );
 
   const paymentMethods = [
@@ -84,7 +84,7 @@ const Checkout: React.FC = () => {
         form.submit();
       },
       onError: () => setErrorMessage("付款失敗，請稍後再試！"),
-    },
+    }
   );
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

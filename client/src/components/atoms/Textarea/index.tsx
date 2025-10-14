@@ -1,6 +1,9 @@
 import { useState } from "react";
 
-interface TextareaProps {
+type NativeTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+interface TextareaProps
+  extends Omit<NativeTextareaProps, "value" | "onChange"> {
   id?: string;
   name?: string;
   label?: string;
@@ -15,7 +18,6 @@ interface TextareaProps {
   containerStyle?: string;
   labelStyle?: string;
   inputStyle?: string;
-  [key: string]: any;
 }
 
 const Textarea: React.FC<TextareaProps> = ({

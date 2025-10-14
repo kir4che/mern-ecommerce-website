@@ -34,7 +34,7 @@ const ProductInfo = ({
 const ProductPage = () => {
   const { id } = useParams();
   const { data, error, isLoading, isError, refresh } = useAxios(
-    `/products/${id}`,
+    `/products/${id}`
   );
   const product = data?.product as Product;
 

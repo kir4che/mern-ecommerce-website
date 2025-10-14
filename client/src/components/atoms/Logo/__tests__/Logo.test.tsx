@@ -16,6 +16,6 @@ test("renders white logo", () => {
   expect(whiteLogoImage).toBeInTheDocument();
   expect(whiteLogoImage).toHaveAttribute(
     "src",
-    expect.stringContaining("logo-white.png"),
+    expect.stringContaining("logo-white.png")
   ); // 確認圖片路徑包含 logo-white.png
 });

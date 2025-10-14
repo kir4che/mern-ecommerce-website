@@ -1,11 +1,19 @@
 import "@testing-library/jest-dom";
+import {
+  TextEncoder as NodeTextEncoder,
+  TextDecoder as NodeTextDecoder,
+} from "util";
 
-// Add TextEncoder polyfill
-if (typeof TextEncoder === "undefined")
-  global.TextEncoder = require("util").TextEncoder;
+const g = globalThis as typeof globalThis & {
+  TextEncoder?: typeof globalThis.TextEncoder;
+  TextDecoder?: typeof globalThis.TextDecoder;
+};
 
-if (typeof TextDecoder === "undefined")
-  global.TextDecoder = require("util").TextDecoder;
+if (typeof g.TextEncoder === "undefined")
+  g.TextEncoder = NodeTextEncoder as unknown as typeof globalThis.TextEncoder;
+
+if (typeof g.TextDecoder === "undefined")
+  g.TextDecoder = NodeTextDecoder as unknown as typeof globalThis.TextDecoder;
 
 const globalProcess = (
   globalThis as {
