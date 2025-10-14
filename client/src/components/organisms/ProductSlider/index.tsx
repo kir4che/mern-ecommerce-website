@@ -77,7 +77,10 @@ const ProductSlider = () => {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center min-h-[200px]">
+      <div
+        data-testid="loading-wrapper"
+        className="flex items-center justify-center min-h-[200px]"
+      >
         <Loading />
       </div>
     );

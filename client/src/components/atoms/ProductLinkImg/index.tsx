@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useState } from "react";
 
 import type { Product } from "@/types/product";
 
@@ -28,9 +29,10 @@ const ProductLinkImg: React.FC<ProductLinkImgProps> = ({
       className={`relative inline-block overflow-hidden rounded-full aspect-square ${!hasError ? "img-with-overlay" : "bg-gray-200"} ${className}`}
     >
       <BlurImage
-        src={product.imageUrl}
-        alt={product.title}
-        className="relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2]"
+        src={imgSrc}
+        alt={product.title || "Product Image"}
+        className={`relative w-full h-full object-cover object-center aspect-square duration-700 ease-out scale-[1.2] ${hasError ? "opacity-50" : ""}`}
+        onError={handleError}
       />
       {!hasError && (
         <div className="hidden overlay">

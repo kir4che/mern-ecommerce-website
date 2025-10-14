@@ -22,6 +22,8 @@ describe("Breadcrumb Component", () => {
 
     const productLink = screen.getByText("產品");
     expect(productLink).toBeInTheDocument();
-    expect(productLink.closest("a")).toHaveAttribute("href", "/products");
+
+    const breadcrumbLink = screen.getByTestId("breadcrumb-link");
+    expect(breadcrumbLink).toHaveAttribute("href", "/products");
   });
 });

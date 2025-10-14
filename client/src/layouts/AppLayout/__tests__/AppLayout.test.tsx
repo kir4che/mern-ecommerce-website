@@ -1,22 +1,34 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import { Provider } from "react-redux";
 
 import AppLayout from "@/layouts/AppLayout";
-import { store } from "@/store";
 import { AlertProvider } from "@/context/AlertContext";
 import { MemoryRouter } from "react-router";
+
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: null,
+    loading: false,
+    error: null,
+    isAuthenticated: false,
+    login: jest.fn(),
+    logout: jest.fn(),
+  }),
+}));
+
+jest.mock("@/hooks/useCart", () => ({
+  useCart: () => ({
+    totalQuantity: 0,
+  }),
+}));
 
 describe("AppLayout", () => {
   const renderAppLayout = () => {
     return render(
-      <Provider store={store}>
-        <MemoryRouter>
-          <AlertProvider>
-            <AppLayout>Test Children</AppLayout>
-          </AlertProvider>
-        </MemoryRouter>
-        ,
-      </Provider>,
+      <MemoryRouter>
+        <AlertProvider>
+          <AppLayout />
+        </AlertProvider>
+      </MemoryRouter>,
     );
   };
 
