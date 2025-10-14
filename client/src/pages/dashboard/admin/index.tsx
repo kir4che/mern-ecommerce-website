@@ -9,7 +9,7 @@ import Button from "@/components/atoms/Button";
 import Loading from "@/components/atoms/Loading";
 import AdminGate from "@/components/organisms/AdminGate";
 
-import { ReactComponent as RefreshIcon } from "@/assets/icons/refresh.inline.svg";
+import RefreshIcon from "@/assets/icons/refresh.inline.svg?react";
 
 const AdminDashboard = () => {
   const {

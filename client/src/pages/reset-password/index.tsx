@@ -6,7 +6,7 @@ import { useAxios } from "@/hooks/useAxios";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
+import MailIcon from "@/assets/icons/mail.inline.svg?react";
 
 const RequestResetLink: React.FC = () => {
   const { showAlert } = useAlert();

@@ -2,8 +2,8 @@ import { useMemo } from "react";
 
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
-import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
+import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
+import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
 
 interface PaginationProps {
   page: number;

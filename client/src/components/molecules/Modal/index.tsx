@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Button from "@/components/atoms/Button";
 import Alert from "@/components/atoms/Alert";
 
-import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
+import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
 
 interface ModalProps {
   id: string;

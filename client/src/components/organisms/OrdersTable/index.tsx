@@ -1,4 +1,11 @@
-import { Fragment, useMemo, useEffect, useState } from "react";
+import {
+  Fragment,
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+  memo,
+} from "react";
 import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
@@ -19,15 +26,15 @@ import ConfirmDeliveryForm from "@/components/organisms/ConfirmDeliveryForm";
 import Modal from "@/components/molecules/Modal";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import Loading from "@/components/atoms/Loading";
 
-import { ReactComponent as SearchIcon } from "@/assets/icons/search.inline.svg";
-import { ReactComponent as ArrowDownIcon } from "@/assets/icons/nav-arrow-down.inline.svg";
-import { ReactComponent as ArrowUpIcon } from "@/assets/icons/nav-arrow-up.inline.svg";
-import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
-import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
+import SearchIcon from "@/assets/icons/search.inline.svg?react";
+import ArrowDownIcon from "@/assets/icons/nav-arrow-down.inline.svg?react";
+import ArrowUpIcon from "@/assets/icons/nav-arrow-up.inline.svg?react";
+import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
+import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
 
 interface OrdersFilterTabProps {
-  label: string;
   filterValue: number;
   activeFilter: number;
   onClick: () => void;
@@ -46,20 +53,20 @@ interface OrdersTableProps {
   isAdmin: boolean;
 }
 
-const OrdersFilterTab = ({
-  filterValue,
-  activeFilter,
-  onClick,
-}: OrdersFilterTabProps) => (
-  <button
-    type="button"
-    role="tab"
-    onClick={onClick}
-    className={`tab h-9 text-nowrap ${activeFilter === filterValue ? "border-primary border-b-[1.5px]" : "hover:border-b"}`}
-  >
-    {ORDER_FILTER_TYPE_LABELS[filterValue]}
-  </button>
+const OrdersFilterTab = memo(
+  ({ filterValue, activeFilter, onClick }: OrdersFilterTabProps) => (
+    <button
+      type="button"
+      role="tab"
+      onClick={onClick}
+      className={`tab h-9 text-nowrap ${activeFilter === filterValue ? "border-primary border-b-[1.5px]" : "hover:border-b"}`}
+    >
+      {ORDER_FILTER_TYPE_LABELS[filterValue]}
+    </button>
+  )
 );
+
+OrdersFilterTab.displayName = "OrdersFilterTab";
 
 const OrdersActions = ({
   order,
@@ -74,18 +81,18 @@ const OrdersActions = ({
 
   const [shippingTrackingNo, setShippingTrackingNo] = useState<string>("");
 
-  const { refresh: updateOrder } = useAxios(
-    (params) => `/orders/${params?.id}`,
-    { method: "PATCH", withCredentials: true },
-    {
-      immediate: false,
-      onError: () =>
-        showAlert({
-          variant: "error",
-          message: "更新訂單失敗，請稍後再試。",
-        }),
-    },
-  );
+    const { refresh: updateOrder } = useAxios(
+      (params) => `/orders/${params.id}`,
+      { method: "PATCH" },
+      {
+        immediate: false,
+        onError: () =>
+          showAlert({
+            variant: "error",
+            message: "更新訂單失敗，請稍後再試。",
+          }),
+      }
+    );
 
   // 完成訂單（user）
   const handleComplete = async (orderId: string) => {
@@ -94,8 +101,12 @@ const OrdersActions = ({
   };
 
   // 訂單出貨（admin）
-  const handleDeliver = async (orderId, shippingTrackingNo) => {
-    await updateOrder({ id: orderId, status: "shipped", shippingTrackingNo });
+  const handleDeliver = async (orderId: string, trackingNo: string) => {
+    await updateOrder({
+      id: orderId,
+      status: "shipped",
+      shippingTrackingNo: trackingNo,
+    });
     setShippingTrackingNo("");
     refreshOrders();
   };
@@ -158,6 +169,7 @@ const OrdersActions = ({
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const [inputKeyword, setInputKeyword] = useState<string>("");
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -168,52 +180,93 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
   const [orderBy, setOrderBy] = useState<"asc" | "desc">("desc");
 
   // 訂單 API 請求（admin / user）
-  const apiUrl = isAdmin
-    ? `/orders/all?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`
-    : `/orders?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`;
-
-  const { data: ordersData, refresh: refreshOrders } = useAxios(
-    apiUrl,
-    { withCredentials: true },
-    { immediate: false },
+  const apiUrl = useMemo(
+    () =>
+      isAdmin
+        ? `/orders/all?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`
+        : `/orders?page=${currentPage}&limit=10&keyword=${searchKeyword}&type=${filterType}&sortBy=${sortBy}&orderBy=${orderBy}`,
+    [isAdmin, currentPage, searchKeyword, filterType, sortBy, orderBy]
   );
-  const orders = ordersData?.orders;
-  const totalOrders = ordersData?.totalOrders;
-  const totalPages = ordersData?.totalPages;
 
-  // 避免搜尋時過於頻繁發送請求
+  const {
+    data: ordersData,
+    isLoading,
+    error,
+    refresh: refreshOrders,
+  } = useAxios(
+    apiUrl,
+    {},
+    {
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "載入訂單失敗，請稍後再試。",
+        }),
+    }
+  );
+
+  const orders = useMemo(() => ordersData?.orders ?? [], [ordersData]);
+  const totalOrders = ordersData?.totalOrders ?? 0;
+  const totalPages = ordersData?.totalPages ?? 1;
+
+  // 避免搜尋時過於頻繁發送請求（debounce 500ms）
   const debouncedSearch = useMemo(
     () =>
       debounce((value: string) => {
         setSearchKeyword(value);
       }, 500),
-    [],
+    []
   );
 
   useEffect(() => {
     return () => debouncedSearch.cancel();
   }, [debouncedSearch]);
 
-  const handleSearchChange = (value: string) => {
-    setInputKeyword(value);
-    debouncedSearch(value);
-  };
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setInputKeyword(value);
+      debouncedSearch(value);
+    },
+    [debouncedSearch]
+  );
 
-  const handleSort = (key: string) => {
-    const newOrder = sortBy === key && orderBy === "asc" ? "desc" : "asc";
-    setOrderBy(newOrder);
-    setSortBy(key);
-  };
+  const handleSort = useCallback(
+    (key: string) => {
+      const newOrder = sortBy === key && orderBy === "asc" ? "desc" : "asc";
+      setOrderBy(newOrder);
+      setSortBy(key);
+    },
+    [sortBy, orderBy]
+  );
 
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    [totalPages]
+  );
 
+  const handleRepayment = useCallback(
+    (orderId: string) => navigate(`/checkout/${orderId}`),
+    [navigate]
+  );
+
+  const handleToggleExpand = useCallback(
+    (orderId: string) => {
+    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
+    },
+    [expandedOrderId]
+  );
+
+  // 當篩選條件改變時，重置到第一頁
   useEffect(() => {
-    refreshOrders();
-  }, [currentPage, filterType, sortBy, orderBy, searchKeyword, refreshOrders]);
+    setCurrentPage(1);
+  }, [searchKeyword, filterType]);
 
   return (
     <>
@@ -236,7 +289,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
         {Object.entries(ORDERS_FILTER_TYPES).map(([key, value]) => (
           <OrdersFilterTab
             key={key}
-            label={key}
             filterValue={value}
             activeFilter={filterType}
             onClick={() => setFilterType(value)}
@@ -244,7 +296,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
         ))}
       </div>
       {/* 表格主體 */}
-      {orders?.length > 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loading />
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <p className="text-base text-gray-500">載入訂單時發生錯誤</p>
+          <Button onClick={() => refreshOrders()} className="px-4 h-10">
+            重新載入
+          </Button>
+        </div>
+      ) : orders?.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="table min-w-full">
             <thead>
@@ -315,18 +378,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
                         order={order}
                         refreshOrders={refreshOrders}
                         isAdmin={isAdmin}
-                        onRepayment={(id) => navigate(`/checkout/${id}`)}
+                        onRepayment={handleRepayment}
                         onComplete={() =>
                           (
                             document.getElementById(
-                              "completeOrderModal",
+                              "completeOrderModal"
                             ) as HTMLDialogElement
                           ).showModal()
                         }
                         onDeliver={() =>
                           (
                             document.getElementById(
-                              "confirmDeliveryModal",
+                              "confirmDeliveryModal"
                             ) as HTMLDialogElement
                           ).showModal()
                         }
@@ -338,11 +401,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
                             ? ArrowUpIcon
                             : ArrowDownIcon
                         }
-                        onClick={() =>
-                          setExpandedOrderId(
-                            expandedOrderId === order._id ? null : order._id,
-                          )
-                        }
+                        onClick={() => toggleOrderExpand(order._id)}
                         className="ml-2 border-none"
                       />
                     </td>
@@ -367,40 +426,47 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
           </table>
         </div>
       ) : (
-        <div className="flex items-center justify-center h-32">
-          <p className="text-base">尚無訂單資訊...</p>
+        <div className="flex flex-col items-center justify-center h-64 gap-2">
+          <p className="text-base text-gray-500">尚無訂單資訊</p>
+          <p className="text-sm text-gray-400">
+            {searchKeyword
+              ? "試試調整搜尋條件或篩選器"
+              : "目前沒有任何訂單記錄"}
+          </p>
         </div>
       )}
-      <div className="flex items-center justify-between mt-6">
-        <p className="text-xs text-gray-600">共 {totalOrders || 0} 筆訂單</p>
-        {/* 分頁按鈕 */}
-        <div className="flex items-center gap-x-2">
-          <Button
-            variant="icon"
-            icon={ArrowLeftIcon}
-            onClick={() => handlePageChange(currentPage - 1)}
-            className={`w-4 h-4 border-none hover:opacity-50 ${currentPage === 1 ? "invisible" : ""}`}
-          />
-          {Array.from({ length: totalPages }).map((_, index) => (
-            <Button
-              key={index}
-              variant="icon"
-              onClick={() => handlePageChange(index + 1)}
-              className={`w-4 h-4 text-xs border-none hover:opacity-80 ${index + 1 !== currentPage ? "text-gray-400" : ""}`}
-            >
-              {index + 1}
-            </Button>
-          ))}
-          {currentPage < totalPages && (
+      {!isLoading && orders?.length > 0 && (
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-xs text-gray-600">共 {totalOrders || 0} 筆訂單</p>
+          {/* 分頁按鈕 */}
+          <div className="flex items-center gap-x-2">
             <Button
               variant="icon"
-              icon={ArrowRightIcon}
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="w-4 h-4 border-none hover:opacity-50"
+              icon={ArrowLeftIcon}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`w-4 h-4 border-none hover:opacity-50 ${currentPage === 1 ? "invisible" : ""}`}
             />
-          )}
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <Button
+                key={index}
+                variant="icon"
+                onClick={() => handlePageChange(index + 1)}
+                className={`w-4 h-4 text-xs border-none hover:opacity-80 ${index + 1 !== currentPage ? "text-gray-400" : ""}`}
+              >
+                {index + 1}
+              </Button>
+            ))}
+            {currentPage < totalPages && (
+              <Button
+                variant="icon"
+                icon={ArrowRightIcon}
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="w-4 h-4 border-none hover:opacity-50"
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

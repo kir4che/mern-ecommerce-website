@@ -8,11 +8,11 @@ import Logo from "@/components/atoms/Logo";
 import Button from "@/components/atoms/Button";
 import Navigation from "@/components/molecules/Navigation";
 
-import { ReactComponent as MenuIcon } from "@/assets/icons/menu.inline.svg";
-import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
-import { ReactComponent as UserIcon } from "@/assets/icons/user-circle.inline.svg";
-import { ReactComponent as CartIcon } from "@/assets/icons/cart.inline.svg";
-import { ReactComponent as DashboardIcon } from "@/assets/icons/dashboard.inline.svg";
+import MenuIcon from "@/assets/icons/menu.inline.svg?react";
+import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
+import UserIcon from "@/assets/icons/user-circle.inline.svg?react";
+import CartIcon from "@/assets/icons/cart.inline.svg?react";
+import DashboardIcon from "@/assets/icons/dashboard.inline.svg?react";
 
 interface HeaderMenuProps {
   isMenuOpen: boolean;

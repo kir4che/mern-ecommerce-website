@@ -14,11 +14,11 @@ import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn"
 import QuantityInput from "@/components/molecules/QuantityInput";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as CartImg } from "@/assets/images/ecommerce-cart-illustration.inline.svg";
-import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
-import { ReactComponent as ArrowLeftIcon } from "@/assets/icons/nav-arrow-left.inline.svg";
-import { ReactComponent as ArrowRightIcon } from "@/assets/icons/nav-arrow-right.inline.svg";
-import { ReactComponent as DeliveryTrunkIcon } from "@/assets/icons/delivery-trunk.inline.svg";
+import CartImg from "@/assets/images/ecommerce-cart-illustration.inline.svg?react";
+import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
+import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
+import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
+import DeliveryTrunkIcon from "@/assets/icons/delivery-trunk.inline.svg?react";
 
 import "swiper/css";
 

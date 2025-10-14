@@ -7,8 +7,8 @@ import { useAxios } from "@/hooks/useAxios";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as MailIcon } from "@/assets/icons/mail.inline.svg";
-import { ReactComponent as LockIcon } from "@/assets/icons/lock.inline.svg";
+import MailIcon from "@/assets/icons/mail.inline.svg?react";
+import LockIcon from "@/assets/icons/lock.inline.svg?react";
 
 const Register = () => {
   const navigate = useNavigate();

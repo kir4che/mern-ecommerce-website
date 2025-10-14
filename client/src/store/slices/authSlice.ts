@@ -26,50 +26,59 @@ const initialState: AuthState = {
   isAuthenticated: false,
 };
 
-export const login = createAsyncThunk(
-  "auth/login",
-  async (
-    {
-      email,
-      password,
-      rememberMe,
-    }: {
-      email: string;
-      password: string;
-      rememberMe: boolean;
-    },
-    { rejectWithValue },
-  ) => {
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/login`,
-        { email, password, rememberMe },
-        { withCredentials: true },
-      );
+const API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
 
-      if (res.data.success && res.data.user) return res.data.user;
-      return rejectWithValue(res.data.message || "登入失敗，請稍後再試。");
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message || "登入失敗，請稍後再試。",
-      );
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+const toErrorMessage = (err: unknown, fallback: string) => {
+  if (axios.isAxiosError(err)) return err.response?.data?.message || fallback;
+  if (err instanceof Error) return err.message || fallback;
+  return fallback;
+};
+
+interface LoginPayload {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+type RejectValue = {
+  rejectValue: string;
+};
+
+export const login = createAsyncThunk<User, LoginPayload, RejectValue>(
+  "auth/login",
+  async ({ email, password, rememberMe }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/user/login", {
+        email,
+        password,
+        rememberMe,
+      });
+
+      if (data.success && data.user) return data.user;
+
+      return rejectWithValue(data.message || "登入失敗，請稍後再試。");
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err, "登入失敗，請稍後再試。"));
     }
   },
 );
 
-export const logout = createAsyncThunk(
+export const logout = createAsyncThunk<void, void, RejectValue>(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/logout`,
-      );
-      if (res.data.success) return;
-      return rejectWithValue(res.data.message || "登出失敗，請稍後再試。");
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message || "登出失敗，請稍後再試。",
-      );
+      const { data } = await api.post("/user/logout");
+
+      if (data.success) return;
+      return rejectWithValue(data.message || "登出失敗，請稍後再試。");
+    } catch (err) {
+      return rejectWithValue(toErrorMessage(err, "登出失敗，請稍後再試。"));
     }
   },
 );

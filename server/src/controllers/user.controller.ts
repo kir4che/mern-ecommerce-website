@@ -41,6 +41,7 @@ const getUserData = async (req: AuthRequest, res: Response) => {
       success: true,
       message: "User fetched Successfully!",
       user: {
+        id: user._id.toString(),
         email: user.email,
         role: user.role,
       },
@@ -129,7 +130,11 @@ const loginUser = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "User logged in successfully!",
-      user: req.session.user,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role as "user" | "admin",
+      },
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });

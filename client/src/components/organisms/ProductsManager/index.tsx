@@ -8,8 +8,8 @@ import ProductForm from "@/components/organisms/ProductsManager/Form";
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 
-import { ReactComponent as EditIcon } from "@/assets/icons/edit.inline.svg";
-import { ReactComponent as CloseIcon } from "@/assets/icons/xmark.inline.svg";
+import EditIcon from "@/assets/icons/edit.inline.svg?react";
+import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
 
 interface ProductsManagerProps {
   products: Product[];

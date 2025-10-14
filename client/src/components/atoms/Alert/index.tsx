@@ -1,9 +1,9 @@
 import { useAlert } from "@/context/AlertContext";
 
-import { ReactComponent as InfoIcon } from "@/assets/icons/info.inline.svg";
-import { ReactComponent as WarningIcon } from "@/assets/icons/warning.inline.svg";
-import { ReactComponent as SuccessIcon } from "@/assets/icons/success.inline.svg";
-import { ReactComponent as ErrorIcon } from "@/assets/icons/error.inline.svg";
+import InfoIcon from "@/assets/icons/info.inline.svg?react";
+import WarningIcon from "@/assets/icons/warning.inline.svg?react";
+import SuccessIcon from "@/assets/icons/success.inline.svg?react";
+import ErrorIcon from "@/assets/icons/error.inline.svg?react";
 
 const iconMap = {
   info: {

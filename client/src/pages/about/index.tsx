@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { ABOUT, SHOP_INFO, SHOP_LIST } from "@/data";
+import { ABOUT, SHOP_INFO, SHOP_LIST } from "@/constants/data";
 
 import Breadcrumb from "@/components/molecules/Breadcrumb";
 import BlurImage from "@/components/atoms/BlurImage";
