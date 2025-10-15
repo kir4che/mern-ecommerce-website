@@ -16,6 +16,8 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
@@ -23,6 +25,8 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
+  accessToken: null,
+  refreshToken: null,
   loading: false,
   error: null,
   isAuthenticated: false,
@@ -44,7 +48,13 @@ type RejectValue = {
   rejectValue: string;
 };
 
-export const login = createAsyncThunk<User, LoginPayload, RejectValue>(
+interface LoginResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export const login = createAsyncThunk<LoginResponse, LoginPayload, RejectValue>(
   "auth/login",
   async ({ email, password, rememberMe }, { rejectWithValue }) => {
     try {
@@ -54,7 +64,13 @@ export const login = createAsyncThunk<User, LoginPayload, RejectValue>(
         rememberMe,
       });
 
-      if (data.success && data.user) return data.user;
+      if (data.success && data.user && data.accessToken && data.refreshToken) {
+        return {
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        };
+      }
 
       return rejectWithValue(data.message || "登入失敗，請稍後再試。");
     } catch (err) {
@@ -83,26 +99,44 @@ const authSlice = createSlice({
   reducers: {
     initializeAuth: (state) => {
       const userStr = localStorage.getItem("user");
-      if (userStr) {
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (userStr && accessToken) {
         state.user = JSON.parse(userStr);
+        state.accessToken = accessToken;
+        state.refreshToken = refreshToken;
         state.isAuthenticated = true;
       } else {
         state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
       }
+    },
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
+      localStorage.setItem("accessToken", action.payload);
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.fulfilled, (state, action: PayloadAction<User>) => {
-        state.loading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        state.error = null;
-      })
+      .addCase(
+        login.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.refreshToken = action.payload.refreshToken;
+          state.isAuthenticated = true;
+          state.error = null;
+        }
+      )
       .addCase(logout.fulfilled, (state) => {
         state.loading = false;
         state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
         state.error = null;
       })
@@ -114,12 +148,14 @@ const authSlice = createSlice({
       .addMatcher(authActionRejected, (state, action) => {
         state.loading = false;
         state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
         state.error = (action.payload as string) || "操作失敗，請稍後再試。";
       });
   },
 });
 
-export const { initializeAuth } = authSlice.actions;
+export const { initializeAuth, setAccessToken } = authSlice.actions;
 
 export default authSlice.reducer;

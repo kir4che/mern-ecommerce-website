@@ -1,5 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios, { AxiosRequestConfig, Method } from "axios";
+import { store } from "@/store";
+import { setAccessToken } from "@/store/slices/authSlice";
 
 type RequestStatus = "idle" | "loading" | "success" | "error";
 type UrlParams = Record<string, unknown> | FormData;
@@ -22,8 +24,59 @@ if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
 });
+
+// 加上 Authorization Header
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
+
+// 處理 Token 過期
+api.interceptors.response.use(
+  (response) => response,
+  async (err) => {
+    const originalRequest = err.config;
+
+    // 如果 401 且 TOKEN_EXPIRED，嘗試刷新 token。
+    if (
+      err.response?.status === 401 &&
+      err.response?.data?.code === "TOKEN_EXPIRED" &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) throw new Error("No refresh token");
+
+        const { data } = await axios.post(`${API_URL}/user/refresh-token`, {
+          refreshToken,
+        });
+
+        const newAccessToken = data.accessToken;
+        store.dispatch(setAccessToken(newAccessToken));
+
+        // 重試原本的請求
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh token 也過期了，清除所有資料並重新登入。
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(err);
+  }
+);
 
 export const useAxios = <TData = unknown>(
   url: string | ((params?: UrlParams) => string),

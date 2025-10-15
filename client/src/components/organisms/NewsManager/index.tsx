@@ -49,7 +49,7 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
 
   const addNew = useAxios(
     "/news",
-    { method: "POST", withCredentials: true },
+    { method: "POST" },
     {
       immediate: false,
       onError: () =>

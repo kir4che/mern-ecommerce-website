@@ -1,8 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import session from "express-session";
-import cookieParser from "cookie-parser";
 
 import { cartRouter } from "./routes/cart.route";
 import { newsRouter } from "./routes/news.route";
@@ -28,33 +26,16 @@ cloudinary.config({
 const app = express();
 
 // CORS 設定
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true, // 允許發送 Cookie
-  })
-);
-app.options("*", cors());
-app.use(express.json()); // 解析 JSON 格式的 request body
-app.use(express.urlencoded({ extended: true })); // 解析 URL-encoded 請求
-app.use(cookieParser()); // 解析 cookie
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// Session 設定
-app.use(
-  session({
-    secret:
-      process.env.SESSION_SECRET ||
-      "Jc+4DnHUNhPkZQgrWz6f9Uo9XCGGMppKZ0fNFQz/Cks=",
-    resave: false, // 固定寫法
-    saveUninitialized: true, // 固定寫法: 是否保存初始化的 session
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 1, // 1 days
-      secure: process.env.NODE_ENV === "production", // true: 只有 https 才能使用 cookie
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // true: 允許跨域請求攜帶 cookie
-    },
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 設定首頁路由，確認後端運作正常。
 app.get("/", (req, res) => res.send("Express on Vercel."));

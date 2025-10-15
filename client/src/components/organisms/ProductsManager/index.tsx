@@ -63,7 +63,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
 
   const addProduct = useAxios(
     "/products",
-    { method: "POST", withCredentials: true },
+    { method: "POST" },
     {
       immediate: false,
       onError: () =>

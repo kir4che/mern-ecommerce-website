@@ -54,7 +54,6 @@ const Cart = () => {
     "/orders",
     {
       method: "POST",
-      withCredentials: true,
     },
     {
       immediate: false,

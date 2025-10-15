@@ -55,7 +55,6 @@ const ImageUploadInput = ({
       {
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
       },
       {
         immediate: false,

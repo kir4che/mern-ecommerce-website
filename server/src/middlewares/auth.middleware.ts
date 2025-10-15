@@ -23,8 +23,9 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.cookies.token; // 從 cookie 中讀取 token
-    if (!token) {
+    // 從 Authorization header 讀取 token
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.setHeader("WWW-Authenticate", 'Bearer realm="app"');
       return res.status(401).json({
         success: false,
@@ -32,6 +33,8 @@ export const authMiddleware = async (
         message: "尚未登入或登入已過期，請重新登入。",
       });
     }
+
+    const token = authHeader.substring(7); // 移除 "Bearer " 前綴
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as Secret) as {
       userId: Types.ObjectId;
@@ -49,9 +52,11 @@ export const authMiddleware = async (
           .json({ success: false, message: "Invalid JWT token." });
 
       if (err.name === "TokenExpiredError")
-        return res
-          .status(401)
-          .json({ success: false, message: "Token has expired." });
+        return res.status(401).json({
+          success: false,
+          code: "TOKEN_EXPIRED",
+          message: "Token has expired.",
+        });
     }
 
     return res

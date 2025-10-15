@@ -189,7 +189,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     [isAdmin, currentPage, searchKeyword, filterType, sortBy, orderBy]
   );
 
-  const { data: ordersData, refresh: refreshOrders } = useAxios<OrdersResponse>(
+  const {
+    data: ordersData,
+    isLoading,
+    error,
+    refresh: refreshOrders,
+  } = useAxios<OrdersResponse>(
     apiUrl,
     {},
     {
@@ -200,7 +205,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
         }),
     }
   );
-  const orders = ordersData?.orders ?? [];
+
+  const orders = useMemo(() => ordersData?.orders ?? [], [ordersData]);
   const totalOrders = ordersData?.totalOrders ?? 0;
   const totalPages = ordersData?.totalPages ?? 1;
 

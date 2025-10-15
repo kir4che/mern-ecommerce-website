@@ -17,7 +17,7 @@ const RequestResetLink: React.FC = () => {
 
   const { isLoading, refresh: ResetPassword } = useAxios(
     "/user/reset-password",
-    { method: "POST", withCredentials: true },
+    { method: "POST" },
     {
       immediate: false,
       onSuccess: () => setCountdown(60),

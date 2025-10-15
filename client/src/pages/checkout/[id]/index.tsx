@@ -33,9 +33,7 @@ const Checkout: React.FC = () => {
     order: Order;
   }>(
     id ? `/orders/${id}` : "",
-    {
-      withCredentials: true,
-    },
+    {},
     {
       skip: !id,
     }
@@ -71,7 +69,7 @@ const Checkout: React.FC = () => {
     params: Record<string, string>;
   }>(
     "/payment",
-    { method: "POST", withCredentials: true },
+    { method: "POST" },
     {
       immediate: false,
       onSuccess: (res) => {
