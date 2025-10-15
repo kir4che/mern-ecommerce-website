@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 
@@ -27,17 +28,17 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
   const [alert, setAlert] = useState<Alert | null>(null);
 
   // 顯示 Alert
-  const showAlert = (newAlert: Alert) => {
+  const showAlert = useCallback((newAlert: Alert) => {
     setAlert({
       autoDismiss: true,
       floating: true,
       top: "top-4",
       ...newAlert, // 保留傳入的屬性，優先級較高
     });
-  };
+  }, []);
 
   // 隱藏 Alert
-  const hideAlert = () => setAlert(null);
+  const hideAlert = useCallback(() => setAlert(null), []);
 
   useEffect(() => {
     if (alert && alert.autoDismiss !== false) {

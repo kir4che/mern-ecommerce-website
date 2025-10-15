@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 
+import type { NewsItem } from "@/types/news";
+import type { NewsResponse } from "@/types/api";
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
 
@@ -11,7 +13,7 @@ import Loading from "@/components/atoms/Loading";
 
 interface NewsItemProps {
   _id: string;
-  date: string;
+  date: string | Date;
   category: string;
   title: string;
   content: string;
@@ -45,17 +47,22 @@ const NewsItem: React.FC<NewsItemProps> = ({
 const News = () => {
   const limit = 5; // 每頁顯示的新聞數量
   const [page, setPage] = useState(1); // 當前頁碼
-  const [newsData, setNewsData] = useState({ news: [], total: 0 });
+  type NewsListState = { news: NewsItem[]; total: number };
+  const [newsData, setNewsData] = useState<NewsListState>({
+    news: [],
+    total: 0,
+  });
 
   // 獲取當前頁數據
-  const { data, error, isLoading, isError } = useAxios(
+  const { data, error, isLoading, isError } = useAxios<NewsResponse>(
     `/news?page=${page}&limit=${limit}`,
     { method: "GET" }
   );
 
   // 預加載下一頁數據
-  const shouldSkipPreload = !data || page >= Math.ceil(data.total / limit);
-  const { data: nextPageData } = useAxios(
+  const totalPagesFromData = data?.total ? Math.ceil(data.total / limit) : 0;
+  const shouldSkipPreload = !data || page >= totalPagesFromData;
+  const { data: nextPageData } = useAxios<NewsResponse>(
     `/news?page=${page + 1}&limit=${limit}`,
     { method: "GET" },
     { skip: shouldSkipPreload }
@@ -63,7 +70,12 @@ const News = () => {
 
   // 更新當前頁的新聞數據
   useEffect(() => {
-    if (data) setNewsData(data);
+    if (data) {
+      setNewsData({
+        news: data.news ?? [],
+        total: data.total ?? 0,
+      });
+    }
   }, [data]);
 
   const totalPages = Math.ceil(newsData.total / limit); // 總頁數
@@ -74,7 +86,10 @@ const News = () => {
       if (newPage > 0 && newPage <= totalPages) {
         // 若有預加載數據且向下一頁移動，直接使用。
         if (newPage === page + 1 && nextPageData) {
-          setNewsData(nextPageData);
+          setNewsData({
+            news: nextPageData.news ?? [],
+            total: nextPageData.total ?? 0,
+          });
         }
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: "smooth" });

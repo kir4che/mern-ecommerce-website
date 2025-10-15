@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 
 import type { Product } from "@/types/product";
+import type { ProductsResponse } from "@/types/api";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { addComma } from "@/utils/addComma";
@@ -23,18 +24,19 @@ interface ProductCardProps {
 }
 
 const ProductSlider = () => {
-  const { data, isLoading, isError, refresh } = useAxios("/products");
-  const products = data?.products as Product[];
+  const { data, isLoading, isError, refresh } =
+    useAxios<ProductsResponse>("/products");
+  const products = data?.products ?? [];
   const [retryState, setRetryState] = useState({
     count: 0,
     delay: 1000,
   });
   const [isRetrying, setIsRetrying] = useState(false);
 
-  const recommendedProducts = useMemo(() => {
-    if (!products) return [];
-    return products.filter((item) => item.tags.includes("推薦"));
-  }, [products]);
+  const recommendedProducts = useMemo(
+    () => products.filter((item) => item.tags.includes("推薦")),
+    [products]
+  );
 
   const handleRetry = useCallback(async () => {
     if (retryState.count >= 3 || isRetrying) return;

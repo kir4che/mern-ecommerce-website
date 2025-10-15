@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 
 import type { Product } from "@/types/product";
+import type { ProductDetailResponse } from "@/types/api";
 import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
 
@@ -74,8 +75,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
   ).refresh;
 
   const updateProduct = useAxios(
-    (params) => `/products/${params?.id}`,
-    { method: "PATCH", withCredentials: true },
+    (params) => `/products/${(params as { id: string }).id}`,
+    { method: "PATCH" },
     {
       immediate: false,
       onError: () =>
@@ -87,8 +88,8 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
   ).refresh;
 
   const deleteProduct = useAxios(
-    (params) => `/products/${params?.id}`,
-    { method: "DELETE", withCredentials: true },
+    (params) => `/products/${(params as { id: string }).id}`,
+    { method: "DELETE" },
     {
       immediate: false,
       onError: () =>
@@ -99,9 +100,9 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
     }
   ).refresh;
 
-  const refreshProduct = useAxios(
-    (params) => `/products/${params?.id}`,
-    { withCredentials: true },
+  const refreshProduct = useAxios<ProductDetailResponse>(
+    (params) => `/products/${(params as { id: string }).id}`,
+    {},
     { immediate: false }
   ).refresh;
 

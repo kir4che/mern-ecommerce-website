@@ -19,9 +19,11 @@ import bg3 from "@/assets/images/about/bg3.jpg";
 import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
 import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
 
+import type { NewsResponse } from "@/types/api";
+
 const App = () => {
   const swiperRef = useRef(null);
-  const { data } = useAxios("/news");
+  const { data } = useAxios<NewsResponse>("/news");
 
   const renderTitle = (title: string, subtitle: string, className?: string) => (
     <h2 className={`text-xl ${className}`}>

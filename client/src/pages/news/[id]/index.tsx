@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 
 import { useAxios } from "@/hooks/useAxios";
 import { formatDate } from "@/utils/formatDate";
+import type { NewsItem } from "@/types/news";
 
 import NotFound from "@/pages/notFound";
 import PageHeader from "@/components/molecules/PageHeader";
@@ -11,10 +12,14 @@ import Loading from "@/components/atoms/Loading";
 import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
 
 const New = () => {
-  const { id } = useParams();
-  const { data, error, isLoading, isError } = useAxios(`/news/${id}`);
+  const { id } = useParams<{ id: string }>();
+  const { data, error, isLoading, isError } = useAxios<{ newsItem: NewsItem }>(
+    id ? `/news/${id}` : "",
+    {},
+    { skip: !id }
+  );
 
-  const newsItem = data?.newsItem || {};
+  const newsItem = data?.newsItem;
 
   if (isLoading) {
     return (
@@ -24,7 +29,8 @@ const New = () => {
     );
   }
 
-  if (isError) return <NotFound message={error?.message} />;
+  if (isError || !newsItem)
+    return <NotFound message={error?.message ?? "無法載入最新消息內容"} />;
 
   return (
     <>

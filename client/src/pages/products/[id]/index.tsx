@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router";
 
-import type { Product } from "@/types/product";
+import type { ProductDetailResponse } from "@/types/api";
 import { useAxios } from "@/hooks/useAxios";
 import { linkToCategory } from "@/utils/linkToCategory";
 import { addComma } from "@/utils/addComma";
@@ -33,10 +33,9 @@ const ProductInfo = ({
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { data, error, isLoading, isError, refresh } = useAxios(
-    `/products/${id}`
-  );
-  const product = data?.product as Product;
+  const { data, error, isLoading, isError, refresh } =
+    useAxios<ProductDetailResponse>(`/products/${id}`);
+  const product = data?.product;
 
   useEffect(() => {
     window.scrollTo({ top: 0 });

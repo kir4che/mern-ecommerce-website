@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 
 import type { RootState } from "@/store";
 import type { CartItem, CartItemInput } from "@/types/cart";
+import { api } from "@/hooks/useAxios";
 
 interface CartState {
   cart: CartItem[];
@@ -15,14 +16,6 @@ const initialState: CartState = {
   isLoading: false,
   error: null,
 };
-
-const API_URL = import.meta.env.VITE_API_URL;
-if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
-
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-});
 
 const toErrorMessage = (
   err: unknown,

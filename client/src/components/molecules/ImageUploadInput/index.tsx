@@ -4,6 +4,8 @@ import { throttle } from "lodash";
 import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
 
+import type { UploadImageResponse } from "@/types/api";
+
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 
@@ -47,30 +49,31 @@ const ImageUploadInput = ({
     setImageFile(file);
   };
 
-  const { isLoading, isSuccess, isError, refresh } = useAxios(
-    "/upload/image",
-    {
-      method: "POST",
-      headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true,
-    },
-    {
-      immediate: false,
-      onSuccess: (resData) =>
-        setFormData((prev) => ({ ...prev, imageUrl: resData.imageUrl })),
-      onError: () =>
-        showAlert({
-          variant: "error",
-          message: "上傳圖片失敗，請稍後再試。",
-        }),
-    }
-  );
+  const { isLoading, isSuccess, isError, refresh } =
+    useAxios<UploadImageResponse>(
+      "/upload/image",
+      {
+        method: "POST",
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      },
+      {
+        immediate: false,
+        onSuccess: (resData) =>
+          setFormData((prev) => ({ ...prev, imageUrl: resData.imageUrl })),
+        onError: () =>
+          showAlert({
+            variant: "error",
+            message: "上傳圖片失敗，請稍後再試。",
+          }),
+      }
+    );
 
   const uploadLogic = async () => {
     if (!imageFile) return;
     const formData = new FormData();
     formData.append("image", imageFile);
-    refresh(formData);
+    void refresh(formData);
   };
 
   const handleImageUpload = throttle(() => uploadLogic(), 1000, {

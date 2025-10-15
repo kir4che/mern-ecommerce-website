@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 
 import type { NewsItem } from "@/types/news";
+import type { NewsDetailResponse } from "@/types/api";
 import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
 
@@ -59,8 +60,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
     }
   ).refresh;
   const updateNew = useAxios(
-    (params) => `/news/${params?.id}`,
-    { method: "PATCH", withCredentials: true },
+    (params) => `/news/${(params as { id: string }).id}`,
+    { method: "PATCH" },
     {
       immediate: false,
       onError: () =>
@@ -72,8 +73,8 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
   ).refresh;
 
   const deleteNew = useAxios(
-    (params) => `/news/${params?.id}`,
-    { method: "DELETE", withCredentials: true },
+    (params) => `/news/${(params as { id: string }).id}`,
+    { method: "DELETE" },
     {
       immediate: false,
       onError: () =>
@@ -84,9 +85,9 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, refreshNews }) => {
     }
   ).refresh;
 
-  const refreshNew = useAxios(
-    (params) => `/news/${params?.id}`,
-    { withCredentials: true },
+  const refreshNew = useAxios<NewsDetailResponse>(
+    (params) => `/news/${(params as { id: string }).id}`,
+    {},
     { immediate: false }
   ).refresh;
 

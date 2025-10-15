@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { useAlert } from "@/context/AlertContext";
@@ -41,12 +41,24 @@ const ResetPassword: React.FC = () => {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSamePassword, setIsSamePassword] = useState(false);
+
+  const escapeRegExp = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const confirmPasswordPattern = useMemo(() => {
+    if (!password) return undefined;
+    return {
+      value: new RegExp(`^${escapeRegExp(password)}$`),
+      message: "密碼不一致",
+    } as const;
+  }, [password]);
+
+  const passwordsMatch = password !== "" && password === confirmPassword;
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isSamePassword) return;
+    if (!passwordsMatch) return;
     await ResetPassword({ resetToken: token, password });
   };
 
@@ -58,18 +70,19 @@ const ResetPassword: React.FC = () => {
           value={password}
           label="新密碼"
           type="password"
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (!e.target.value) setConfirmPassword("");
+          }}
           required
         />
         <Input
           value={confirmPassword}
           label="再次輸入密碼"
           type="password"
-          onChange={(e) => {
-            setConfirmPassword(e.target.value);
-            setIsSamePassword(e.target.value === password);
-          }}
-          error={confirmPassword && !isSamePassword && "密碼不一致"}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          pattern={confirmPasswordPattern}
+          errorMessage="密碼不一致"
           required
         />
         <Button type="submit" className="mt-4 rounded-none">
