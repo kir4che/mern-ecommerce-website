@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
 

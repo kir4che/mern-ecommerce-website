@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router";
 import { useInView } from "react-intersection-observer";
 
+import type { Product } from "@/types/product";
 import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
 import { useAxios } from "@/hooks/useAxios";
 import { filterProductsByCategory } from "@/utils/productFilters";

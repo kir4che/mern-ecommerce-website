@@ -45,10 +45,14 @@ const New = () => {
         <ReactMarkdown
           components={{
             ul: ({ children }) => (
-              <ul className="pl-2 whitespace-normal list-disc list-inside">{children}</ul>
+              <ul className="pl-2 whitespace-normal list-disc list-inside">
+                {children}
+              </ul>
             ),
             ol: ({ children }) => (
-              <ol className="pl-2 whitespace-normal list-disc list-inside">{children}</ol>
+              <ol className="pl-2 whitespace-normal list-disc list-inside">
+                {children}
+              </ol>
             ),
           }}
         >

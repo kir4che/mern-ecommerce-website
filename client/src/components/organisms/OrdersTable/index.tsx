@@ -2,6 +2,7 @@ import { Fragment, useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
+import type { Order } from "@/types/order";
 import {
   ORDER_STATUS,
   PAYMENT_STATUS,
@@ -9,7 +10,6 @@ import {
   ORDERS_FILTER_TYPES,
   ORDER_FILTER_TYPE_LABELS,
 } from "@/constants/actionTypes";
-import { Order } from "@/types/order";
 import { addComma } from "@/utils/addComma";
 import { formatDate } from "@/utils/formatDate";
 import { useAlert } from "@/context/AlertContext";
