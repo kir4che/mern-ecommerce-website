@@ -40,7 +40,7 @@ const Cart = () => {
   const sortedCart = [...cart].sort(
     (a, b) =>
       Number((b.product.countInStock ?? 0) > 0) -
-      Number((a.product.countInStock ?? 0) > 0)
+      Number((a.product.countInStock ?? 0) > 0),
   );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
@@ -64,7 +64,7 @@ const Cart = () => {
           variant: "error",
           message: "訂單送出失敗，請稍後再試！",
         }),
-    }
+    },
   );
 
   const handleCheckout = () => {

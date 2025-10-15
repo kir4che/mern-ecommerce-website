@@ -1,4 +1,4 @@
-import { Order } from "@/types/order";
+import type { Order } from "@/types/order";
 
 import Input from "@/components/atoms/Input";
 
