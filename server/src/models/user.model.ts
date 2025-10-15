@@ -10,6 +10,7 @@ export interface IUser extends Document<Types.ObjectId> {
   role: string;
   resetToken?: string;
   resetTokenExpiration?: Date;
+  refreshToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +28,7 @@ const userSchema = new Schema<IUser>(
     role: { type: String, enum: ROLES, default: "user" },
     resetToken: { type: String },
     resetTokenExpiration: { type: Date },
+    refreshToken: { type: String },
   },
   { timestamps: true }
 );

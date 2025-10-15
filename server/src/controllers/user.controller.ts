@@ -8,15 +8,6 @@ import jwt from "jsonwebtoken";
 import { CartModel } from "../models/cart.model";
 import { UserModel } from "../models/user.model";
 
-declare module "express-session" {
-  export interface SessionData {
-    user: {
-      email: string;
-      role: "user" | "admin";
-    };
-  }
-}
-
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;
 }
@@ -104,34 +95,26 @@ const loginUser = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: "Invalid Password!" });
 
-    // 設定 JWT 過期時間
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
-      {
-        expiresIn: rememberMe ? "7d" : "1d",
-      }
+      { expiresIn: "15m" }
     );
 
-    // 將 token 儲存在 httpOnly cookie 中
-    res.cookie("token", token, {
-      httpOnly: true, // 防止 JavaScript 訪問 token
-      secure: process.env.NODE_ENV === "production", // 只有在生產環境中使用 HTTPS
-      maxAge: 1000 * 60 * 60 * 24 * (rememberMe ? 1 : 5), // 設置過期時間
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
+    const refreshToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_REFRESH_SECRET as string,
+      { expiresIn: rememberMe ? "7d" : "1d" }
+    );
 
-    // 儲存用戶資料到 session 中（如果需要使用 session）
-    req.session.user = {
-      email: user.email,
-      role: user.role as "user" | "admin",
-    };
-
-    req.session.save(); // 儲存 session
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.status(200).json({
       success: true,
       message: "User logged in successfully!",
+      accessToken,
+      refreshToken,
       user: {
         id: user._id.toString(),
         email: user.email,
@@ -145,19 +128,11 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-const logoutUser = async (req: Request, res: Response) => {
+const logoutUser = async (req: AuthRequest, res: Response) => {
   try {
-    req.session.destroy((err: unknown) => {
-      if (err instanceof Error) throw err;
-      if (err) throw new Error("Failed to destroy session");
-    });
-
-    // 清除 httpOnly JWT cookie
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    });
+    const userId = req.userId;
+    if (userId)
+      await UserModel.findByIdAndUpdate(userId, { refreshToken: null });
 
     res
       .status(200)
@@ -252,11 +227,58 @@ const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
+const refreshAccessToken = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken)
+    return res
+      .status(401)
+      .json({ success: false, message: "Refresh token is required!" });
+
+  try {
+    // 驗證 Refresh Token
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET as string
+    ) as { userId: Types.ObjectId };
+
+    // 檢查資料庫中的 Refresh Token 是否匹配
+    const user = await UserModel.findById(decoded.userId);
+    if (!user || user.refreshToken !== refreshToken)
+      return res
+        .status(403)
+        .json({ success: false, message: "Invalid refresh token!" });
+
+    // 生成新的 Access Token
+    const accessToken = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "15m" }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Access token refreshed successfully!",
+      accessToken,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === "TokenExpiredError")
+      return res
+        .status(403)
+        .json({ success: false, message: "Refresh token has expired!" });
+
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
+    res.status(500).json({ success: false, message });
+  }
+};
+
 export {
   createNewUser,
   getUserData,
   loginUser,
   logoutUser,
+  refreshAccessToken,
   resetPassword,
   updatePassword,
 };

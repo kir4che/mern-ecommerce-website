@@ -8,9 +8,16 @@ export const authListenerMiddleware = createListenerMiddleware();
 authListenerMiddleware.startListening({
   matcher: isAnyOf(login.fulfilled, logout.fulfilled),
   effect: async (action) => {
-    // 登入成功後，將使用者資料存進 localStorage，反之移除。
-    if (login.fulfilled.match(action))
-      localStorage.setItem("user", JSON.stringify(action.payload));
-    else if (logout.fulfilled.match(action)) localStorage.removeItem("user");
+    // 登入成功後，將 tokens 和使用者資料存進 localStorage。
+    if (login.fulfilled.match(action)) {
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
+      localStorage.setItem("accessToken", action.payload.accessToken);
+      localStorage.setItem("refreshToken", action.payload.refreshToken);
+    } else if (logout.fulfilled.match(action)) {
+      // 登出後移除
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
   },
 });

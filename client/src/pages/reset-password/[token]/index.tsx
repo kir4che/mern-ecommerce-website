@@ -14,7 +14,7 @@ const ResetPassword: React.FC = () => {
 
   const { refresh: ResetPassword } = useAxios(
     "/user/update-password",
-    { method: "POST", withCredentials: true },
+    { method: "POST" },
     {
       immediate: false,
       onSuccess: () => {

@@ -19,7 +19,7 @@ const AdminDashboard = () => {
     isLoading: productsLoading,
     status: productsStatus,
     refresh: refreshProducts,
-  } = useAxios<ProductsResponse>("/products", { withCredentials: true });
+  } = useAxios<ProductsResponse>("/products", {});
 
   const {
     data: newsData,
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
     isLoading: newsLoading,
     status: newsStatus,
     refresh: refreshNews,
-  } = useAxios<NewsResponse>("/news", { withCredentials: true });
+  } = useAxios<NewsResponse>("/news", {});
 
   const [initialLoading, setInitialLoading] = useState(true);
 
