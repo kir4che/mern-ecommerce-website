@@ -6,6 +6,8 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 
+import { api } from "@/hooks/useAxios";
+
 interface User {
   readonly id: string;
   readonly email: string;
@@ -25,14 +27,6 @@ const initialState: AuthState = {
   error: null,
   isAuthenticated: false,
 };
-
-const API_URL = import.meta.env.VITE_API_URL;
-if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
-
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-});
 
 const toErrorMessage = (err: unknown, fallback: string) => {
   if (axios.isAxiosError(err)) return err.response?.data?.message || fallback;
@@ -71,15 +65,12 @@ export const login = createAsyncThunk<User, LoginPayload, RejectValue>(
 
 export const logout = createAsyncThunk<void, void, RejectValue>(
   "auth/logout",
-  async (_, { rejectWithValue }) => {
+  async () => {
     try {
-      const { data } = await api.post("/user/logout");
-
-      if (data.success) return;
-      return rejectWithValue(data.message || "登出失敗，請稍後再試。");
-    } catch (err) {
-      return rejectWithValue(toErrorMessage(err, "登出失敗，請稍後再試。"));
-    }
+      await api.post("/user/logout");
+    } catch {}
+    // 總是返回成功，確保前端 token 被清除
+    return;
   }
 );
 

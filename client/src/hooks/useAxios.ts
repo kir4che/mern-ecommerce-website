@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import axios, { AxiosRequestConfig, Method } from "axios";
 
 type RequestStatus = "idle" | "loading" | "success" | "error";
-type UrlParams = Record<string, unknown>;
+type UrlParams = Record<string, unknown> | FormData;
 
 interface ErrorResponse {
   message: string;
@@ -25,7 +25,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-export function useAxios<TData = unknown>(
+export const useAxios = <TData = unknown>(
   url: string | ((params?: UrlParams) => string),
   config: AxiosRequestConfig = {},
   options: {
@@ -33,43 +33,33 @@ export function useAxios<TData = unknown>(
     skip?: boolean;
     onSuccess?: (data: TData) => void;
     onError?: (err: ErrorResponse) => void;
-    transformResponse?: (raw: unknown) => TData;
     initialData?: TData | null;
   } = {}
-) {
+) => {
   const {
     immediate = true,
     skip = false,
     onSuccess,
     onError,
-    transformResponse,
     initialData = null,
   } = options;
 
-  const initialDataRef = useRef(initialData);
-  const configRef = useRef(config);
   const requestIdRef = useRef(0);
+  const optionsRef = useRef({ onSuccess, onError });
+
+  // 同步最新的 callbacks 到 ref
+  useEffect(() => {
+    optionsRef.current = { onSuccess, onError };
+  }, [onSuccess, onError]);
 
   const [state, setState] = useState<AxiosState<TData>>({
-    data: initialDataRef.current,
-    status: initialDataRef.current ? "success" : "idle",
+    data: initialData,
+    status: initialData ? "success" : "idle",
     error: null,
   });
 
-  const callbackRef = useRef({ onSuccess, onError, transformResponse });
-  useEffect(() => {
-    callbackRef.current = { onSuccess, onError, transformResponse };
-  }, [onSuccess, onError, transformResponse]);
-
-  useEffect(() => {
-    configRef.current = config;
-  }, [config]);
-
   const resolveUrl = useCallback(
-    (params?: UrlParams) => {
-      if (typeof url === "function") return url(params);
-      return url;
-    },
+    (params?: UrlParams) => (typeof url === "function" ? url(params) : url),
     [url]
   );
 
@@ -83,23 +73,22 @@ export function useAxios<TData = unknown>(
 
       const currentRequestId = ++requestIdRef.current;
       setState((prev) => ({ ...prev, status: "loading", error: null }));
-      const requestUrl = resolveUrl(callParams);
 
+      const requestUrl = resolveUrl(callParams);
       if (!requestUrl) {
         const errorDetails: ErrorResponse = {
           message: "The request URL is invalid!",
         };
         if (currentRequestId === requestIdRef.current) {
           setState({ data: null, status: "error", error: errorDetails });
-          callbackRef.current.onError?.(errorDetails);
+          optionsRef.current.onError?.(errorDetails);
         }
         return;
       }
 
       try {
-        const baseConfig = configRef.current ?? {};
         const mergedConfig: AxiosRequestConfig = {
-          ...baseConfig,
+          ...config,
           ...overrideConfig,
         };
         const method: Method =
@@ -112,86 +101,90 @@ export function useAxios<TData = unknown>(
           method,
           signal,
           headers: {
-            "Content-Type": "application/json",
-            ...baseConfig.headers,
+            ...(!(callParams instanceof FormData) && {
+              "Content-Type": "application/json",
+            }),
+            ...config.headers,
             ...overrideConfig?.headers,
           },
         };
 
-        if (isGetLike) reqConfig.params = callParams;
-        else reqConfig.data = callParams;
+        if (isGetLike) {
+          reqConfig.params = callParams;
+        } else {
+          reqConfig.data = callParams;
+        }
 
         const res = await api.request(reqConfig);
-
-        const transformedData = callbackRef.current.transformResponse
-          ? callbackRef.current.transformResponse(res.data as unknown)
-          : (res.data as TData);
+        const transformedData = res.data as TData;
 
         if (currentRequestId === requestIdRef.current) {
           setState({ data: transformedData, status: "success", error: null });
-          callbackRef.current.onSuccess?.(transformedData);
+          optionsRef.current.onSuccess?.(transformedData);
         }
 
         return transformedData;
       } catch (err: unknown) {
         if (axios.isCancel(err)) return;
 
+        let errorDetails: ErrorResponse;
+
         if (axios.isAxiosError(err)) {
-          type ErrorPayload = {
+          const data = err.response?.data as {
             message?: string;
             code?: string;
             details?: unknown;
           };
-          const d = (err.response?.data ?? {}) as ErrorPayload;
 
-          const errorDetails: ErrorResponse = {
-            message: d.message ?? err.message ?? "Request failed!",
-            code: d.code,
+          errorDetails = {
+            message: data?.message ?? err.message ?? "Request failed!",
+            code: data?.code,
             statusCode: err.response?.status,
-            details: d.details,
+            details: data?.details,
+          };
+        } else
+          errorDetails = {
+            message: (err as Error)?.message ?? "Request failed!",
           };
 
-          if (currentRequestId === requestIdRef.current) {
-            setState({ data: null, status: "error", error: errorDetails });
-            callbackRef.current.onError?.(errorDetails);
-          }
-          return;
-        }
-
-        const fallback: ErrorResponse = {
-          message: (err as Error)?.message ?? "Request failed!",
-        };
         if (currentRequestId === requestIdRef.current) {
-          setState({ data: null, status: "error", error: fallback });
-          callbackRef.current.onError?.(fallback);
+          setState({ data: null, status: "error", error: errorDetails });
+          optionsRef.current.onError?.(errorDetails);
         }
       }
     },
-    [skip, resolveUrl]
+    [skip, resolveUrl, config]
   );
 
   useEffect(() => {
     if (immediate && !skip) {
+      // 組合 AbortController，元件卸載時中斷請求。
       const controller = new AbortController();
       fetchData(undefined, undefined, controller.signal);
       return () => controller.abort();
     }
   }, [immediate, skip, fetchData]);
 
+  const refresh = useCallback(
+    (params?: UrlParams, overrideConfig?: Partial<AxiosRequestConfig>) =>
+      fetchData(params, overrideConfig),
+    [fetchData]
+  );
+
+  const reset = useCallback(() => {
+    setState({
+      data: initialData,
+      status: initialData ? "success" : "idle",
+      error: null,
+    });
+  }, [initialData]);
+
   return {
     ...state,
     isLoading: state.status === "loading",
     isSuccess: state.status === "success",
     isError: state.status === "error",
-    refresh: (
-      params?: UrlParams,
-      overrideConfig?: Partial<AxiosRequestConfig>
-    ) => fetchData(params, overrideConfig),
-    reset: () =>
-      setState({
-        data: initialDataRef.current,
-        status: initialDataRef.current ? "success" : "idle",
-        error: null,
-      }),
+    refresh,
+    reset,
   };
-}
+};

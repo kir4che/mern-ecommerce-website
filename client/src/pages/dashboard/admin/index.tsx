@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAxios } from "@/hooks/useAxios";
 
@@ -9,6 +9,7 @@ import Button from "@/components/atoms/Button";
 import Loading from "@/components/atoms/Loading";
 import AdminGate from "@/components/organisms/AdminGate";
 
+import type { ProductsResponse, NewsResponse } from "@/types/api";
 import RefreshIcon from "@/assets/icons/refresh.inline.svg?react";
 
 const AdminDashboard = () => {
@@ -16,89 +17,106 @@ const AdminDashboard = () => {
     data: productsData,
     error: productsError,
     isLoading: productsLoading,
+    status: productsStatus,
     refresh: refreshProducts,
-  } = useAxios("/products");
-  const products = productsData?.products;
+  } = useAxios<ProductsResponse>("/products", { withCredentials: true });
 
   const {
     data: newsData,
     error: newsError,
     isLoading: newsLoading,
+    status: newsStatus,
     refresh: refreshNews,
-  } = useAxios("/news");
-  const news = newsData?.news;
+  } = useAxios<NewsResponse>("/news", { withCredentials: true });
 
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    if (!productsLoading && !newsLoading && productsData && newsData)
+    if (
+      initialLoading &&
+      productsStatus !== "idle" &&
+      newsStatus !== "idle" &&
+      !productsLoading &&
+      !newsLoading
+    ) {
       setInitialLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productsLoading, newsLoading]);
+    }
+  }, [
+    initialLoading,
+    productsStatus,
+    newsStatus,
+    productsLoading,
+    newsLoading,
+  ]);
+
+  const products = productsData?.products ?? [];
+  const news = newsData?.news ?? [];
+
+  const handleRefreshProducts = useCallback(() => {
+    void refreshProducts();
+  }, [refreshProducts]);
+
+  const handleRefreshNews = useCallback(() => {
+    void refreshNews();
+  }, [refreshNews]);
 
   return (
     <AdminGate>
-      <div className="px-4 py-4 md:px-8">
-        <h2 className="mb-3">管理員後台</h2>
+      <div className="px-4 py-6 md:px-8">
+        <h2 className="mb-6">管理員後台</h2>
         {initialLoading ? (
           <Loading />
         ) : (
-          <div className="flex flex-col w-full gap-6 mb-6 lg:gap-12 sm:flex-row">
-            {/* 商品管理 */}
-            <div
-              className={`flex-1 sm:w-1/2 min-h-48 ${productsError ? "flex items-center justify-center" : ""}`}
-            >
-              {productsError ? (
-                <div className="flex flex-col items-center gap-y-4">
-                  <p className="text-base text-gray-800">
-                    抱歉，暫時無法取得商品資訊
-                  </p>
-                  <p className="text-base text-gray-800">
-                    抱歉，暫時無法取得商品資訊
-                  </p>
-                  <Button
-                    onClick={refreshProducts}
-                    icon={RefreshIcon}
-                    className="flex items-center h-10 gap-x-2"
-                  >
-                    重新載入
-                  </Button>
-                </div>
-              ) : (
-                <ProductsManager
-                  products={products}
-                  refreshProducts={refreshProducts}
-                />
-              )}
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:gap-12">
+              <section className="flex-1 min-h-[12rem]">
+                {productsError ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-4 rounded border border-gray-200 bg-white p-6 text-center shadow-sm">
+                    <p className="text-base text-gray-700">
+                      {productsError.message ?? "抱歉，暫時無法取得商品資訊"}
+                    </p>
+                    <Button
+                      onClick={handleRefreshProducts}
+                      icon={RefreshIcon}
+                      className="flex h-10 items-center gap-x-2"
+                      disabled={productsLoading}
+                    >
+                      重新載入
+                    </Button>
+                  </div>
+                ) : (
+                  <ProductsManager
+                    products={products}
+                    refreshProducts={handleRefreshProducts}
+                  />
+                )}
+              </section>
+              <section className="flex-1 min-h-[12rem]">
+                {newsError ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-4 rounded border border-gray-200 bg-white p-6 text-center shadow-sm">
+                    <p className="text-base text-gray-700">
+                      {newsError.message ?? "抱歉，暫時無法取得消息資訊"}
+                    </p>
+                    <Button
+                      onClick={handleRefreshNews}
+                      icon={RefreshIcon}
+                      className="flex h-10 items-center gap-x-2"
+                      disabled={newsLoading}
+                    >
+                      重新載入
+                    </Button>
+                  </div>
+                ) : (
+                  <NewsManager news={news} refreshNews={handleRefreshNews} />
+                )}
+              </section>
             </div>
-            {/* 消息管理 */}
-            <div
-              className={`flex-1 sm:w-1/2 min-h-48 ${newsError ? "flex items-center justify-center" : ""}`}
-            >
-              {newsError ? (
-                <div className="flex flex-col items-center gap-y-4">
-                  <p className="text-base text-gray-800">
-                    抱歉，暫時無法取得消息資訊
-                  </p>
-                  <p className="text-base text-gray-800">
-                    抱歉，暫時無法取得消息資訊
-                  </p>
-                  <Button
-                    onClick={refreshNews}
-                    icon={RefreshIcon}
-                    className="flex items-center h-10 gap-x-2"
-                  >
-                    重新載入
-                  </Button>
-                </div>
-              ) : (
-                <NewsManager news={news} refreshNews={refreshNews} />
-              )}
-            </div>
+            <section className="w-full">
+              <h3 className="mb-4">訂單管理</h3>
+              <OrderTable isAdmin={true} />
+            </section>
           </div>
         )}
-        {/* 訂單管理 */}
-        <OrderTable isAdmin={true} />
       </div>
     </AdminGate>
   );

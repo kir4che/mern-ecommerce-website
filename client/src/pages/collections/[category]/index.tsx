@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router";
 import { useInView } from "react-intersection-observer";
 
 import type { Product } from "@/types/product";
+import type { ProductsResponse } from "@/types/api";
 import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
 import { useAxios } from "@/hooks/useAxios";
 import { filterProductsByCategory } from "@/utils/productFilters";
@@ -37,17 +38,21 @@ const Collections = () => {
     rootMargin: "100px",
   });
 
-  const { error, isLoading, isError, refresh } = useAxios(
-    (params) => `/products?page=${params.page}&limit=${ITEMS_PER_PAGE}`,
+  const { error, isLoading, isError, refresh } = useAxios<ProductsResponse>(
+    "/products",
     {},
     {
       immediate: false,
       onSuccess: (data) => {
+        const currentPage = data.page ?? 1;
+        const totalPages = data.pages ?? 1;
         setProducts((prev) =>
-          data.page === 1 ? data.products : [...prev, ...data.products]
+          currentPage === 1
+            ? (data.products ?? [])
+            : [...prev, ...(data.products ?? [])]
         );
-        setPage(data.page);
-        setPages(data.pages);
+        setPage(currentPage);
+        setPages(totalPages);
         setIsLoadingMore(false);
       },
     }
@@ -57,12 +62,16 @@ const Collections = () => {
     if (isLoadingMore || (pageNum > pages && pages !== 1)) return;
 
     if (pageNum > 1) setIsLoadingMore(true);
-    refresh({ page: pageNum });
+    const res = await refresh({ page: pageNum, limit: ITEMS_PER_PAGE });
+    if (!res) setIsLoadingMore(false);
   };
 
   useEffect(() => {
     setSelectedCategory(category || "all");
     setPage(1);
+    setProducts([]);
+    setPages(1);
+    setIsLoadingMore(false);
     fetchProducts(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);

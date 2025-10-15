@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 
 import { useAxios } from "@/hooks/useAxios";
 import { addComma } from "@/utils/addComma";
 import { useAlert } from "@/context/AlertContext";
+import type { Order } from "@/types/order";
 
 import NotFound from "@/pages/notFound";
 import Loading from "@/components/atoms/Loading";
@@ -25,12 +26,21 @@ const initialBuyerInfo = {
 };
 
 const Checkout: React.FC = () => {
-  const { id } = useParams();
-  const { data, isLoading, error } = useAxios(`/orders/${id}`, {
-    withCredentials: true,
-  });
+  const { id } = useParams<{ id: string }>();
+  const { showAlert } = useAlert();
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { data, isLoading, isError, isSuccess, error } = useAxios<{
+    order: Order;
+  }>(
+    id ? `/orders/${id}` : "",
+    {
+      withCredentials: true,
+    },
+    {
+      skip: !id,
+    }
+  );
+
   const [buyerInfo, setBuyerInfo] = useState(initialBuyerInfo);
   const [paymentMethod, setPaymentMethod] = useState("ATM");
   const updateBuyerInfo = useCallback(
@@ -39,21 +49,27 @@ const Checkout: React.FC = () => {
     []
   );
 
-  const paymentMethods = [
+  const paymentMethods: Array<{
+    method: string;
+    label: string;
+    additionalIcons?: ReactNode[];
+  }> = [
     { method: "ATM", label: "ATM 虛擬帳號" },
     { method: "WebATM", label: "WebATM" },
     {
       method: "Credit",
       label: "信用卡",
       additionalIcons: [
-        <VisaIcon className="w-8 h-8" />,
-        <MasterCardIcon className="w-8 h-8" />,
-        <JCBIcon className="w-6 h-6" />,
+        <VisaIcon key="visa" className="w-8 h-8" />,
+        <MasterCardIcon key="mastercard" className="w-8 h-8" />,
+        <JCBIcon key="jcb" className="w-6 h-6" />,
       ],
     },
   ];
 
-  const { refresh: createPayment } = useAxios(
+  const { refresh: createPayment, isLoading: isCreatingPayment } = useAxios<{
+    params: Record<string, string>;
+  }>(
     "/payment",
     { method: "POST", withCredentials: true },
     {
@@ -68,7 +84,7 @@ const Checkout: React.FC = () => {
         // 使用 FormData 來構建表單資料
         const formData = new FormData();
         Object.entries(res.params).forEach(([key, value]) => {
-          formData.append(key, value as string);
+          formData.append(key, value);
         });
 
         // 將表單資料加入到表單中
@@ -83,14 +99,15 @@ const Checkout: React.FC = () => {
         document.body.appendChild(form);
         form.submit();
       },
-      onError: () => setErrorMessage("付款失敗，請稍後再試！"),
+      onError: () =>
+        showAlert({ variant: "error", message: "付款失敗，請稍後再試！" }),
     }
   );
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isCreatingPayment) return;
+    if (isCreatingPayment || !id) return;
 
     // 建立付款單，並導向綠界金流。
     await createPayment({
@@ -103,16 +120,27 @@ const Checkout: React.FC = () => {
     });
   };
 
-  if (isLoading) {
+  const order = data?.order;
+  const orderItems = useMemo(() => order?.orderItems ?? [], [order]);
+
+  if (!id)
+    return (
+      <NotFound message={["找不到對應的訂單資訊，請確認連結是否正確。"]} />
+    );
+
+  if (isLoading)
     return (
       <div className="flex items-center justify-center">
         <Loading />
       </div>
     );
-  }
 
-  if (!isLoading && (error || !data))
-    return <NotFound message={["無法加載訂單資料，請稍後再試！"]} />;
+  if (isError || (isSuccess && !data?.order))
+    return (
+      <NotFound
+        message={[error?.message ?? "目前無法載入訂單資料，請稍後再試。"]}
+      />
+    );
 
   return (
     <div className="flex flex-col justify-center w-full max-w-screen-xl px-5 py-8 mx-auto lg:flex-row gap-x-10 gap-y-8">
@@ -179,14 +207,15 @@ const Checkout: React.FC = () => {
                 className={`h-14 rounded-lg hover:bg-secondary hover:text-primary border ${
                   paymentMethod === method && "border-2"
                 }`}
+                type="button"
                 disabled={isCreatingPayment}
                 onClick={() => setPaymentMethod(method)}
               >
                 {paymentMethod === method ? <CheckIcon /> : <UncheckIcon />}
                 <p className="ml-0.5">{label}</p>
                 {additionalIcons &&
-                  additionalIcons.map((Icon, index) => (
-                    <span key={index}>{Icon}</span>
+                  additionalIcons.map((iconElement, index) => (
+                    <span key={index}>{iconElement}</span>
                   ))}
               </Button>
             ))}
@@ -194,20 +223,18 @@ const Checkout: React.FC = () => {
         </div>
         {/* 支付金額明細 */}
         <div className="flex flex-col pt-4 border-t border-gray-400 gap-y-4">
-          <PriceRow label="商品金額" value={data.order?.subtotal ?? 0} />
-          <PriceRow label="運費" value={data.order?.shippingFee ?? 0} />
+          <PriceRow label="商品金額" value={order?.subtotal ?? 0} />
+          <PriceRow label="運費" value={order?.shippingFee ?? 0} />
           <PriceRow
             label="折扣"
-            value={-(data.order?.discount ?? 0)}
+            value={-(order?.discount ?? 0)}
             className="text-red-500"
           />
           <div className="flex justify-between w-full mt-8 mb-4 font-medium">
             <p>總金額</p>
             <p className="font-semibold">
               NT${" "}
-              <span className="text-2xl">
-                {addComma(data?.order?.totalAmount)}
-              </span>
+              <span className="text-2xl">{addComma(order?.totalAmount)}</span>
             </p>
           </div>
           <Button type="submit" className="w-full rounded-md">

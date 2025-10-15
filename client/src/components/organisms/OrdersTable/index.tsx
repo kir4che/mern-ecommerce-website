@@ -10,14 +10,7 @@ import { useNavigate } from "react-router";
 import { debounce } from "lodash";
 
 import type { Order } from "@/types/order";
-
-interface OrdersResponse {
-  orders: Order[];
-  totalOrders: number;
-  totalPages: number;
-  currentPage: number;
-}
-
+import type { OrdersResponse } from "@/types/api";
 import {
   ORDER_STATUS,
   PAYMENT_STATUS,
@@ -89,18 +82,18 @@ const OrdersActions = ({
 
   const [shippingTrackingNo, setShippingTrackingNo] = useState<string>("");
 
-    const { refresh: updateOrder } = useAxios(
-      (params) => `/orders/${params.id}`,
-      { method: "PATCH" },
-      {
-        immediate: false,
-        onError: () =>
-          showAlert({
-            variant: "error",
-            message: "更新訂單失敗，請稍後再試。",
-          }),
-      }
-    );
+  const { refresh: updateOrder } = useAxios(
+    (params) => `/orders/${(params as Record<string, unknown>).id}`,
+    { method: "PATCH" },
+    {
+      immediate: false,
+      onError: () =>
+        showAlert({
+          variant: "error",
+          message: "更新訂單失敗，請稍後再試。",
+        }),
+    }
+  );
 
   // 完成訂單（user）
   const handleComplete = async (orderId: string) => {
@@ -196,12 +189,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     [isAdmin, currentPage, searchKeyword, filterType, sortBy, orderBy]
   );
 
-  const {
-    data: ordersData,
-    isLoading,
-    error,
-    refresh: refreshOrders,
-  } = useAxios<OrdersResponse>(
+  const { data: ordersData, refresh: refreshOrders } = useAxios<OrdersResponse>(
     apiUrl,
     {},
     {
@@ -212,8 +200,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
         }),
     }
   );
-
-  const orders = useMemo(() => ordersData?.orders ?? [], [ordersData]);
+  const orders = ordersData?.orders ?? [];
   const totalOrders = ordersData?.totalOrders ?? 0;
   const totalPages = ordersData?.totalPages ?? 1;
 
@@ -264,12 +251,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ isAdmin }) => {
     [navigate]
   );
 
-  const handleToggleExpand = useCallback(
-    (orderId: string) => {
+  const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
-    },
-    [expandedOrderId]
-  );
+  };
 
   // 當篩選條件改變時，重置到第一頁
   useEffect(() => {

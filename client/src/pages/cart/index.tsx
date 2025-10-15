@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import type { Product } from "@/types/product";
+import type { Order } from "@/types/order";
 import { useCart } from "@/hooks/useCart";
 import { useAlert } from "@/context/AlertContext";
 import { useAxios } from "@/hooks/useAxios";
@@ -44,10 +45,12 @@ const Cart = () => {
   );
   const freeShippingInfo = calculateFreeShipping(subtotal);
 
-  const { data } = useAxios("/products");
-  const products = data?.products as Product[];
+  const { data: productsResponse } = useAxios<{ products: Product[] }>(
+    "/products"
+  );
+  const products = productsResponse?.products ?? [];
 
-  const { refresh: createOrder } = useAxios(
+  const { refresh: createOrder } = useAxios<{ order: Order }>(
     "/orders",
     {
       method: "POST",
@@ -171,62 +174,7 @@ const Cart = () => {
                     {(item.product.countInStock ?? 0) <= 0 ? (
                       <span className="font-semibold text-red-500">已售完</span>
                     ) : (
-                      <div className="flex items-center">
-                        <Button
-                          variant="icon"
-                          icon={MinusIcon}
-                          className="border-gray-200 rounded-none h-7"
-                          onClick={() =>
-                            handleQuantityChange(
-                              item.quantity - 1,
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock ?? 0,
-                              },
-                              (value) => changeQuantity(item._id, value)
-                            )
-                          }
-                          disabled={item.quantity <= 1}
-                        />
-                        <Input
-                          type="number"
-                          min={1}
-                          max={item.product.countInStock ?? 0}
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleQuantityChange(
-                              Number(e.target.value),
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock ?? 0,
-                              },
-                              (value) => changeQuantity(item._id, value)
-                            )
-                          }
-                          onKeyDown={preventInvalidInput}
-                          disabled={(item.product.countInStock ?? 0) <= 0}
-                          wrapperStyle="noInnerSpin"
-                          inputStyle="min-h-7 rounded-none border-gray-200"
-                        />
-                        <Button
-                          variant="icon"
-                          icon={PlusIcon}
-                          className="border-gray-200 rounded-none h-7"
-                          onClick={() =>
-                            handleQuantityChange(
-                              item.quantity + 1,
-                              {
-                                _id: item._id,
-                                countInStock: item.product.countInStock ?? 0,
-                              },
-                              (value) => changeQuantity(item._id, value)
-                            )
-                          }
-                          disabled={
-                            item.quantity >= (item.product.countInStock ?? 0)
-                          }
-                        />
-                      </div>
+                      <QuantityInput item={item} />
                     )}
                     <p
                       className={`text-lg font-semibold ${(item.product.countInStock ?? 0) <= 0 ? "text-gray-400" : ""}`}
