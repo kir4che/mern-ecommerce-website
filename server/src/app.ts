@@ -13,7 +13,7 @@ import { connectDB } from "./config/db";
 
 import { v2 as cloudinary } from "cloudinary";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") dotenv.config();
 connectDB();
 
 // Cloudinary 設定
@@ -38,7 +38,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 設定首頁路由，確認後端運作正常。
-app.get("/", (req, res) => res.send("Express on Vercel."));
+app.get("/", (_req, res) => res.send("Express on Vercel."));
 
 // 設定 API 路由
 app.use("/api/user", userRouter);
@@ -47,10 +47,5 @@ app.use("/api/news", newsRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/payment", paymentRouter);
-
-const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`Server started on port ${port}.`);
-});
 
 export default app;
