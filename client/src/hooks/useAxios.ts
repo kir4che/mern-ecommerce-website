@@ -22,6 +22,8 @@ interface AxiosState<TData> {
 const API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) throw new Error("Missing environment variable: VITE_API_URL");
 
+const EMPTY_REQUEST_CONFIG: AxiosRequestConfig = {};
+
 export const api = axios.create({
   baseURL: API_URL,
 });
@@ -80,13 +82,14 @@ api.interceptors.response.use(
 
 export const useAxios = <TData = unknown>(
   url: string | ((params?: UrlParams) => string),
-  config: AxiosRequestConfig = {},
+  config?: AxiosRequestConfig,
   options: {
     immediate?: boolean;
     skip?: boolean;
     onSuccess?: (data: TData) => void;
     onError?: (err: ErrorResponse) => void;
     initialData?: TData | null;
+    maxRetries?: number;
   } = {}
 ) => {
   const {
@@ -95,10 +98,12 @@ export const useAxios = <TData = unknown>(
     onSuccess,
     onError,
     initialData = null,
+    maxRetries = 0,
   } = options;
 
   const requestIdRef = useRef(0);
   const optionsRef = useRef({ onSuccess, onError });
+  const baseConfig = config ?? EMPTY_REQUEST_CONFIG;
 
   // 同步最新的 callbacks 到 ref
   useEffect(() => {
@@ -139,74 +144,90 @@ export const useAxios = <TData = unknown>(
         return;
       }
 
-      try {
-        const mergedConfig: AxiosRequestConfig = {
-          ...config,
-          ...overrideConfig,
-        };
-        const method: Method =
-          (mergedConfig.method?.toUpperCase() as Method) || "GET";
-        const isGetLike = ["GET", "DELETE", "HEAD", "OPTIONS"].includes(method);
+      let attempt = 0;
+      while (attempt <= maxRetries) {
+        try {
+          const mergedConfig: AxiosRequestConfig = {
+            ...baseConfig,
+            ...overrideConfig,
+          };
+          const method: Method =
+            (mergedConfig.method?.toUpperCase() as Method) || "GET";
+          const isGetLike = ["GET", "DELETE", "HEAD", "OPTIONS"].includes(
+            method
+          );
 
-        const reqConfig: AxiosRequestConfig = {
-          ...mergedConfig,
-          url: requestUrl,
-          method,
-          signal,
-          headers: {
-            ...(!(callParams instanceof FormData) && {
-              "Content-Type": "application/json",
-            }),
-            ...config.headers,
-            ...overrideConfig?.headers,
-          },
-        };
-
-        if (isGetLike) {
-          reqConfig.params = callParams;
-        } else {
-          reqConfig.data = callParams;
-        }
-
-        const res = await api.request(reqConfig);
-        const transformedData = res.data as TData;
-
-        if (currentRequestId === requestIdRef.current) {
-          setState({ data: transformedData, status: "success", error: null });
-          optionsRef.current.onSuccess?.(transformedData);
-        }
-
-        return transformedData;
-      } catch (err: unknown) {
-        if (axios.isCancel(err)) return;
-
-        let errorDetails: ErrorResponse;
-
-        if (axios.isAxiosError(err)) {
-          const data = err.response?.data as {
-            message?: string;
-            code?: string;
-            details?: unknown;
+          const reqConfig: AxiosRequestConfig = {
+            ...mergedConfig,
+            url: requestUrl,
+            method,
+            signal,
+            headers: {
+              ...(!(callParams instanceof FormData) && {
+                "Content-Type": "application/json",
+              }),
+              ...baseConfig.headers,
+              ...overrideConfig?.headers,
+            },
           };
 
-          errorDetails = {
-            message: data?.message ?? err.message ?? "Request failed!",
-            code: data?.code,
-            statusCode: err.response?.status,
-            details: data?.details,
-          };
-        } else
-          errorDetails = {
-            message: (err as Error)?.message ?? "Request failed!",
-          };
+          if (isGetLike) reqConfig.params = callParams;
+          else reqConfig.data = callParams;
 
-        if (currentRequestId === requestIdRef.current) {
-          setState({ data: null, status: "error", error: errorDetails });
-          optionsRef.current.onError?.(errorDetails);
+          const res = await api.request(reqConfig);
+          const transformedData = res.data as TData;
+
+          if (currentRequestId === requestIdRef.current) {
+            setState({ data: transformedData, status: "success", error: null });
+            optionsRef.current.onSuccess?.(transformedData);
+          }
+
+          return transformedData;
+        } catch (err: unknown) {
+          if (axios.isCancel(err)) return;
+
+          const isAxiosErr = axios.isAxiosError(err);
+          const statusCode = isAxiosErr ? err.response?.status : undefined;
+          const isServerError = statusCode
+            ? statusCode >= 500 && statusCode < 600
+            : false;
+
+          if ((attempt < maxRetries && !isAxiosErr) || isServerError) {
+            const delay = Math.pow(2, attempt) * 200;
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            attempt += 1;
+            continue;
+          }
+
+          let errorDetails: ErrorResponse;
+          if (isAxiosErr) {
+            const data = err.response?.data as {
+              message?: string;
+              code?: string;
+              details?: unknown;
+            };
+
+            errorDetails = {
+              message: data?.message ?? err.message ?? "Request failed!",
+              code: data?.code,
+              statusCode: err.response?.status,
+              details: data?.details,
+            };
+          } else
+            errorDetails = {
+              message: (err as Error)?.message ?? "Request failed!",
+            };
+
+          if (currentRequestId === requestIdRef.current) {
+            setState({ data: null, status: "error", error: errorDetails });
+            optionsRef.current.onError?.(errorDetails);
+          }
+
+          return;
         }
       }
     },
-    [skip, resolveUrl, config]
+    [skip, resolveUrl, baseConfig, maxRetries]
   );
 
   useEffect(() => {
