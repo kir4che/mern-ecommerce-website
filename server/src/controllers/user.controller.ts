@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
@@ -21,7 +21,7 @@ const getUserData = async (req: AuthRequest, res: Response) => {
         .json({ success: false, message: "User ID not found in request." });
 
     const user = await UserModel.findById(userId).select(
-      "email role createdAt"
+      "email role createdAt",
     );
     if (!user)
       return res
@@ -59,7 +59,7 @@ const createNewUser = async (req: Request, res: Response) => {
         .json({ success: false, message: "User already Exists!" });
 
     // 將 password 進行 hash
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await argon2.hash(password);
     // 建立新的 user
     const newUser = new UserModel({ email, password: hashedPassword });
     await newUser.save();
@@ -89,7 +89,7 @@ const loginUser = async (req: Request, res: Response) => {
         .json({ success: false, message: "User doesn't exist!" });
 
     // 確認 password 是否正確
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await argon2.verify(user.password, password);
     if (!passwordMatch)
       return res
         .status(400)
@@ -98,13 +98,13 @@ const loginUser = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     const refreshToken = jwt.sign(
       { userId: user._id },
       process.env.JWT_REFRESH_SECRET as string,
-      { expiresIn: rememberMe ? "7d" : "1d" }
+      { expiresIn: rememberMe ? "7d" : "1d" },
     );
 
     user.refreshToken = refreshToken;
@@ -211,7 +211,7 @@ const updatePassword = async (req: Request, res: Response) => {
         .status(400)
         .json({ success: false, message: "Invalid or expired token!" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await argon2.hash(password);
     user.password = hashedPassword;
     user.resetToken = undefined;
     user.resetTokenExpiration = undefined;
@@ -239,7 +239,7 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     // 驗證 Refresh Token
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET as string
+      process.env.JWT_REFRESH_SECRET as string,
     ) as { userId: Types.ObjectId };
 
     // 檢查資料庫中的 Refresh Token 是否匹配
@@ -253,7 +253,7 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     res.status(200).json({
