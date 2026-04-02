@@ -1,85 +1,107 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Link } from "react-router";
+import type { Swiper as SwiperClass } from "swiper";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import Marquee from "react-fast-marquee";
 
-import { useAxios } from "@/hooks/useAxios";
-import { formatDate } from "@/utils/formatDate";
-import { CATEGORY_LIST, ABOUT, SHOP_INFO, SHOP_LIST } from "@/constants/data";
-
-import Button from "@/components/atoms/Button";
-import DropdownMenu from "@/components/atoms/DropdownMenu";
 import BlurImage from "@/components/atoms/BlurImage";
+import Button from "@/components/atoms/Button";
+import Select from "@/components/atoms/Select";
 import ProductSlider from "@/components/organisms/ProductSlider";
+import { ABOUT, CATEGORY_LIST, SHOP_INFO, SHOP_LIST } from "@/constants/data";
+import { useGetNewsQuery } from "@/store/slices/apiSlice";
+import { cn } from "@/utils/cn";
+import { formatDate } from "@/utils/formatDate";
 
-import bg1 from "@/assets/images/about/bg1.jpg";
-import bg2 from "@/assets/images/about/bg2.jpg";
-import bg3 from "@/assets/images/about/bg3.jpg";
 import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
 import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
+import aboutBg from "@/assets/images/about/about-bg.jpg";
 
-import type { NewsResponse } from "@/types/api";
+const SectionTitle = ({
+  title,
+  subtitle,
+  className,
+}: {
+  title: string;
+  subtitle: string;
+  className?: string;
+}) => (
+  <h2 className={cn("text-xl", className)}>
+    {title}
+    <span className="ml-2 text-sm font-normal text-inherit/80">
+      / {subtitle}
+    </span>
+  </h2>
+);
 
 const App = () => {
-  const swiperRef = useRef(null);
-  const { data } = useAxios<NewsResponse>("/news");
+  const swiperRef = useRef<SwiperClass | null>(null);
+  const { data } = useGetNewsQuery({});
 
-  const renderTitle = (title: string, subtitle: string, className?: string) => (
-    <h2 className={`text-xl ${className}`}>
-      {title}
-      <span className="ml-2 text-sm font-normal">/ {subtitle}</span>
-    </h2>
-  );
+  const newsList = useMemo(() => data?.news ?? [], [data]);
+  const campaignNews = useMemo(() => newsList.slice(0, 8), [newsList]);
+  const latestNews = useMemo(() => newsList.slice(0, 5), [newsList]);
 
   return (
-    <>
-      {/* 跑馬燈 & 商品類別 */}
+    <div className="w-full">
       <section className="px-5 pb-8 md:px-8">
         <div className="relative">
-          <div className="overflow-hidden border-b border-primary max-w-screen">
-            <Marquee autoFill speed={20} className="h-16">
-              <p className="flex items-baseline mx-2 text-2xl font-medium gap-x-1">
-                Recommend
-                <span className="text-base font-normal">／本店推薦</span>
-              </p>
-            </Marquee>
+          <div className="flex h-16 items-center overflow-hidden border-b border-primary">
+            {[1, 2].map((group) => (
+              <div
+                key={`marquee-group-${group}`}
+                className="flex shrink-0 animate-[marquee-right_50s_linear_infinite]"
+              >
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <p
+                    key={`item-${group}-${index}`}
+                    className="mx-4 flex items-baseline gap-x-1 text-2xl font-medium"
+                  >
+                    Recommend
+                    <span className="text-base font-normal">／本店推薦</span>
+                  </p>
+                ))}
+              </div>
+            ))}
           </div>
-          <div className="absolute z-10 mt-4 ml-auto text-right right-2 md:top-4 md:m-0">
-            <DropdownMenu title="從類別中尋找商品" list={CATEGORY_LIST} />
+          <div className="absolute w-45 right-0 top-16 z-10 ml-auto mt-4 md:top-3 md:m-0">
+            <Select defaultText="從類別中尋找商品" options={CATEGORY_LIST} />
           </div>
         </div>
-        <div className="pt-24 pb-12 md:py-10">
+        <div className="pt-24 md:pt-10">
           <ProductSlider />
         </div>
         <Link
           to="/collections/all"
-          className="flex items-center justify-end gap-2 hover:underline-offset-4 hover:underline"
+          className="flex items-center justify-end gap-2 group"
         >
           商品一覽
-          <ArrowRightIcon className="w-5 h-5" />
+          <ArrowRightIcon className="size-5 transition-transform group-hover:translate-x-1" />
         </Link>
       </section>
-      {/* Campaign */}
-      {data?.news.length > 0 && (
+      {campaignNews.length > 0 && (
         <section className="px-5 pb-10 md:px-8">
-          <div className="flex flex-wrap items-center justify-between mb-2 ">
-            <hr className="w-full mb-3 border-primary/30" />
-            {renderTitle("Campaign & Pickup", "最新活動")}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="icon"
-                icon={ArrowLeftIcon}
-                onClick={() => swiperRef.current?.slidePrev()}
-                className="h-fit"
-              />
-              <Button
-                variant="icon"
-                icon={ArrowRightIcon}
-                onClick={() => swiperRef.current?.slideNext()}
-                className="h-fit"
-              />
-            </div>
+          <div className="mb-4 flex items-center gap-2">
+            <SectionTitle
+              title="Campaign & Pickup"
+              subtitle="最新活動"
+              className="text-nowrap"
+            />
+            <hr className="w-full flex-1 border-primary/30" />
+            <Button
+              variant="icon"
+              icon={ArrowLeftIcon}
+              onClick={() => swiperRef.current?.slidePrev()}
+              className="hover:opacity-70"
+              aria-label="上一個活動"
+            />
+            <Button
+              variant="icon"
+              icon={ArrowRightIcon}
+              onClick={() => swiperRef.current?.slideNext()}
+              className="hover:opacity-70"
+              aria-label="下一個活動"
+            />
           </div>
           <Swiper
             slidesPerView="auto"
@@ -98,100 +120,83 @@ const App = () => {
             }}
             onSwiper={(swiper) => (swiperRef.current = swiper)}
           >
-            {data?.news.slice(0, 8).map((newsItem) => (
+            {campaignNews.map((newsItem) => (
               <SwiperSlide key={newsItem._id}>
                 <Link
                   to={`/news/${newsItem._id}`}
-                  className="space-y-1 hover:underline hover:underline-offset-4"
+                  className="group space-y-2 block"
                 >
-                  <BlurImage
-                    src={newsItem.imageUrl}
-                    alt={newsItem.title}
-                    className="object-cover w-full max-h-40"
-                  />
-                  <p className="font-medium line-clamp-1">{newsItem.title}</p>
+                  <div className="w-full h-32 md:h-40 overflow-hidden rounded-sm">
+                    <BlurImage
+                      src={newsItem.imageUrl}
+                      alt={newsItem.title}
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <p className="line-clamp-1 font-medium transition-colors group-hover:text-primary">
+                    {newsItem.title}
+                  </p>
                 </Link>
               </SwiperSlide>
             ))}
           </Swiper>
         </section>
       )}
-      {/* About */}
-      <section className="relative pt-12 pb-20 overflow-hidden md:pb-40">
-        <div className="relative z-20 px-5 mx-auto mb-10 max-w-screen-2xl md:px-8">
-          <hr className="w-full mb-3 border-secondary" />
-          {renderTitle("About us", "日出麵包坊", "text-secondary")}
-        </div>
-        <div className="relative z-20 px-5 mx-auto space-y-8 max-w-screen-2xl md:px-8 text-secondary">
-          <h3
-            dangerouslySetInnerHTML={{
-              __html: ABOUT.slogan.replace(/\n/g, "<br/>"),
-            }}
-            className="text-4xl leading-normal"
+      <section className="relative w-full overflow-hidden pb-20 pt-12 md:pb-40">
+        <div className="absolute inset-0 z-0 size-full">
+          <BlurImage
+            src={aboutBg}
+            alt="日出麵包坊背景"
+            className="block size-full object-cover"
           />
-          <div className="flex flex-col justify-between gap-y-10 md:items-end md:flex-row">
-            <p
-              dangerouslySetInnerHTML={{
-                __html: ABOUT.description.replace(/\n/g, "<br/>"),
-              }}
-              className="sm:max-w-sm"
-            />
+        </div>
+        <div className="absolute inset-0 z-10 size-full bg-black/50 pointer-events-none" />
+        <div className="relative z-20 mx-auto mb-10 max-w-screen-2xl px-5 md:px-8">
+          <hr className="mb-3 w-full border-white/70" />
+          <SectionTitle
+            title="About us"
+            subtitle="日出麵包坊"
+            className="text-white"
+          />
+        </div>
+        <div className="relative z-20 mx-auto space-y-8 max-w-screen-2xl px-5 text-white md:px-8">
+          <h3 className="whitespace-pre-line text-4xl font-bold leading-normal drop-shadow-md">
+            {ABOUT.slogan}
+          </h3>
+          <div className="flex max-md:flex-col justify-between gap-y-10 md:items-end">
+            <p className="whitespace-pre-line drop-shadow-sm sm:max-w-sm">
+              {ABOUT.description}
+            </p>
             <Link
               to="/about"
-              className="flex items-center justify-end gap-2 hover:underline-offset-4 hover:underline"
+              className="flex items-center justify-end gap-2 text-white hover:underline hover:underline-offset-4 group"
             >
               了解更多
-              <ArrowRightIcon className="w-5 h-5 stroke-secondary" />
+              <ArrowRightIcon className="size-5 stroke-white transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
-        <Swiper
-          slidesPerView="auto"
-          spaceBetween={0}
-          loop
-          autoplay={{
-            delay: 1,
-            disableOnInteraction: false,
-          }}
-          speed={15000}
-          modules={[Autoplay]}
-          className="absolute top-0 left-0 flex w-full"
-        >
-          {[bg1, bg2, bg3].map((bg, index) => (
-            <SwiperSlide key={index} className="max-w-fit">
-              <BlurImage
-                src={bg}
-                alt={`bg-${index + 1}`}
-                className={`block object-cover object-bottom ${
-                  index === 1 ? "w-[25rem]" : index === 2 ? "w-[674px]" : ""
-                }`}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <div className="absolute top-0 left-0 z-10 w-full h-full bg-black/50"></div>
       </section>
-      {/* Shop List */}
-      <section className="max-w-screen-xl w-full px-5 mx-auto my-12 space-y-3 md:px-8">
+      <section className="mx-auto my-12 w-full max-w-7xl space-y-3 px-5 md:px-8">
         <hr className="w-full border-primary/30" />
-        {renderTitle("Shop List", "店家一覽")}
-        <div className="flex flex-col gap-y-4 gap-x-12 md:flex-row">
+        <SectionTitle title="Shop List" subtitle="店家一覽" />
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12 pt-4">
           {SHOP_LIST.map((shop) => (
-            <div key={shop.name} className="flex flex-col w-full gap-2">
+            <div key={shop.name} className="flex w-full flex-col gap-3 group">
               <img
                 src={shop.imageUrl}
                 alt={shop.name}
-                className="object-cover w-full h-60 md:h-72"
+                className="h-60 w-full object-cover md:h-72"
                 loading="lazy"
               />
               <div className="space-y-2">
-                <p className="text-base font-medium">
+                <p className="text-lg font-medium">
                   {shop.name}
-                  <span className="ml-1.5 text-sm font-normal text-primary/45">
+                  <span className="ml-2 text-sm font-normal text-primary/60">
                     {shop.alias}
                   </span>
                 </p>
-                <ul className="text-sm leading-loose">
+                <ul className="text-sm leading-loose text-gray-600">
                   {shop.info && Object.keys(shop.info).length > 0 ? (
                     Object.entries(shop.info).map(([key, value]) => (
                       <li key={key}>
@@ -200,7 +205,7 @@ const App = () => {
                       </li>
                     ))
                   ) : (
-                    <li className="text-gray-500">即將開幕</li>
+                    <li className="text-gray-400 italic">即將開幕，敬請期待</li>
                   )}
                 </ul>
               </div>
@@ -208,43 +213,44 @@ const App = () => {
           ))}
         </div>
       </section>
-      {/* News */}
-      {(data?.news ?? []).length > 0 && (
-        <section className="max-w-screen-xl w-full px-5 mx-auto my-12 space-y-3 md:px-8">
+      {latestNews.length > 0 && (
+        <section className="mx-auto my-12 w-full max-w-7xl px-5 md:px-8">
           <hr className="w-full border-primary/30" />
-          <div className="flex items-center justify-between">
-            {renderTitle("News", "最新消息")}
+          <div className="flex-between my-4">
+            <SectionTitle title="News" subtitle="最新消息" />
             <Link
               to="/news"
-              className="text-sm hover:underline hover:underline-offset-4"
+              className="text-sm flex-center gap-1 hover:underline hover:underline-offset-4 text-primary"
             >
-              View all
+              查看全部消息 <ArrowRightIcon className="size-4" />
             </Link>
           </div>
           <ul>
-            {data?.news?.slice(0, 3).map(({ _id, date, category, title }) => (
+            {latestNews.map(({ _id, date, category, title }) => (
               <li
                 key={_id}
-                className="py-4 border-b border-dashed border-primary/80"
+                className="border-b border-dashed border-primary/30 py-3 transition-colors hover:bg-slate-50/50"
               >
                 <Link
                   to={`/news/${_id}`}
-                  className="flex flex-wrap items-center justify-between gap-y-2"
+                  className="flex max-sm:flex-col sm:items-center justify-between gap-y-2"
                 >
-                  <p className="text-wrap hover:underline hover:underline-offset-4">
-                    <span className="px-2.5 inline-block py-1 mr-2 text-xs font-light rounded-full bg-primary text-secondary">
+                  <p className="flex items-center gap-3 transition-colors hover:text-primary">
+                    <span className="px-2 badge badge-neutral text-xs text-nowrap rounded-full">
                       {category}
                     </span>
-                    {title}
+                    <span className="font-medium line-clamp-1">{title}</span>
                   </p>
-                  <p className="font-light">{formatDate(date)}</p>
+                  <time className="font-light text-right text-gray-500 text-sm">
+                    {formatDate(date)}
+                  </time>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
       )}
-    </>
+    </div>
   );
 };
 

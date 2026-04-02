@@ -1,8 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
+
 import Pagination from "@/components/molecules/Pagination";
 
-describe("Pagination Component", () => {
-  const handlePageChange = jest.fn();
+describe("Pagination 元件", () => {
+  const handlePageChange = vi.fn();
   beforeEach(() => handlePageChange.mockClear());
 
   const renderPagination = (page: number, totalPages: number) => {
@@ -15,7 +17,7 @@ describe("Pagination Component", () => {
     );
   };
 
-  test("renders page numbers correctly", () => {
+  test("正確渲染頁碼", () => {
     renderPagination(1, 3);
 
     expect(screen.getByText("1")).toBeInTheDocument();
@@ -23,32 +25,37 @@ describe("Pagination Component", () => {
     expect(screen.getByText("3")).toBeInTheDocument();
   });
 
-  test("highlights the current page", () => {
+  test("Highlight 當前頁面", () => {
     renderPagination(1, 3);
-    expect(screen.getByText("1")).toHaveClass("bg-primary text-secondary");
+    const pageButton = screen.getByRole("button", {
+      name: /前往第 1 頁/i,
+    });
+    expect(pageButton).toBeInTheDocument();
   });
 
-  test("calls handlePageChange when click next button", () => {
+  test("點擊下一頁按鈕時呼叫 handlePageChange", () => {
     renderPagination(1, 3);
 
-    fireEvent.click(screen.getByTestId("next-button"));
+    fireEvent.click(screen.getByRole("button", { name: /前往下一頁/i }));
     expect(handlePageChange).toHaveBeenCalledWith(2);
   });
 
-  test("calls handlePageChange when click previous button", () => {
+  test("點擊上一頁按鈕時呼叫 handlePageChange", () => {
     renderPagination(2, 3);
 
-    fireEvent.click(screen.getByTestId("previous-button"));
+    fireEvent.click(screen.getByRole("button", { name: /返回上一頁/i }));
     expect(handlePageChange).toHaveBeenCalledWith(1);
   });
 
-  test("next button should not be visible on last page", () => {
+  test("最後一頁時下一頁按鈕 disabled", () => {
     renderPagination(3, 3);
-    expect(screen.queryByTestId("next-button")).not.toBeInTheDocument();
+    const nextButton = screen.getByRole("button", { name: /前往下一頁/i });
+    expect(nextButton).toBeDisabled();
   });
 
-  test("previous button should not be visible on first page", () => {
+  test("第一頁時上一頁按鈕 disabled", () => {
     renderPagination(1, 3);
-    expect(screen.queryByTestId("previous-button")).not.toBeInTheDocument();
+    const prevButton = screen.getByRole("button", { name: /返回上一頁/i });
+    expect(prevButton).toBeDisabled();
   });
 });

@@ -1,25 +1,8 @@
-import axios from "axios";
-import {
-  createSlice,
-  createAsyncThunk,
-  isAnyOf,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { api } from "@/hooks/useAxios";
+import type { AuthPayload } from "@/types";
 
-interface User {
-  readonly id: string;
-  readonly email: string;
-  role: "admin" | "user";
-}
-
-interface AuthState {
-  user: User | null;
-  accessToken: string | null;
-  refreshToken: string | null;
-  loading: boolean;
-  error: string | null;
+interface AuthState extends Partial<AuthPayload> {
   isAuthenticated: boolean;
 }
 
@@ -27,71 +10,8 @@ const initialState: AuthState = {
   user: null,
   accessToken: null,
   refreshToken: null,
-  loading: false,
-  error: null,
   isAuthenticated: false,
 };
-
-const toErrorMessage = (err: unknown, fallback: string) => {
-  if (axios.isAxiosError(err)) return err.response?.data?.message || fallback;
-  if (err instanceof Error) return err.message || fallback;
-  return fallback;
-};
-
-interface LoginPayload {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
-
-type RejectValue = {
-  rejectValue: string;
-};
-
-interface LoginResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export const login = createAsyncThunk<LoginResponse, LoginPayload, RejectValue>(
-  "auth/login",
-  async ({ email, password, rememberMe }, { rejectWithValue }) => {
-    try {
-      const { data } = await api.post("/user/login", {
-        email,
-        password,
-        rememberMe,
-      });
-
-      if (data.success && data.user && data.accessToken && data.refreshToken) {
-        return {
-          user: data.user,
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-        };
-      }
-
-      return rejectWithValue(data.message || "登入失敗，請稍後再試。");
-    } catch (err) {
-      return rejectWithValue(toErrorMessage(err, "登入失敗，請稍後再試。"));
-    }
-  }
-);
-
-export const logout = createAsyncThunk<void, void, RejectValue>(
-  "auth/logout",
-  async () => {
-    try {
-      await api.post("/user/logout");
-    } catch {}
-    // 總是返回成功，確保前端 token 被清除
-    return;
-  }
-);
-
-const authActionPending = isAnyOf(login.pending, logout.pending);
-const authActionRejected = isAnyOf(login.rejected, logout.rejected);
 
 const authSlice = createSlice({
   name: "auth",
@@ -114,48 +34,31 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       }
     },
+    // 登入成功後更新 state
+    setCredentials: (state, action: PayloadAction<AuthPayload>) => {
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
+    },
+    // 登出後清空 state
+    clearCredentials: (state) => {
+      state.user = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
+    },
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
-      localStorage.setItem("accessToken", action.payload);
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(
-        login.fulfilled,
-        (state, action: PayloadAction<LoginResponse>) => {
-          state.loading = false;
-          state.user = action.payload.user;
-          state.accessToken = action.payload.accessToken;
-          state.refreshToken = action.payload.refreshToken;
-          state.isAuthenticated = true;
-          state.error = null;
-        }
-      )
-      .addCase(logout.fulfilled, (state) => {
-        state.loading = false;
-        state.user = null;
-        state.accessToken = null;
-        state.refreshToken = null;
-        state.isAuthenticated = false;
-        state.error = null;
-      })
-      // 使用 matcher 處理共通的 pending 和 rejected 狀態
-      .addMatcher(authActionPending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addMatcher(authActionRejected, (state, action) => {
-        state.loading = false;
-        state.user = null;
-        state.accessToken = null;
-        state.refreshToken = null;
-        state.isAuthenticated = false;
-        state.error = (action.payload as string) || "操作失敗，請稍後再試。";
-      });
   },
 });
 
-export const { initializeAuth, setAccessToken } = authSlice.actions;
+export const {
+  initializeAuth,
+  setCredentials,
+  clearCredentials,
+  setAccessToken,
+} = authSlice.actions;
 
 export default authSlice.reducer;

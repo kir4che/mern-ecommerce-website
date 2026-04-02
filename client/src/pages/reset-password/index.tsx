@@ -1,83 +1,88 @@
-import { useState, useRef, useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { useAlert } from "@/context/AlertContext";
-import { useAxios } from "@/hooks/useAxios";
+import { useResetPasswordMutation } from "@/store/slices/apiSlice";
 
-import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
 
 import MailIcon from "@/assets/icons/mail.inline.svg?react";
 
-const RequestResetLink: React.FC = () => {
+const schema = z.object({
+  email: z.email({ message: "請輸入有效的 Email 格式" }),
+});
+
+type ResetPasswordFormData = z.infer<typeof schema>;
+
+const RequestResetLink = () => {
   const { showAlert } = useAlert();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
   const [countdown, setCountdown] = useState<number>(0);
-  const [email, setEmail] = useState("");
 
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
-
-  const { isLoading, refresh: ResetPassword } = useAxios(
-    "/user/reset-password",
-    { method: "POST" },
-    {
-      immediate: false,
-      onSuccess: () => setCountdown(60),
-      onError: (err) => {
-        if (err.statusCode === 404) {
-          showAlert({
-            variant: "error",
-            message: "該 Email 不存在。",
-          });
-        } else
-          showAlert({
-            variant: "error",
-            message: "發送連結失敗，請稍後再試。",
-          });
-      },
-    }
-  );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "" },
+  });
 
   useEffect(() => {
     if (countdown <= 0) return;
-
-    // 啟動計時器，每秒更新一次倒數值。
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    // 清除計時器，避免記憶體溢出。
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-    };
+    const timer = setTimeout(() => setCountdown((prev) => prev - 1), 1000);
+    return () => clearTimeout(timer);
   }, [countdown]);
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await ResetPassword({ email });
+  const onSubmit = async ({ email }: ResetPasswordFormData) => {
+    try {
+      await resetPassword({ email }).unwrap();
+    } catch (err: unknown) {
+      console.debug("Reset password failed or email not found", err);
+    } finally {
+      showAlert({
+        variant: "success",
+        message: "若該 Email 存在，重設密碼連結已發送至您的信箱。",
+      });
+      setCountdown(60);
+    }
   };
 
+  const isBtnDisabled = isLoading || isSubmitting || countdown > 0;
+
   return (
-    <div className="w-full max-w-sm px-5 mx-auto md:px-8">
-      <h2 className="mb-8 -mt-12 text-2xl text-center">重設密碼</h2>
-      <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
+    <div className="w-full px-5 m-auto md:px-8 space-y-4">
+      <h2 className="text-center">忘記密碼</h2>
+      <p className="text-sm text-gray-600 text-center">
+        請輸入您註冊時使用的 Email，我們將發送重設密碼的連結給您。
+      </p>
+      <form
+        className="flex flex-col gap-8 max-w-72 mx-auto"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <Input
-          value={email}
+          {...register("email")}
           type="email"
           placeholder="請輸入您的 Email"
           icon={MailIcon}
-          onChange={(e) => setEmail(e.target.value.trim())}
-          pattern={{
-            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            message: "請輸入有效的 Email 格式",
-          }}
-          required
+          error={errors.email?.message ?? ""}
         />
         <Button
           type="submit"
-          className="mx-auto mt-8 rounded-none w-fit"
-          disabled={isLoading || countdown > 0}
-          aria-disabled={isLoading || countdown > 0}
+          disabled={isBtnDisabled}
+          aria-disabled={isBtnDisabled}
+          className="py-2.5"
         >
-          {countdown > 0 ? `${countdown} 秒後可以重新發送` : "發送重設連結"}
+          {countdown > 0
+            ? `請等待 ${countdown} 秒後重試`
+            : isLoading || isSubmitting
+              ? "發送中"
+              : "發送重設連結"}
         </Button>
       </form>
     </div>

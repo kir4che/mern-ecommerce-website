@@ -1,135 +1,151 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import ProductSlider from "@/components/organisms/ProductSlider";
-import type { Product } from "@/types/product";
-import { useAxios } from "@/hooks/useAxios";
+import { describe, expect, test, vi } from "vitest";
 
-jest.mock("@/hooks/useAxios", () => ({
-  useAxios: jest.fn(),
+import ProductSlider from "@/components/organisms/ProductSlider";
+import { useGetProductsQuery } from "@/store/slices/apiSlice";
+import type { Product } from "@/types";
+
+vi.mock("@/store/slices/apiSlice");
+
+vi.mock("swiper/modules", () => ({
+  Autoplay: {},
 }));
 
-jest.mock("@/utils/linkToCategory", () => ({
-  linkToCategory: new Proxy(
-    {},
-    {
-      get: () => "category",
-    }
+vi.mock("swiper/react", () => ({
+  Swiper: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="swiper">{children}</div>
+  ),
+  SwiperSlide: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="swiper-slide">{children}</div>
   ),
 }));
 
-jest.mock("@/components/molecules/AddToCartInputBtn", () =>
-  jest.fn(({ product }) => (
-    <div data-testid={`add-to-cart-${product._id}`}>add</div>
-  ))
-);
-
-jest.mock("@/components/atoms/ProductLinkImg", () =>
-  jest.fn(({ product }) => (
-    <img data-testid={`product-image-${product._id}`} alt={product.title} />
-  ))
-);
-
-jest.mock("@/assets/icons/refresh.inline.svg", () => ({
-  ReactComponent: () => <svg data-testid="refresh-icon" />,
+vi.mock("@/components/atoms/ProductSliderSkeleton", () => ({
+  default: () => <div data-testid="product-slider-skeleton" />,
 }));
 
-const mockUseAxios = useAxios as jest.Mock;
+vi.mock("@/components/atoms/ProductLinkImg", () => ({
+  default: ({ product }: { product: Product }) => (
+    <img alt={product.title} data-testid="product-image" />
+  ),
+}));
 
-const createProduct = (overrides?: Partial<Product>): Product => ({
+vi.mock("@/components/molecules/ProductActionForm", () => ({
+  default: () => <div data-testid="product-action-form" />,
+}));
+
+vi.mock("@/components/atoms/Button", () => ({
+  default: ({
+    children,
+    onClick,
+    disabled,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+  }) => (
+    <button type="button" onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
+}));
+
+const mockUseGetProductsQuery = vi.mocked(useGetProductsQuery);
+
+const makeProduct = (overrides?: Partial<Product>): Product => ({
   _id: overrides?._id ?? "product-1",
-  title: overrides?.title ?? "推薦商品",
-  tagline: overrides?.tagline ?? "好吃",
-  categories: overrides?.categories ?? ["熱銷"],
-  description: overrides?.description ?? "美味可口",
-  price: overrides?.price ?? 199,
-  content: overrides?.content ?? "詳細介紹",
-  expiryDate: overrides?.expiryDate ?? "2025-12-31",
-  allergens: overrides?.allergens ?? [],
-  delivery: overrides?.delivery ?? "宅配",
-  storage: overrides?.storage ?? "常溫",
-  ingredients: overrides?.ingredients ?? "成分",
-  nutrition: overrides?.nutrition ?? "營養標示",
+  title: overrides?.title ?? "草莓蛋糕",
+  tagline: overrides?.tagline ?? "tagline",
+  categories: overrides?.categories ?? ["蛋糕"],
+  description: overrides?.description ?? "描述",
+  price: overrides?.price ?? 120,
+  content: overrides?.content ?? "content",
+  expiryDate: overrides?.expiryDate ?? "3 days",
+  allergens: overrides?.allergens ?? ["蛋"],
+  delivery: overrides?.delivery ?? "冷藏",
+  storage: overrides?.storage ?? "冷藏",
+  ingredients: overrides?.ingredients ?? "ingredients",
+  nutrition: overrides?.nutrition ?? "nutrition",
   countInStock: overrides?.countInStock ?? 10,
-  salesCount: overrides?.salesCount ?? 5,
+  salesCount: overrides?.salesCount ?? 0,
   tags: overrides?.tags ?? ["推薦"],
-  imageUrl: overrides?.imageUrl ?? "image.jpg",
+  imageUrl: overrides?.imageUrl ?? "cake.jpg",
 });
 
-const renderProductSlider = () =>
-  render(<ProductSlider />, { wrapper: MemoryRouter });
+const renderSlider = () =>
+  render(
+    <MemoryRouter>
+      <ProductSlider />
+    </MemoryRouter>
+  );
 
-describe("ProductSlider", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseAxios.mockReset();
-  });
-
-  test("renders loading state", () => {
-    mockUseAxios.mockReturnValue({
-      data: null,
+describe("ProductSlider 元件", () => {
+  test("載入中時顯示 skeleton", () => {
+    mockUseGetProductsQuery.mockReturnValue({
+      data: undefined,
       isLoading: true,
-      isError: false,
-      refresh: jest.fn(),
-    });
+      error: null,
+      refetch: vi.fn(),
+      isFetching: false,
+    } as never);
 
-    renderProductSlider();
+    renderSlider();
 
-    expect(screen.getByTestId("loading-wrapper")).toBeInTheDocument();
+    expect(screen.getByTestId("product-slider-skeleton")).toBeInTheDocument();
   });
 
-  test("renders error state and retries on click", async () => {
-    const refreshMock = jest.fn().mockResolvedValue({ success: true });
-    mockUseAxios.mockReturnValue({
-      data: null,
+  test("發生錯誤時可點擊重新載入", () => {
+    const refetch = vi.fn();
+    mockUseGetProductsQuery.mockReturnValue({
+      data: undefined,
       isLoading: false,
-      isError: true,
-      refresh: refreshMock,
-    });
+      error: { status: 500 },
+      refetch,
+      isFetching: false,
+    } as never);
 
-    renderProductSlider();
+    renderSlider();
 
-    expect(screen.getByText("抱歉，暫時無法取得商品資訊")).toBeInTheDocument();
-
-    const retryButton = screen.getByRole("button", { name: "重新載入" });
-
-    fireEvent.click(retryButton);
-
-    await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1));
+    expect(
+      screen.getByText("抱歉，暫時無法取得商品資訊。")
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "重新載入" }));
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
-  test("shows empty recommended message when no tagged products", () => {
-    mockUseAxios.mockReturnValue({
+  test("沒有資料時顯示空狀態文案", () => {
+    mockUseGetProductsQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      isFetching: false,
+    } as never);
+
+    renderSlider();
+
+    expect(screen.getByText("目前沒有任何推薦的商品")).toBeInTheDocument();
+  });
+
+  test("只顯示有庫存商品", () => {
+    mockUseGetProductsQuery.mockReturnValue({
       data: {
-        products: [createProduct({ _id: "p-1", tags: ["熱銷"] })],
+        products: [
+          makeProduct({ _id: "in-stock", title: "有庫存", countInStock: 5 }),
+          makeProduct({ _id: "out-stock", title: "無庫存", countInStock: 0 }),
+        ],
       },
       isLoading: false,
-      isError: false,
-      refresh: jest.fn(),
-    });
+      error: null,
+      refetch: vi.fn(),
+      isFetching: false,
+    } as never);
 
-    renderProductSlider();
+    renderSlider();
 
-    expect(screen.getByText("目前沒有推薦商品")).toBeInTheDocument();
-  });
-
-  test("renders recommended products inside swiper", () => {
-    const products = [
-      createProduct({ _id: "p-1", title: "商品 A" }),
-      createProduct({ _id: "p-2", title: "商品 B" }),
-    ];
-
-    mockUseAxios.mockReturnValue({
-      data: { products },
-      isLoading: false,
-      isError: false,
-      refresh: jest.fn(),
-    });
-
-    renderProductSlider();
-
-    expect(screen.getByTestId("swiper")).toBeInTheDocument();
-    expect(screen.getAllByTestId("swiper-slide")).toHaveLength(2);
-    expect(screen.getByText("商品 A")).toBeInTheDocument();
-    expect(screen.getByText("商品 B")).toBeInTheDocument();
+    expect(screen.getByText("有庫存")).toBeInTheDocument();
+    expect(screen.queryByText("無庫存")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("swiper-slide")).toHaveLength(1);
   });
 });

@@ -2,8 +2,12 @@ import { Request, Response } from "express";
 import { Types } from "mongoose";
 import ShortUniqueId from "short-unique-id";
 
+import { CouponModel } from "../models/coupon.model";
 import { OrderModel } from "../models/order.model";
+import { ProductModel } from "../models/product.model";
+import { normalizeCouponCode, validateCouponForSubtotal } from "../utils/coupon";
 import { ordersFilrer } from "../utils/ordersFilrer";
+import { calculateShippingFee } from "../utils/shipping";
 
 interface AuthRequest extends Request {
   userId?: Types.ObjectId;
@@ -28,7 +32,7 @@ const getOrdersByUser = async (req: AuthRequest, res: Response) => {
 
     const orders = await OrderModel.find(filter)
       .select(
-        "_id orderNo name phone address orderItems subtotal shippingFee discount couponCode totalAmount status paymentStatus shippingStatus shippingTrackingNo paymentMethod returnReason returnDate note createdAt"
+        "_id userId orderNo name phone address orderItems subtotal shippingFee discount couponCode totalAmount status paymentStatus shippingStatus shippingTrackingNo paymentMethod returnReason returnDate note createdAt"
       )
       .sort({ [sortBy as string]: orderBy === "asc" ? 1 : -1 })
       .skip((pageNumber - 1) * limitNumber)
@@ -38,7 +42,6 @@ const getOrdersByUser = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: "Orders fetched successfully!",
       orders,
       totalOrders,
       totalPages: Math.ceil(totalOrders / limitNumber),
@@ -47,7 +50,7 @@ const getOrdersByUser = async (req: AuthRequest, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, code: "USER_ORDERS_FETCH_FAILED", message });
   }
 };
 
@@ -70,6 +73,7 @@ const getOrders = async (req: AuthRequest, res: Response) => {
 
     // 查詢訂單
     const orders = await OrderModel.find(filter)
+      .populate("userId", "name email")
       .sort({ [sortBy as string]: orderBy === "asc" ? 1 : -1 })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
@@ -79,7 +83,6 @@ const getOrders = async (req: AuthRequest, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: "Orders fetched successfully!",
       orders,
       totalOrders,
       totalPages: Math.ceil(totalOrders / limitNumber),
@@ -88,61 +91,136 @@ const getOrders = async (req: AuthRequest, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, code: "ORDERS_FETCH_FAILED", message });
   }
 };
 
 const getOrderById = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  if (!Types.ObjectId.isValid(id))
+  const orderId = Array.isArray(id) ? id[0] : id;
+
+  if (!Types.ObjectId.isValid(orderId))
     return res
       .status(400)
-      .json({ success: false, message: "Invalid order ID format." });
+      .json({ success: false, code: "INVALID_ORDER_ID", message: "Invalid order ID format." });
 
   try {
-    const order = await OrderModel.findById(id);
-    if (!order) return res.status(404).json({ message: "Order not found." });
+    const order = await OrderModel.findById(orderId);
 
-    // 如果訂單的 userId 和當前 user 不匹配，則無權更新。
-    if (req.role !== "admin" && !order.userId.equals(req.userId))
+    // 驗證訂單是否存在
+    if (!order)
+      return res.status(404).json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
+
+    // 驗證訂單所有權：只有訂單所有人或 admin 才能查看
+    if (req.role !== "admin" && req.userId && !order.userId.equals(req.userId))
       return res.status(403).json({
         success: false,
+        code: "ORDER_VIEW_FORBIDDEN",
         message: "You are not authorized to view this order.",
       });
 
     res
       .status(200)
-      .json({ success: true, message: "Order fetched successfully!", order });
+      .json({ success: true, order });
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, code: "ORDER_FETCH_FAILED", message });
   }
 };
 
 const createOrder = async (req: AuthRequest, res: Response) => {
-  const {
-    orderItems,
-    subtotal,
-    shippingFee,
-    couponCode,
-    discount,
-    totalAmount,
-  } = req.body;
+  const { orderItems, couponCode } = req.body as {
+    orderItems?: Array<{ productId?: string; quantity?: number }>;
+    couponCode?: string;
+  };
+
+  if (!Array.isArray(orderItems) || orderItems.length === 0)
+    return res.status(400).json({
+      success: false,
+      code: "ORDER_ITEMS_REQUIRED",
+      message: "Order items are required.",
+    });
 
   try {
+    const normalizedItems = orderItems.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    }));
+
+    if (
+      normalizedItems.some(
+        (item) =>
+          !item.productId ||
+          !Types.ObjectId.isValid(item.productId) ||
+          typeof item.quantity !== "number" ||
+          !Number.isInteger(item.quantity) ||
+          item.quantity < 1
+      )
+    )
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_ORDER_ITEMS",
+        message: "Order items contain invalid productId or quantity.",
+      });
+
+    const productIds = normalizedItems.map((item) => item.productId as string);
+    const products = await ProductModel.find({ _id: { $in: productIds } });
+    const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+
+    const computedOrderItems = normalizedItems.map((item) => {
+      const product = productMap.get(item.productId as string);
+      if (!product)
+        throw new Error(`PRODUCT_NOT_FOUND:${item.productId as string}`);
+
+      const safeQuantity = Math.min(item.quantity as number, product.countInStock);
+      return {
+        productId: product._id,
+        title: product.title,
+        imageUrl: product.imageUrl,
+        quantity: safeQuantity,
+        price: product.price,
+        amount: product.price * safeQuantity,
+      };
+    });
+
+    const subtotal = computedOrderItems.reduce((sum, item) => sum + item.amount, 0);
+    const shippingFee = calculateShippingFee(subtotal);
+    let discount = 0;
+    let appliedCouponCode: string | undefined;
+
+    // 驗證並計算折扣金額
+    if (typeof couponCode === "string" && couponCode.trim()) {
+      const normalizedCode = normalizeCouponCode(couponCode);
+      const coupon = await CouponModel.findOne({ code: normalizedCode });
+      const couponValidationResult = validateCouponForSubtotal(coupon, subtotal);
+
+      // 優惠碼無效處理
+      if (!couponValidationResult.valid)
+        return res.status(400).json({
+          success: false,
+          code: couponValidationResult.code,
+          message: couponValidationResult.message,
+        });
+
+      discount = couponValidationResult.discountAmount;
+      appliedCouponCode = normalizedCode;
+    }
+
+    const totalAmount = subtotal + shippingFee - discount;
+
     const uid = new ShortUniqueId({ length: 16 });
     const orderNo = uid.randomUUID();
 
     const order = new OrderModel({
       orderNo,
       userId: req.userId,
-      orderItems,
+      orderItems: computedOrderItems,
       subtotal,
       shippingFee,
-      couponCode,
-      discount: discount ?? 0,
-      totalAmount: totalAmount || subtotal + shippingFee - (discount ?? 0), // 同样使用 discount ?? 0
+      discount,
+      couponCode: appliedCouponCode,
+      totalAmount,
       paymentStatus: "unpaid",
     });
     await order.save();
@@ -151,9 +229,16 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       .status(201)
       .json({ success: true, message: "Order created Successfully!", order });
   } catch (err: unknown) {
+    if (err instanceof Error && err.message.startsWith("PRODUCT_NOT_FOUND:"))
+      return res.status(404).json({
+        success: false,
+        code: "PRODUCT_NOT_FOUND",
+        message: "One or more products were not found.",
+      });
+
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, code: "ORDER_CREATE_FAILED", message });
   }
 };
 
@@ -165,31 +250,36 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
     if (!order)
       return res
         .status(404)
-        .json({ success: false, message: "Order not found." });
+        .json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
 
     if (!order.userId.equals(req.userId))
       return res.status(403).json({
         success: false,
+        code: "ORDER_UPDATE_FORBIDDEN",
         message: "You are not authorized to update this order.",
       });
 
-    for (const key in updateData) {
-      if (Object.prototype.hasOwnProperty.call(updateData, key))
-        (order as any)[key] = updateData[key];
-    }
+    // 只允許更新特定欄位
+    const allowedFields = ['name', 'phone', 'address', 'note'];
+    const filteredData = Object.fromEntries(
+      Object.entries(updateData).filter(([key]) => allowedFields.includes(key))
+    );
 
-    const updatedOrder = await order.save();
+    const updatedOrder = await OrderModel.findByIdAndUpdate(
+      req.params.id,
+      filteredData,
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json({
       success: true,
-      message: "Order updated successfully!",
       order: updatedOrder,
     });
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, message });
+    res.status(500).json({ success: false, code: "ORDER_UPDATE_FAILED", message });
   }
 };
 
-export { getOrdersByUser, getOrders, getOrderById, createOrder, updateOrder };
+export { createOrder, getOrderById, getOrders, getOrdersByUser, updateOrder };

@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
-import { useAuth } from "@/hooks/useAuth";
 import { useAlert } from "@/context/AlertContext";
+import { useAuth } from "@/hooks/useAuth";
 
 import Loading from "@/components/atoms/Loading";
 
@@ -11,13 +11,13 @@ type Props = { children: ReactNode };
 const AdminGate = ({ children }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const { showAlert } = useAlert();
 
   const navigatedRef = useRef(false);
 
   useEffect(() => {
-    if (loading || navigatedRef.current) return;
+    if (isLoading || navigatedRef.current) return;
 
     if (!isAuthenticated) {
       navigatedRef.current = true;
@@ -35,10 +35,9 @@ const AdminGate = ({ children }: Props) => {
       const timer = setTimeout(() => navigate("/", { replace: true }), 750);
       return () => clearTimeout(timer as unknown as number);
     }
-  }, [loading, isAuthenticated, user?.role, navigate, location, showAlert]);
+  }, [isLoading, isAuthenticated, user?.role, navigate, location, showAlert]);
 
-  if (loading) return <Loading />;
-
+  if (isLoading) return <Loading fullPage />;
   if (!isAuthenticated || user?.role !== "admin") return null;
 
   return <>{children}</>;

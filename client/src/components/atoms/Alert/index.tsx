@@ -1,9 +1,10 @@
 import { useAlert } from "@/context/AlertContext";
+import { cn } from "@/utils/cn";
 
-import InfoIcon from "@/assets/icons/info.inline.svg?react";
-import WarningIcon from "@/assets/icons/warning.inline.svg?react";
-import SuccessIcon from "@/assets/icons/success.inline.svg?react";
 import ErrorIcon from "@/assets/icons/error.inline.svg?react";
+import InfoIcon from "@/assets/icons/info.inline.svg?react";
+import SuccessIcon from "@/assets/icons/success.inline.svg?react";
+import WarningIcon from "@/assets/icons/warning.inline.svg?react";
 
 const iconMap = {
   info: {
@@ -24,18 +25,25 @@ const iconMap = {
   },
 };
 
-const Alert: React.FC = () => {
+const Alert = () => {
   const { alert } = useAlert();
 
   if (!alert) return null;
 
   const { variant, message, floating } = alert;
-  const Icon = iconMap[variant].icon;
+  const Icon = iconMap[variant]?.icon || InfoIcon;
 
   return (
     <div
       role="alert"
-      className={`alert ${iconMap[variant].style} flex text-nowrap items-center rounded-md gap-2 border-none py-2.5  w-fit transition-opacity duration-500 font-medium ${floating ? "absolute -translate-x-1/2 left-1/2 top-4" : ""}`}
+      className={cn(
+        "alert",
+        iconMap[variant]?.style,
+        "flex text-nowrap items-center rounded-md gap-2 border-none py-2.5 w-fit transition-opacity duration-500 font-medium",
+        floating
+          ? "fixed -translate-x-1/2 left-1/2 top-20 z-9999 shadow-md"
+          : ""
+      )}
     >
       <Icon className="w-5 stroke-current" />
       <p>{message}</p>

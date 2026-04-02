@@ -1,29 +1,54 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import Accordion from "@/components/molecules/Accordion";
+import { fireEvent, render, screen } from "@testing-library/react";
 
-describe("Accordion Component", () => {
+describe("Accordion 元件", () => {
   const title = "Test Accordion";
   const children = "Accordion Content";
 
-  test("renders title correctly", () => {
+  test("預設時為關閉狀態", () => {
     render(<Accordion title={title}>{children}</Accordion>);
-    expect(screen.getByText(title)).toBeInTheDocument();
+
+    const checkbox = screen.getByRole("checkbox");
+    expect(checkbox).not.toBeChecked();
   });
 
-  test("displays children when open", () => {
-    render(<Accordion title={title}>{children}</Accordion>);
+  test("defaultOpen 為真時為打開狀態", () => {
+    render(
+      <Accordion title={title} defaultOpen>
+        {children}
+      </Accordion>
+    );
 
-    const detail = screen.getByRole("region");
-    // 預設開啟，所以不用點擊就有 open 屬性。
-    expect(detail).toHaveAttribute("open");
+    const checkbox = screen.getByRole("checkbox");
+    expect(checkbox).toBeChecked();
   });
 
-  test("hides children when closed", () => {
+  test("點擊時切換狀態", () => {
     render(<Accordion title={title}>{children}</Accordion>);
-    const detail = screen.getByRole("region");
-    const summary = screen.getByText(title);
 
-    fireEvent.click(summary); // 點擊 summary 後， detail 的 open 屬性會被移除。
-    expect(detail).not.toHaveAttribute("open"); // 確認 detail 沒有 open 屬性
+    const checkbox = screen.getByRole("checkbox");
+    expect(checkbox).not.toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
+  });
+
+  test("提供 name 時渲染為單選按鈕", () => {
+    const radioName = "faq-group";
+    render(
+      <Accordion title={title} name={radioName}>
+        {children}
+      </Accordion>
+    );
+
+    const radio = screen.getByRole("radio");
+    expect(radio).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+
+    expect(radio).toHaveAttribute("name", radioName);
+    expect(radio).toHaveAttribute("value", title);
   });
 });

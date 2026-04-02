@@ -1,66 +1,48 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
-import jwt, { Secret } from "jsonwebtoken";
 
-interface AuthRequest extends Request {
-  userId?: Types.ObjectId;
-  role?: string;
-}
-
-export const isAdmin = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  if (!req.userId || req.role !== "admin")
-    return res.status(403).json({ success: false, message: "Access denied!" });
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.role !== "admin")
+    return res.status(403).json({ success: false, code: "ADMIN_ACCESS_REQUIRED", message: "你沒有權限執行此操作。" });
   next();
 };
 
 export const authMiddleware = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret)
+    throw new Error("JWT_SECRET is not defined in environment variables");
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.setHeader("WWW-Authenticate", 'Bearer realm="app"');
+    return res.status(401).json({
+      success: false,
+      code: "NO_TOKEN",
+      message: "尚未登入或登入已過期，請重新登入。",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    // 從 Authorization header 讀取 token
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.setHeader("WWW-Authenticate", 'Bearer realm="app"');
-      return res.status(401).json({
-        success: false,
-        code: "NO_TOKEN",
-        message: "尚未登入或登入已過期，請重新登入。",
-      });
-    }
-
-    const token = authHeader.substring(7); // 移除 "Bearer " 前綴
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as Secret) as {
-      userId: Types.ObjectId;
+    const decoded = jwt.verify(token, secret) as {
+      userId: string;
       role: string;
     };
-    req.userId = decoded.userId; // 將 userId 附加到 req 物件上
+
+    req.userId = new Types.ObjectId(decoded.userId);
     req.role = decoded.role;
 
     next();
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      if (err.name === "JsonWebTokenError")
-        return res
-          .status(401)
-          .json({ success: false, message: "Invalid JWT token." });
-
-      if (err.name === "TokenExpiredError")
-        return res.status(401).json({
-          success: false,
-          code: "TOKEN_EXPIRED",
-          message: "Token has expired.",
-        });
-    }
-
-    return res
-      .status(401)
-      .json({ success: false, message: "Unauthorized request." });
+    if (err instanceof Error && err.name === "TokenExpiredError")
+      return res.status(401).json({ success: false, code: "TOKEN_EXPIRED", message: "連線已過期，請重新登入。" });
+    
+    return res.status(401).json({ success: false, code: "INVALID_TOKEN", message: "無效的身份驗證。" });
   }
 };

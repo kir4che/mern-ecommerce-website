@@ -1,4 +1,4 @@
-import { Schema, Types, model, Document } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 
 export interface ICart extends Document<Types.ObjectId> {
   _id: Types.ObjectId;

@@ -42,6 +42,7 @@ export interface IOrder extends Document<Types.ObjectId> {
   paymentStatus: (typeof PAYMENT_STATUS)[number];
   paymentDate?: Date;
   note?: string;
+  pendingNote?: string; // 暫存備註
   createdAt: Date;
   updatedAt: Date;
 }
@@ -77,6 +78,7 @@ const orderSchema = new Schema<IOrder>(
     paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "unpaid" },
     paymentDate: { type: Date },
     note: { type: String, default: "" },
+    pendingNote: { type: String },
   },
   { timestamps: true }
 );

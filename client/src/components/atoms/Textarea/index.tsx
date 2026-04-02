@@ -1,87 +1,59 @@
-import { useState } from "react";
+import { cn } from "@/utils/cn";
+import { ComponentProps } from "react";
 
-type NativeTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
-
-interface TextareaProps
-  extends Omit<NativeTextareaProps, "value" | "onChange"> {
-  id?: string;
-  name?: string;
+interface TextareaProps extends ComponentProps<"textarea"> {
   label?: string;
-  placeholder?: string;
-  value: string;
-  rows?: number;
-  maxLength?: number;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  required?: boolean;
-  errorMessage?: string;
+  error?: string;
   helperText?: string;
-  containerStyle?: string;
-  labelStyle?: string;
-  inputStyle?: string;
+  textareaClassName?: string;
 }
 
-const Textarea: React.FC<TextareaProps> = ({
+const Textarea = ({
   id,
-  name,
   label,
-  placeholder,
-  value,
-  rows = 3,
-  maxLength,
-  onChange = () => {},
-  required = false,
-  errorMessage,
+  error,
   helperText,
-  containerStyle = "",
-  labelStyle = "",
-  inputStyle = "",
+  required,
+  className,
+  textareaClassName,
+  ref,
   ...props
-}) => {
-  const [errorState, setErrorState] = useState<boolean>(false);
-
-  const handleValidation = (value: string) => {
-    if (required && !value) {
-      setErrorState(true);
-      return;
-    }
-    setErrorState(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleValidation(e.target.value);
-    onChange(e);
-  };
+}: TextareaProps) => {
+  const isInvalid = !!error;
 
   return (
-    <div className={`flex flex-col gap-1 ${containerStyle}`}>
+    <div className={cn("form-control w-full space-y-1", className)}>
       {label && (
-        <label
-          htmlFor={id}
-          className={`text-sm ${errorState ? "text-red-600" : ""} ${labelStyle}`}
-        >
-          {label} {required && <span className="text-red-600">*</span>}
+        <label htmlFor={id} className="label">
+          <span
+            className={cn(
+              "label-text text-[13px]",
+              isInvalid && "text-red-600"
+            )}
+          >
+            {label} {required && <span className="text-red-600 ml-0.5">*</span>}
+          </span>
         </label>
       )}
       <textarea
+        ref={ref}
         id={id}
-        name={name}
-        value={value}
-        placeholder={placeholder}
-        rows={rows}
-        maxLength={maxLength}
-        onChange={handleChange}
-        onBlur={() => handleValidation(value)}
-        onInvalid={() => handleValidation(value)}
         required={required}
-        className={`textarea focus:outline-none textarea-bordered ${errorState ? "placeholder-red-300 border-red-600 text-red-600 focus:border-red-600" : ""} ${inputStyle}`}
-        data-testid={id}
-        aria-invalid={errorState}
+        aria-invalid={isInvalid}
+        className={cn(
+          "textarea textarea-bordered w-full focus:outline-none",
+          isInvalid && "textarea-error",
+          textareaClassName
+        )}
         {...props}
       />
-      {!errorState && helperText && (
-        <p className="text-gray-400">{helperText}</p>
+      {(error || helperText) && (
+        <div className="label text-[13px] mt-1">
+          <span className={isInvalid ? "text-red-600" : "text-gray-500"}>
+            {error || helperText}
+          </span>
+        </div>
       )}
-      {errorState && <p className="text-red-600">{errorMessage}</p>}
     </div>
   );
 };

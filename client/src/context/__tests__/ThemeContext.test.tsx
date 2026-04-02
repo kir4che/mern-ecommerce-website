@@ -1,4 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, test } from "vitest";
+
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 
 const TestComponent = () => {
@@ -12,15 +14,35 @@ const TestComponent = () => {
   );
 };
 
-test("ThemeContext works correctly", () => {
-  render(
-    <ThemeProvider>
-      <TestComponent />
-    </ThemeProvider>
-  );
+describe("ThemeContext", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }),
+    });
+  });
 
-  expect(screen.getByText("light")).toBeInTheDocument();
+  test("正確切換主題", () => {
+    render(
+      <ThemeProvider>
+        <TestComponent />
+      </ThemeProvider>
+    );
 
-  fireEvent.click(screen.getByText("Toggle Theme"));
-  expect(screen.getByText("dark")).toBeInTheDocument();
+    // 初始要是 light
+    expect(screen.getByText("light")).toBeInTheDocument();
+
+    // 點擊切換主題
+    fireEvent.click(screen.getByText("Toggle Theme"));
+    expect(screen.getByText("dark")).toBeInTheDocument();
+  });
 });

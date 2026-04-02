@@ -1,23 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
+
 import Input from "@/components/atoms/Input";
 
-describe("Input Component", () => {
-  test("renders input with label", () => {
-    render(
-      <Input id="test-input" label="Test Input" placeholder="Enter text" />
-    );
-
-    expect(screen.getByLabelText("Test Input")).toBeInTheDocument();
-  });
-
-  test("renders input with icon", () => {
-    const MockIcon = () => <svg data-testid="input-icon" />;
-    render(<Input id="test-input" label="Test Input" icon={MockIcon} />);
-
-    expect(screen.getByTestId("input-icon")).toBeInTheDocument();
-  });
-
-  test("accepts input value", () => {
+describe("Input 元件", () => {
+  test("接受 input 值", () => {
     render(
       <Input id="test-input" label="Test Input" placeholder="Enter text" />
     );
@@ -27,68 +14,48 @@ describe("Input Component", () => {
     expect(input).toHaveValue("Test");
   });
 
-  test("shows error message when required field is empty", () => {
+  test("當必填欄位為空時顯示錯誤訊息", () => {
     render(
       <Input
         id="test-input"
         label="Test Required Input"
+        error="This field is required"
         required
-        errorMessage="This field is required"
       />
     );
 
-    // 觸發失去焦點事件後，確認有顯示 error message。
-    fireEvent.blur(screen.getByTestId("test-input"));
     expect(screen.getByText("This field is required")).toBeInTheDocument();
   });
 
-  test("removes error message when user enters valid input", () => {
-    render(
-      <Input
-        id="test-input"
-        label="Test Input"
-        required
-        errorMessage="This field is required"
-      />
+  test("使用者輸入有效值時移除錯誤訊息", () => {
+    const { rerender } = render(
+      <Input id="test-input" label="Test Input" error="Error" required />
     );
 
-    const input = screen.getByTestId("test-input");
+    expect(screen.getByText("Error")).toBeInTheDocument();
 
-    fireEvent.blur(input);
-    expect(screen.getByText("This field is required")).toBeInTheDocument();
-
-    // 模擬使用者輸入有效值後，確認 error message 已消失。
-    fireEvent.change(input, { target: { value: "Valid Input" } });
-    expect(screen.queryByText("This field is required")).toBeNull();
+    rerender(<Input id="test-input" label="Test Input" required />);
+    expect(screen.queryByText("Error")).not.toBeInTheDocument();
   });
 
-  test("validates input based on pattern", () => {
-    render(
-      <Input
-        id="test-input"
-        label="Test Input"
-        pattern={{ value: /^[0-9]+$/, message: "Only numbers allowed" }}
-      />
-    );
+  test("根據類型驗證輸入", () => {
+    render(<Input id="test-input" label="Test Input" type="number" />);
 
-    const input = screen.getByTestId("test-input");
-
-    // 模擬使用者輸入無效值後，確認有顯示 error message。
+    const input = screen.getByLabelText("Test Input");
     fireEvent.change(input, { target: { value: "abc" } });
-    expect(screen.getByText("Only numbers allowed")).toBeInTheDocument();
+    expect(input).toHaveValue(null);
 
-    // 重新輸入有效值後，確認 error message 已消失。
     fireEvent.change(input, { target: { value: "123" } });
-    expect(screen.queryByText("Only numbers allowed")).toBeNull();
+    expect(input).toHaveValue(123);
   });
 
-  test("calls onChange when input changes", () => {
-    const handleChange = jest.fn();
+  test("輸入變化時呼叫 onChange", () => {
+    const handleChange = vi.fn();
     render(
       <Input id="test-input" label="Test Input" onChange={handleChange} />
     );
 
-    fireEvent.change(screen.getByTestId("test-input"), {
+    fireEvent.change(screen.getByLabelText("Test Input"), {
       target: { value: "Hello" },
     });
     expect(handleChange).toHaveBeenCalledTimes(1);

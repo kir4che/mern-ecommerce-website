@@ -1,27 +1,30 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { useDispatch, useSelector, TypedUseSelectorHook } from "react-redux";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
-import authReducer, { initializeAuth } from "@/store/slices/authSlice";
-import cartReducer, { fetchCart } from "@/store/slices/cartSlice";
 import { authListenerMiddleware } from "@/store/middleware/authMiddleware";
 import { cartListenerMiddleware } from "@/store/middleware/cartMiddleware";
+import { apiSlice } from "@/store/slices/apiSlice";
+import authReducer, { initializeAuth } from "@/store/slices/authSlice";
+import guestCartReducer from "@/store/slices/guestCartSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    cart: cartReducer,
+    guestCart: guestCartReducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
-  // prepend：優先執行 cartListenerMiddleware
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(
-      authListenerMiddleware.middleware,
-      cartListenerMiddleware.middleware
-    ),
+    getDefaultMiddleware()
+      .prepend(
+        // 優先執行
+        authListenerMiddleware.middleware,
+        cartListenerMiddleware.middleware
+      )
+      // RTK Query middleware 要加，query/mutation 才會正常運作。
+      .concat(apiSlice.middleware),
 });
 
-// 初始化驗證和購物車狀態
 store.dispatch(initializeAuth());
-store.dispatch(fetchCart());
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

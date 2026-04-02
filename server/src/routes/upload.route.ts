@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
-import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 import { uploadImage } from "../controllers/upload.controller";
+import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 
 // 設定 Multer，解析上傳的圖片並先存在伺服器記憶體中。
 const upload = multer({
@@ -11,7 +11,9 @@ const upload = multer({
 });
 
 const router = Router();
+
 router.use(authMiddleware);
+
 router.post("/image", isAdmin, upload.single("image"), uploadImage);
 
 export { router as uploadRouter };

@@ -1,39 +1,32 @@
 import { isExist } from "@/utils/isExist";
 
-describe("isExist function", () => {
-  test("returns true for valid value", () => {
-    expect(isExist("value")).toBe(true);
-  });
-
-  test("returns true for number 0", () => {
-    expect(isExist(0)).toBe(true);
-  });
-
-  test("returns true for empty object", () => {
-    expect(isExist({})).toBe(true);
-  });
-
-  test("returns false for null", () => {
+describe("isExist 函式", () => {
+  test("空值回傳假", () => {
     expect(isExist(null)).toBe(false);
   });
 
-  test("returns true for empty array", () => {
-    expect(isExist([])).toBe(true);
-  });
-
-  test("returns false for undefined", () => {
+  test("未定義回傳假", () => {
     expect(isExist(undefined)).toBe(false);
   });
 
-  test("returns false for empty string", () => {
+  test("空字串回傳假", () => {
     expect(isExist("")).toBe(false);
   });
 
-  test("returns false for false boolean", () => {
+  test("假值回傳假", () => {
     expect(isExist(false)).toBe(false);
   });
 
-  test("returns true for true boolean", () => {
-    expect(isExist(true)).toBe(true);
+  test("零值回傳真", () => {
+    expect(isExist(0)).toBe(true);
+  });
+
+  test("非空字串回傳真", () => {
+    expect(isExist("hello")).toBe(true);
+  });
+
+  test("物件和陣列回傳真", () => {
+    expect(isExist({})).toBe(true);
+    expect(isExist([])).toBe(true);
   });
 });

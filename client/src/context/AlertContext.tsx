@@ -1,14 +1,14 @@
 import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
   ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 interface Alert {
-  variant: "info" | "success" | "error";
+  variant: "info" | "success" | "error" | "warning";
   message: string;
   autoDismiss?: boolean; // 是否自動消失
   dismissTimeout?: number; // 自動消失時間
@@ -47,19 +47,21 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
 
       return () => clearTimeout(timer); // 清除計時器
     }
-  }, [alert]);
+  }, [alert, hideAlert]);
 
   useEffect(() => {
     const handler = (e: Event) => {
       try {
         const ce = e as CustomEvent<Alert>;
         if (ce?.detail) showAlert(ce.detail);
-      } catch {}
+      } catch (err: unknown) {
+        void err;
+      }
     };
     window.addEventListener("app:alert", handler as EventListener);
     return () =>
       window.removeEventListener("app:alert", handler as EventListener);
-  }, []);
+  }, [showAlert]);
 
   return (
     <AlertContext.Provider value={{ alert, showAlert, hideAlert }}>
@@ -70,8 +72,7 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAlert = (): AlertContextType => {
   const context = useContext(AlertContext);
-  if (context === null) {
+  if (context === null)
     throw new Error("useAlert 必須在 AlertProvider 內被使用！");
-  }
   return context;
 };

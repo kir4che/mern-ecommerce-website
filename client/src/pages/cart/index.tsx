@@ -1,281 +1,398 @@
-import { useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { useMemo, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import type { Swiper as SwiperType } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import type { Product } from "@/types/product";
-import type { Order } from "@/types/order";
-import { useCart } from "@/hooks/useCart";
-import { useAlert } from "@/context/AlertContext";
-import { useAxios } from "@/hooks/useAxios";
-import { calculateFreeShipping } from "@/utils/cartUtils";
-import { addComma } from "@/utils/addComma";
-
-import Modal from "@/components/molecules/Modal";
-import AddToCartBtn from "@/components/molecules/AddToCartInputBtn/AddToCartBtn";
-import QuantityInput from "@/components/molecules/QuantityInput";
+import AddToCartBtn from "@/components/atoms/AddToCartBtn";
 import Button from "@/components/atoms/Button";
+import CartSkeleton from "@/components/atoms/CartSkeleton";
+import Input from "@/components/atoms/Input";
+import CartItemRow from "@/components/molecules/CartItemRow";
+import Modal, { type ModalRef } from "@/components/molecules/Modal";
+import { useAlert } from "@/context/AlertContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { useCartCoupon } from "@/hooks/useCartCoupon";
+import { useGetProductsQuery } from "@/store/slices/apiSlice";
+import { addComma } from "@/utils/addComma";
+import { cn } from "@/utils/cn";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
-import CartImg from "@/assets/images/ecommerce-cart-illustration.inline.svg?react";
-import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
+import DeliveryTrunkIcon from "@/assets/icons/delivery-trunk.inline.svg?react";
 import ArrowLeftIcon from "@/assets/icons/nav-arrow-left.inline.svg?react";
 import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
-import DeliveryTrunkIcon from "@/assets/icons/delivery-trunk.inline.svg?react";
-
-import "swiper/css";
-
-import { clearCartError } from "@/store/slices/cartSlice";
+import CloseIcon from "@/assets/icons/xmark.inline.svg?react";
+import CartImg from "@/assets/images/ecommerce-cart-illustration.inline.svg?react";
 
 const Cart = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const {
-    dispatch,
     cart,
-    error: cartError,
+    isLoading,
+    error,
+    totalQuantity,
     subtotal,
+    shippingInfo,
+    refetchCart,
+    changeQuantity,
     removeFromCart,
     clearCart,
   } = useCart();
   const { showAlert } = useAlert();
-  const swiperRef = useRef(null);
 
-  const sortedCart = [...cart].sort(
-    (a, b) =>
-      Number((b.product.countInStock ?? 0) > 0) -
-      Number((a.product.countInStock ?? 0) > 0)
-  );
-  const freeShippingInfo = calculateFreeShipping(subtotal);
+  const swiperRef = useRef<SwiperType | null>(null);
+  const clearModalRef = useRef<ModalRef>(null);
 
-  const { data: productsResponse } = useAxios<{ products: Product[] }>(
-    "/products"
-  );
-  const products = productsResponse?.products ?? [];
+  const {
+    coupon,
+    couponDiscount,
+    hasAppliedCoupon,
+    isValidatingCoupon,
+    setCouponInput,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+    getCheckoutCoupon,
+  } = useCartCoupon(subtotal);
+  const { data: productsData } = useGetProductsQuery({
+    tag: "推薦",
+  });
 
-  const { refresh: createOrder } = useAxios<{ order: Order }>(
-    "/orders",
-    {
-      method: "POST",
-    },
-    {
-      immediate: false,
-      onSuccess: (data) => {
-        clearCart();
-        navigate(`/checkout/${data.order._id}`);
-      },
-      onError: () =>
-        showAlert({
-          variant: "error",
-          message: "訂單送出失敗，請稍後再試！",
-        }),
-    }
+  const finalAmount = useMemo(
+    () => subtotal + shippingInfo.shippingFee - couponDiscount,
+    [subtotal, shippingInfo.shippingFee, couponDiscount]
   );
+
+  // 有庫存的在上面，缺貨的放最下面。
+  const sortedCart = useMemo(() => {
+    return [...cart].sort((a, b) => {
+      const aStock = a.product.countInStock ?? 0;
+      const bStock = b.product.countInStock ?? 0;
+      return (bStock > 0 ? 1 : 0) - (aStock > 0 ? 1 : 0);
+    });
+  }, [cart]);
 
   const handleCheckout = () => {
-    createOrder({
-      orderItems: cart.map(({ productId, product, quantity }) => ({
-        productId,
-        ...product,
-        quantity,
-        amount: product.price * quantity,
-      })),
-      subtotal,
-      shippingFee: freeShippingInfo.shippingFee,
+    if (!isAuthenticated) {
+      showAlert({
+        variant: "info",
+        message: "請先登入會員，即可繼續完成結帳！",
+      });
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+
+    navigate("/checkout", {
+      state: {
+        coupon: getCheckoutCoupon(),
+      },
     });
   };
 
-  useEffect(() => {
-    if (cartError) {
-      showAlert({ variant: "error", message: cartError });
-      dispatch(clearCartError());
-    }
-  }, [cartError, showAlert, dispatch]);
+  if (isLoading) return <CartSkeleton itemCount={cart.length || 3} />;
 
-  return !cart || cart.length === 0 ? (
-    <div className="flex flex-col items-center justify-center gap-8 px-4 -mt-16 md:flex-row">
-      <CartImg className="w-full max-w-96 sm:w-96" />
-      <div className="space-y-6 text-center md:text-left">
-        <p className="text-xl">購物車是空的，快去選購吧！</p>
-        <Button onClick={() => navigate("/collections/all")} className="px-10">
-          繼續購物
-        </Button>
+  if (error)
+    return (
+      <div className="flex-center max-md:flex-col gap-8 px-4 m-auto py-12">
+        <CartImg className="w-full" />
+        <div className="space-y-4 w-full text-center md:text-left">
+          <h2>無法讀取購物車資料</h2>
+          <p className="pb-4 text-gray-500">{error}，或請檢查您的網路狀態。</p>
+          <Button
+            onClick={() => refetchCart?.()}
+            className="w-full md:w-40 h-11 rounded-full"
+          >
+            重新讀取
+          </Button>
+        </div>
       </div>
-    </div>
-  ) : (
-    <div className="relative flex flex-col w-full max-w-screen-xl px-5 py-8 mx-auto bg-secondary xl:px-0 md:flex-row gap-x-12">
-      <div className="space-y-4 md:w-3/4">
-        <div className="flex items-center justify-between">
-          <h2>購物車</h2>
+    );
+
+  if (!cart || cart.length === 0)
+    return (
+      <div className="flex-center max-md:flex-col gap-8 px-4 m-auto">
+        <CartImg className="w-full" />
+        <div className="space-y-4 w-full text-center md:text-left">
+          <h2>您的購物車是空的</h2>
+          <p className="pb-4 text-gray-500">
+            看起來您還沒有挑選任何美味的麵包呢！
+          </p>
+          <Button
+            onClick={() => navigate("/collections/all")}
+            className="w-full md:w-40 h-11 rounded-full"
+          >
+            去逛逛
+          </Button>
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="relative flex max-md:flex-col w-full max-w-7xl px-5 py-8 mx-auto gap-8 lg:gap-12">
+      <section className="flex-1 min-w-0 space-y-6">
+        <div className="flex justify-between items-end">
+          <h2>購物車 ({totalQuantity})</h2>
           <Button
             variant="link"
-            onClick={() =>
-              (
-                document.getElementById("clearCartModal") as HTMLDialogElement
-              ).showModal()
-            }
-            className="text-primary"
+            onClick={() => clearModalRef.current?.showModal()}
           >
             清空購物車
           </Button>
           <Modal
+            ref={clearModalRef}
             id="clearCartModal"
             onConfirm={clearCart}
             title="確定要清空購物車嗎？"
             showAlert
           />
         </div>
-        <div className="px-6 bg-white rounded-lg shadow">
-          <ul className="flex flex-col py-5 gap-y-6">
-            {sortedCart.map((item) => (
-              <li
-                className={`flex w-full gap-x-4 ${(item.product.countInStock ?? 0) <= 0 ? "opacity-50" : ""}`}
-                key={item.productId}
-              >
-                <Link
-                  to={`/products/${item.productId}`}
-                  target="_blank"
-                  className={`w-36 ${(item.product.countInStock ?? 0) <= 0 ? "pointer-events-none" : ""}`}
+        <div className="rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <ul className="flex flex-col divide-y divide-gray-200 px-4 sm:px-6">
+            {sortedCart.map((item) => {
+              const isOutOfStock = (item.product.countInStock ?? 0) <= 0;
+
+              return (
+                <li
+                  className={cn(
+                    "flex w-full py-6 gap-4 sm:gap-6 transition-opacity",
+                    isOutOfStock && "opacity-50"
+                  )}
+                  key={item.productId}
                 >
-                  <img
-                    src={item.product.imageUrl}
-                    alt={item.product.title}
-                    className="object-cover rounded aspect-square"
-                    onError={(e) =>
-                      (e.currentTarget.src =
-                        "https://placehold.co/144x144?text=No Image")
-                    }
-                    loading="lazy"
-                  />
-                </Link>
-                <div className="flex flex-col w-full">
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to={`/products/${item.productId}`}
-                      className={`font-medium ${(item.product.countInStock ?? 0) <= 0 ? "text-gray-400 pointer-events-none" : ""}`}
-                    >
-                      {item.product.title}
-                    </Link>
-                    <Button
-                      variant="icon"
-                      icon={CloseIcon}
-                      className="border-none h-fit"
-                      onClick={() => removeFromCart(item._id)}
-                    />
-                  </div>
-                  <p
-                    className={
-                      (item.product.countInStock ?? 0) <= 0
-                        ? "text-gray-400"
-                        : ""
-                    }
-                  >
-                    NT$ {addComma(item.product.price)}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto">
-                    {(item.product.countInStock ?? 0) <= 0 ? (
-                      <span className="font-semibold text-red-500">已售完</span>
-                    ) : (
-                      <QuantityInput item={item} />
+                  <Link
+                    to={`/products/${item.productId}`}
+                    target="_blank"
+                    className={cn(
+                      "w-24 sm:w-32 shrink-0 rounded bg-gray-200 aspect-square",
+                      isOutOfStock && "pointer-events-none"
                     )}
-                    <p
-                      className={`text-lg font-semibold ${(item.product.countInStock ?? 0) <= 0 ? "text-gray-400" : ""}`}
-                    >
-                      NT$ {addComma(item.product.price * item.quantity)}
+                  >
+                    <img
+                      src={item.product.imageUrl}
+                      alt={item.product.title}
+                      className="object-cover size-full"
+                      onError={(e) =>
+                        (e.currentTarget.src =
+                          "https://placehold.co/144x144?text=No+Image")
+                      }
+                      loading="lazy"
+                    />
+                  </Link>
+                  <div className="flex flex-col flex-1">
+                    <div className="flex-between gap-2">
+                      <Link
+                        to={`/products/${item.productId}`}
+                        className={cn(
+                          "font-medium line-clamp-2 hover:text-gray-800",
+                          isOutOfStock && "pointer-events-none"
+                        )}
+                      >
+                        {item.product.title}
+                      </Link>
+                      <Button
+                        variant="icon"
+                        icon={CloseIcon}
+                        className="hover:text-red-600"
+                        onClick={() => {
+                          void removeFromCart(item._id).catch((err) => {
+                            showAlert({
+                              variant: "error",
+                              message: getErrorMessage(
+                                err,
+                                "移除商品失敗，請稍後再試！"
+                              ),
+                            });
+                          });
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      NT$ {addComma(item.product.price)}
                     </p>
+                    <div className="flex-between items-end mt-auto">
+                      {isOutOfStock ? (
+                        <span className="badge text-red-600 badge-outline font-medium">
+                          已售完
+                        </span>
+                      ) : (
+                        <CartItemRow
+                          key={`${item._id}-${item.quantity}`}
+                          item={item}
+                          onChangeQuantity={changeQuantity}
+                        />
+                      )}
+                      <p className="text-lg font-bold">
+                        NT$ {addComma(item.product.price * item.quantity)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
-          {/* 免運門檻通知 */}
-          <p
-            className={`flex font-medium items-center gap-2 py-3 border-t ${freeShippingInfo.isFreeShipping ? " text-orange-500" : ""}`}
-          >
-            <DeliveryTrunkIcon className="w-6 h-6" />
-            {freeShippingInfo.message}
-          </p>
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <p className="flex font-medium text-primary items-center gap-2 text-sm sm:text-base">
+              <DeliveryTrunkIcon className="size-5" />
+              {shippingInfo.message}
+            </p>
+            <progress
+              className="progress w-full mt-3 progress-warning"
+              value={shippingInfo.progress}
+              max="100"
+            />
+          </div>
         </div>
-        {/* 推薦商品區塊 */}
-        {products && products.length > 0 && (
-          <div className="px-6 pt-4 pb-6 bg-white rounded-lg shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">推薦商品！！！</h3>
-              <div className="flex items-center gap-2">
+        {productsData?.products && productsData.products.length > 0 && (
+          <section>
+            <div className="flex-between mb-6">
+              <h3 className="text-lg">推薦商品</h3>
+              <div className="flex-between gap-1">
                 <Button
                   variant="icon"
                   icon={ArrowLeftIcon}
                   onClick={() => swiperRef.current?.slidePrev()}
-                  className="border-none h-fit"
                 />
                 <Button
                   variant="icon"
                   icon={ArrowRightIcon}
                   onClick={() => swiperRef.current?.slideNext()}
-                  className="border-none h-fit"
                 />
               </div>
             </div>
             <Swiper
-              slidesPerView={Math.min(5, products.length)}
-              spaceBetween={24}
-              loop={products.length > 5}
+              slidesPerView={2}
+              breakpoints={{
+                480: { slidesPerView: 3 },
+                768: { slidesPerView: 4 },
+                1024: { slidesPerView: 5 },
+              }}
+              spaceBetween={16}
+              loop={productsData.products.length > 5}
               onSwiper={(swiper) => (swiperRef.current = swiper)}
             >
-              {" "}
-              {products
-                .filter((item) => item.tags.includes("推薦"))
-                .map((product) => (
-                  <SwiperSlide className="block min-w-28" key={product._id}>
+              {productsData.products.map((product) => {
+                const isOutOfStock = (product.countInStock ?? 0) <= 0;
+                return (
+                  <SwiperSlide
+                    key={product._id}
+                    className="flex flex-col h-auto"
+                  >
                     <Link
                       to={`/products/${product._id}`}
-                      className={`flex flex-col gap-2 ${(product.countInStock ?? 0) <= 0 ? "opacity-50 pointer-events-none" : ""}`}
+                      className={cn(
+                        "group flex flex-col gap-2 flex-1",
+                        isOutOfStock && "opacity-50 pointer-events-none"
+                      )}
                       target="_blank"
                     >
-                      <img
-                        src={product.imageUrl}
-                        alt={product.title}
-                        className="object-cover w-full mb-2 rounded aspect-square"
-                        onError={(e) =>
-                          (e.currentTarget.src =
-                            "https://placehold.co/144x144?text=No Image")
-                        }
-                        loading="lazy"
-                      />
-                      <p className="line-clamp-1">{product.title}</p>
-                      <p>NT$ {addComma(product.price)}</p>
+                      <div className="rounded bg-gray-200 aspect-square">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.title}
+                          className="object-cover size-full max-w-full transition-transform duration-500 group-hover:scale-105"
+                          onError={(e) =>
+                            (e.currentTarget.src =
+                              "https://placehold.co/144x144?text=No+Image")
+                          }
+                          loading="lazy"
+                        />
+                      </div>
+                      <p className="line-clamp-1 text-sm font-medium mt-1">
+                        {product.title}
+                      </p>
                     </Link>
+                    <p className="text-primary font-bold text-sm">
+                      NT$ {addComma(product.price)}
+                    </p>
                     <AddToCartBtn
                       btnType="text"
-                      title="我要加購"
-                      btnStyle="w-full h-8 mt-4 text-sm rounded-sm text-primary"
                       showIcon={false}
                       product={product}
                       quantity={1}
+                      className="text-sm mt-2"
                     />
                   </SwiperSlide>
-                ))}
+                );
+              })}
             </Swiper>
-          </div>
+          </section>
         )}
-      </div>
-      {/* 小計明細  */}
-      <div className="pt-12 md:w-1/4">
-        <h3 className="pb-2 mb-4 text-lg font-semibold border-b border-gray-400">
-          小計明細
-        </h3>
-        <p className="flex justify-between">
-          <span className="font-medium">商品金額</span>
-          <span>NT$ {addComma(subtotal)}</span>
-        </p>
-        <p className="flex justify-between pt-2 pb-10 mt-6 font-medium border-t border-gray-400">
-          <span>小計</span>
-          <span className="font-semibold">NT$ {addComma(subtotal)}</span>
-        </p>
-        <Button
-          className="w-full"
-          onClick={handleCheckout}
-          disabled={!cart?.length}
-        >
-          前往付款
-        </Button>
+      </section>
+      <div className="w-full md:w-80 lg:w-96 shrink-0">
+        <div className="sticky top-24 rounded-xl shadow-md border border-gray-200 p-6">
+          <h3 className="text-lg font-bold">訂單摘要</h3>
+          <div className="space-y-2 my-4">
+            <p className="flex-between">
+              <span>商品總計 ({totalQuantity} 件)</span>
+              <span className="font-medium">NT$ {addComma(subtotal)}</span>
+            </p>
+            <p className="flex-between">
+              <span>運費</span>
+              <span className="font-medium">
+                {shippingInfo.shippingFee === 0
+                  ? "免運費"
+                  : `NT$ ${shippingInfo.shippingFee}`}
+              </span>
+            </p>
+            {hasAppliedCoupon && couponDiscount > 0 && (
+              <p className="flex-between">
+                <span>優惠折扣</span>
+                <span className="font-medium text-red-600">
+                  - NT$ {addComma(couponDiscount)}
+                </span>
+              </p>
+            )}
+          </div>
+          <div className="border-b space-y-2 border-gray-300 pb-4 mt-4 mb-8">
+            <div className="flex items-end gap-2">
+              <Input
+                id="couponCode"
+                value={coupon.input}
+                onChange={(e) => setCouponInput(e.target.value)}
+                placeholder="輸入優惠碼"
+                className="flex-1"
+                disabled={isValidatingCoupon}
+              />
+              <Button
+                onClick={handleApplyCoupon}
+                disabled={isValidatingCoupon}
+                className="rounded py-2"
+              >
+                套用
+              </Button>
+            </div>
+            {hasAppliedCoupon && (
+              <div className="flex-between text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+                <span>已套用：{coupon.code}</span>
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={handleRemoveCoupon}
+                  className="h-auto min-h-0 p-0 text-xs"
+                >
+                  移除
+                </Button>
+              </div>
+            )}
+            {coupon.message && (
+              <p className="text-xs text-gray-600">{coupon.message}</p>
+            )}
+          </div>
+          <div className="flex-between mb-6">
+            <span className="font-medium">總付款金額</span>
+            <span className="text-2xl font-bold">
+              NT$ {addComma(finalAmount)}
+            </span>
+          </div>
+          <Button
+            onClick={handleCheckout}
+            disabled={!cart?.length}
+            className="w-full rounded-full"
+          >
+            前往結帳
+          </Button>
+        </div>
       </div>
     </div>
   );

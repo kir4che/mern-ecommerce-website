@@ -1,11 +1,11 @@
+import { AlertProvider, useAlert } from "@/context/AlertContext";
 import {
+  act,
+  fireEvent,
   render,
   screen,
-  fireEvent,
-  act,
   waitFor,
 } from "@testing-library/react";
-import { AlertProvider, useAlert } from "@/context/AlertContext";
 
 const TestAlertComponent = ({ autoDismiss, dismissTimeout = 1000 }) => {
   const { showAlert, hideAlert, alert } = useAlert();
@@ -30,8 +30,13 @@ const TestAlertComponent = ({ autoDismiss, dismissTimeout = 1000 }) => {
   );
 };
 
-describe("Alert Component", () => {
-  test("show and hide alert", async () => {
+describe("Alert 元件", () => {
+  // 每個測試跑完後，清理 mock 資料。
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("顯示和隱藏 alert", async () => {
     render(
       <AlertProvider>
         <TestAlertComponent autoDismiss={false} />
@@ -48,7 +53,7 @@ describe("Alert Component", () => {
   });
 
   test("auto dismiss alert", async () => {
-    jest.useFakeTimers(); // 模擬計時器
+    vi.useFakeTimers(); // 模擬計時器
 
     render(
       <AlertProvider>
@@ -59,10 +64,13 @@ describe("Alert Component", () => {
     fireEvent.click(screen.getByText("Show Alert"));
     expect(screen.getByRole("alert")).toHaveTextContent("Info message.");
 
-    // 模擬 1000 ms 過後，alert 自動消失。
-    act(() => jest.advanceTimersByTime(1000));
-    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    // 模擬 1 秒後，確認 alert 已經自動消失。
+    act(() => {
+      vi.runAllTimers();
+    });
 
-    jest.useRealTimers(); // 恢復計時器
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    vi.useRealTimers(); // 恢復計時器
   });
 });

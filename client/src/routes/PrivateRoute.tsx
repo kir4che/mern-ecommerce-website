@@ -1,29 +1,21 @@
-import { useEffect, type ComponentType } from "react";
-import { Navigate, useLocation } from "react-router";
-import { useAuth } from "@/hooks/useAuth";
 import Loading from "@/components/atoms/Loading";
+import { useAuth } from "@/hooks/useAuth";
+import { Navigate, useLocation } from "react-router";
 
 interface PrivateRouteProps {
-  component: ComponentType;
+  children: React.ReactNode;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({
-  component: Component,
-}) => {
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const location = useLocation();
-  const { user, loading, isAuthenticated, logout } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (!user?.email) logout();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
 
   if (!isAuthenticated || !user?.email)
     return <Navigate to="/login" replace state={{ from: location }} />;
 
-  return <Component />;
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

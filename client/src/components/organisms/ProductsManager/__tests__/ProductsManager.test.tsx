@@ -1,101 +1,285 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
 import ProductsManager from "@/components/organisms/ProductsManager";
-import type { Product } from "@/types/product";
-import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
+import {
+  useCreateProductMutation,
+  useDeleteProductMutation,
+  useGetProductByIdQuery,
+  useUpdateProductMutation,
+} from "@/store/slices/apiSlice";
+import type { Product } from "@/types";
 
-jest.mock("@/hooks/useAxios", () => ({
-  useAxios: jest.fn(),
+vi.mock("@/context/AlertContext");
+vi.mock("@/store/slices/apiSlice");
+
+vi.mock("@/components/atoms/BlurImage", () => ({
+  default: ({ alt }: { alt: string }) => <img alt={alt} />,
 }));
 
-jest.mock("@/context/AlertContext", () => ({
-  useAlert: jest.fn(),
+vi.mock("@/components/atoms/Button", () => ({
+  default: ({
+    children,
+    onClick,
+    disabled,
+    ariaLabel,
+  }: {
+    children?: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+    ariaLabel?: string;
+  }) => (
+    <button type="button" onClick={onClick} disabled={disabled}>
+      {ariaLabel ?? children}
+    </button>
+  ),
 }));
 
-jest.mock("@/components/organisms/ProductsManager/Form", () => {
-  const MockProductForm: React.FC = () => <div data-testid="product-form" />;
-  MockProductForm.displayName = "MockProductForm";
-  return MockProductForm;
+vi.mock("@/components/atoms/Select", () => ({
+  default: ({
+    name,
+    value,
+    options,
+    onChange,
+  }: {
+    name: string;
+    value?: string;
+    options: Array<{ label: string; value: string }>;
+    onChange?: (name: string, value: string) => void;
+  }) => (
+    <select
+      data-testid={name}
+      value={value ?? ""}
+      onChange={(e) => onChange?.(name, e.target.value)}
+    >
+      <option value="">全部</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  ),
+}));
+
+vi.mock("@/components/molecules/ManagerHeader", () => ({
+  default: ({
+    searchValue,
+    onSearchChange,
+    children,
+  }: {
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    children?: React.ReactNode;
+  }) => (
+    <div>
+      <input
+        placeholder="搜尋名稱或標籤"
+        value={searchValue}
+        onChange={(e) => onSearchChange(e.target.value)}
+      />
+      {children}
+    </div>
+  ),
+}));
+
+interface ManagerTableMockProps {
+  data: Product[];
+  onSort?: (key: string, order: "asc" | "desc") => void;
+  onSelectRow?: (id: string, checked: boolean) => void;
+  onSelectAll?: (checked: boolean) => void;
+}
+
+vi.mock("@/components/molecules/ManagerTable", () => ({
+  default: ({
+    data,
+    onSort,
+    onSelectRow,
+    onSelectAll,
+  }: ManagerTableMockProps) => (
+    <div>
+      <button type="button" onClick={() => onSort?.("price", "desc")}>
+        排序價格降冪
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          const first = data[0];
+          if (first) onSelectRow?.(first._id, true);
+        }}
+      >
+        選第一筆
+      </button>
+      <button type="button" onClick={() => onSelectAll?.(true)}>
+        全選
+      </button>
+      <ul>
+        {data.map((product) => (
+          <li key={product._id} data-testid="product-row">
+            {product.title}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ),
+}));
+
+vi.mock("@/components/molecules/Modal", () => ({
+  default: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="modal">{children}</div>
+  ),
+}));
+
+vi.mock("@/components/organisms/ProductsManager/ProductsManagerForm", () => ({
+  default: () => <form data-testid="product-form" />,
+}));
+
+vi.mock("@/components/molecules/BatchActionBar", () => ({
+  default: ({
+    selectedCount,
+    onDeleteClick,
+  }: {
+    selectedCount: number;
+    onDeleteClick: () => void;
+  }) => (
+    <div>
+      <span data-testid="selected-count">{selectedCount}</span>
+      <button type="button" onClick={onDeleteClick}>
+        批量刪除
+      </button>
+    </div>
+  ),
+}));
+
+const mockUseAlert = vi.mocked(useAlert);
+const mockUseCreateProductMutation = vi.mocked(useCreateProductMutation);
+const mockUseUpdateProductMutation = vi.mocked(useUpdateProductMutation);
+const mockUseDeleteProductMutation = vi.mocked(useDeleteProductMutation);
+const mockUseGetProductByIdQuery = vi.mocked(useGetProductByIdQuery);
+
+const makeProduct = (overrides?: Partial<Product>): Product => ({
+  _id: overrides?._id ?? "product-1",
+  title: overrides?.title ?? "草莓蛋糕",
+  tagline: overrides?.tagline ?? "tagline",
+  categories: overrides?.categories ?? ["蛋糕"],
+  description: overrides?.description ?? "描述",
+  price: overrides?.price ?? 100,
+  content: overrides?.content ?? "content",
+  expiryDate: overrides?.expiryDate ?? "3 days",
+  allergens: overrides?.allergens ?? ["蛋"],
+  delivery: overrides?.delivery ?? "冷藏",
+  storage: overrides?.storage ?? "冷藏",
+  ingredients: overrides?.ingredients ?? "ingredients",
+  nutrition: overrides?.nutrition ?? "nutrition",
+  countInStock: overrides?.countInStock ?? 50,
+  salesCount: overrides?.salesCount ?? 0,
+  tags: overrides?.tags ?? ["推薦"],
+  imageUrl: overrides?.imageUrl ?? "cake.jpg",
 });
 
-type ModalMockProps = { id: string; children?: React.ReactNode };
+describe("ProductsManager 元件", () => {
+  const showAlert = vi.fn();
+  const addProduct = vi.fn();
+  const updateProduct = vi.fn();
+  const deleteProduct = vi.fn();
 
-jest.mock("@/components/molecules/Modal", () => {
-  const MockModal: React.FC<ModalMockProps> = (props) => (
-    <div data-testid={`modal-${props.id}`}>{props.children}</div>
-  );
-  MockModal.displayName = "MockModal";
-  return MockModal;
-});
+  const products: Product[] = [
+    makeProduct({
+      _id: "p-1",
+      title: "蘋果派",
+      categories: ["派類"],
+      price: 150,
+      countInStock: 10,
+    }),
+    makeProduct({
+      _id: "p-2",
+      title: "巧克力蛋糕",
+      categories: ["蛋糕"],
+      price: 300,
+      countInStock: 0,
+    }),
+    makeProduct({
+      _id: "p-3",
+      title: "原味吐司",
+      categories: ["麵包"],
+      price: 80,
+      countInStock: 40,
+    }),
+  ];
 
-jest.mock("@/assets/icons/edit.inline.svg", () => ({
-  ReactComponent: () => <svg data-testid="edit-icon" />,
-}));
-
-jest.mock("@/assets/icons/xmark.inline.svg", () => ({
-  ReactComponent: () => <svg data-testid="close-icon" />,
-}));
-
-const mockUseAxios = useAxios as jest.Mock;
-
-const setupAxiosMocks = () => {
-  const addProduct = jest.fn();
-  const updateProduct = jest.fn();
-  const deleteProduct = jest.fn();
-  const refreshProduct = jest.fn();
-
-  mockUseAxios
-    .mockReturnValueOnce({ refresh: addProduct })
-    .mockReturnValueOnce({ refresh: updateProduct })
-    .mockReturnValueOnce({ refresh: deleteProduct })
-    .mockReturnValueOnce({ refresh: refreshProduct });
-
-  return { addProduct, updateProduct, deleteProduct, refreshProduct };
-};
-
-const baseProduct: Product = {
-  _id: "prod-1",
-  title: "有機果汁",
-  tagline: "天然健康",
-  categories: ["飲品"],
-  description: "純天然果汁",
-  price: 150,
-  content: "詳細資訊",
-  expiryDate: "2025-12-31",
-  allergens: [],
-  delivery: "宅配",
-  storage: "冷藏",
-  ingredients: "水果",
-  nutrition: "營養成份",
-  countInStock: 10,
-  salesCount: 100,
-  tags: ["熱銷"],
-  imageUrl: "image.jpg",
-};
-
-describe("ProductsManager", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseAxios.mockReset();
-    (useAlert as jest.Mock).mockReturnValue({ showAlert: jest.fn() });
-  });
+    vi.clearAllMocks();
 
-  test("renders empty state when no products available", () => {
-    setupAxiosMocks();
+    mockUseAlert.mockReturnValue({
+      alert: null,
+      showAlert,
+      hideAlert: vi.fn(),
+    } satisfies ReturnType<typeof useAlert>);
 
-    render(<ProductsManager products={[]} refreshProducts={jest.fn()} />);
+    addProduct.mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) });
+    updateProduct.mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) });
+    deleteProduct.mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) });
 
-    expect(screen.getByText("尚無任何商品...")).toBeInTheDocument();
-  });
+    mockUseCreateProductMutation.mockReturnValue([
+      addProduct,
+      { isLoading: false, reset: vi.fn() },
+    ] as never);
+    mockUseUpdateProductMutation.mockReturnValue([
+      updateProduct,
+      { isLoading: false, reset: vi.fn() },
+    ] as never);
+    mockUseDeleteProductMutation.mockReturnValue([
+      deleteProduct,
+      { isLoading: false, reset: vi.fn() },
+    ] as never);
+    mockUseGetProductByIdQuery.mockReturnValue({ refetch: vi.fn() } as never);
 
-  test("renders product list items", () => {
-    setupAxiosMocks();
-
-    render(
-      <ProductsManager products={[baseProduct]} refreshProducts={jest.fn()} />
+    vi.stubGlobal(
+      "confirm",
+      vi.fn(() => true)
     );
+  });
 
-    expect(screen.getByText("商品管理")).toBeInTheDocument();
-    expect(screen.getByText("有機果汁")).toBeInTheDocument();
+  test("可用分類與庫存條件篩選商品", () => {
+    render(<ProductsManager products={products} />);
+
+    fireEvent.change(screen.getByTestId("products-category-filter"), {
+      target: { value: "麵包" },
+    });
+    fireEvent.change(screen.getByTestId("products-status-filter"), {
+      target: { value: "in-stock" },
+    });
+
+    expect(screen.getByText("原味吐司")).toBeInTheDocument();
+    expect(screen.queryByText("蘋果派")).not.toBeInTheDocument();
+    expect(screen.queryByText("巧克力蛋糕")).not.toBeInTheDocument();
+  });
+
+  test("可切換為價格降冪排序", () => {
+    render(<ProductsManager products={products} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "排序價格降冪" }));
+
+    const rows = screen.getAllByTestId("product-row");
+    expect(rows[0]).toHaveTextContent("巧克力蛋糕");
+  });
+
+  test("可批量刪除已選商品", async () => {
+    render(<ProductsManager products={products} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "全選" }));
+    fireEvent.click(screen.getByRole("button", { name: "批量刪除" }));
+
+    await waitFor(() => {
+      expect(deleteProduct).toHaveBeenCalledWith("p-1");
+      expect(deleteProduct).toHaveBeenCalledWith("p-2");
+      expect(deleteProduct).toHaveBeenCalledWith("p-3");
+    });
+
+    expect(showAlert).toHaveBeenCalledWith({
+      variant: "success",
+      message: "已刪除 3 筆商品",
+    });
   });
 });

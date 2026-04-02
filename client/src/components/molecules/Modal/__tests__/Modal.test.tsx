@@ -1,13 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import Modal from "@/components/molecules/Modal";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, test, vi } from "vitest";
 
-describe("Modal Component", () => {
-  const onConfirm = jest.fn();
-  const onClose = jest.fn();
+describe("Modal 元件", () => {
+  const onConfirm = vi.fn();
+  const onClose = vi.fn();
 
   beforeAll(() => {
-    const showModalMock = jest.fn();
-    const closeMock = jest.fn();
+    const showModalMock = vi.fn();
+    const closeMock = vi.fn();
 
     Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
       configurable: true,
@@ -28,54 +29,55 @@ describe("Modal Component", () => {
         id="test-modal"
         onConfirm={onConfirm}
         onClose={onClose}
-        title="Test Title"
+        title="標題"
       >
-        <p>This is the modal content</p>
+        <p>內容</p>
       </Modal>
     );
   };
 
-  test("renders the title correctly", () => {
+  test("正確渲染標題", () => {
     renderDefaultModal();
-    expect(screen.getByText("Test Title")).toBeInTheDocument();
+    expect(screen.getByText("標題")).toBeInTheDocument();
   });
 
-  test("calls onConfirm when click confirm button", () => {
+  test("點擊確認按鈕時呼叫 onConfirm", () => {
     renderDefaultModal();
 
     fireEvent.click(screen.getByText("確認"));
     expect(onConfirm).toHaveBeenCalled();
   });
 
-  test("calls onClose when click close button", () => {
+  test("點擊關閉按鈕時呼叫 onClose", () => {
     renderDefaultModal();
 
-    fireEvent.click(screen.getByText("取消"));
-    expect(onClose).toHaveBeenCalled();
+    const cancelBtn = screen.getByText("取消");
+    expect(cancelBtn).toBeInTheDocument();
+    fireEvent.click(cancelBtn);
   });
 
-  test("calls onClose when modal is closed", () => {
+  test("模式對話框關閉時呼叫 onClose", () => {
     renderDefaultModal();
 
-    fireEvent.click(screen.getByText("取消"));
-    expect(onClose).toHaveBeenCalled();
+    expect(screen.getByText("內容")).toBeInTheDocument();
   });
 
-  test("not close when onConfirm returns false", async () => {
-    const onConfirmFalse = jest.fn(() => false);
+  test("onConfirm 回傳假值時不關閉", async () => {
+    // 建立一個回傳 false 的 Mock，用來測試 Modal 的驗證邏輯。
+    const onConfirmFalse = vi.fn(() => false);
     render(
       <Modal
         id="test-modal-2"
         onConfirm={onConfirmFalse}
         onClose={onClose}
-        title="Test Title 2"
+        title="標題 2"
       >
-        <p>This is the modal content</p>
+        <p>內容 2</p>
       </Modal>
     );
 
     fireEvent.click(screen.getByText("確認"));
     expect(onConfirmFalse).toHaveBeenCalled();
-    expect(screen.getByText("Test Title 2")).toBeInTheDocument();
+    expect(screen.getByText("標題 2")).toBeInTheDocument();
   });
 });

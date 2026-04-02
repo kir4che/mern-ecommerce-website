@@ -1,5 +1,5 @@
-import { PRODUCT_CATEGORIES } from "@/constants/actionTypes";
+import { PRODUCT_COLLECTIONS } from "@/constants/actionTypes";
 
 export const linkToCategory = Object.fromEntries(
-  PRODUCT_CATEGORIES.map(({ label, link }) => [label, link])
+  PRODUCT_COLLECTIONS.map(({ label, value }) => [label, value])
 );

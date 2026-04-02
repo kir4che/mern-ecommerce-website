@@ -1,9 +1,9 @@
 import {
   createContext,
-  useState,
+  ReactNode,
   useContext,
   useEffect,
-  ReactNode,
+  useState,
 } from "react";
 
 interface ThemeContextType {
@@ -11,20 +11,24 @@ interface ThemeContextType {
   toggleTheme: () => void;
 }
 
-const INITIAL_STATE: ThemeContextType = {
-  theme: "light",
-  toggleTheme: () => {},
+const ThemeContext = createContext<ThemeContextType | null>(null);
+
+const getInitialTheme = (): "light" | "dark" => {
+  if (typeof window !== "undefined") {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+    const userMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    if (userMedia.matches) return "dark";
+  }
+  return "light";
 };
 
-const ThemeContext = createContext<ThemeContextType>(INITIAL_STATE);
-
-export const useTheme = () => useContext(ThemeContext);
-
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -36,4 +40,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ThemeContext.Provider>
   );
+};
+
+export const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (context === null)
+    throw new Error("useTheme 必須在 ThemeProvider 內被使用！");
+  return context;
 };

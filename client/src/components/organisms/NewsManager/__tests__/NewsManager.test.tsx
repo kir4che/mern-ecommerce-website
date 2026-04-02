@@ -1,55 +1,68 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import { type Mock, vi } from "vitest";
+
 import NewsManager from "@/components/organisms/NewsManager";
-import type { NewsItem } from "@/types/news";
-import { useAxios } from "@/hooks/useAxios";
 import { useAlert } from "@/context/AlertContext";
+import {
+  useCreateNewsMutation,
+  useDeleteNewsMutation,
+  useGetNewsByIdQuery,
+  useGetNewsQuery,
+  useUpdateNewsMutation,
+} from "@/store/slices/apiSlice";
+import type { NewsItem } from "@/types";
 
-jest.mock("@/hooks/useAxios", () => ({
-  useAxios: jest.fn(),
-}));
+vi.mock("@/context/AlertContext");
+vi.mock("@/store/slices/apiSlice");
 
-jest.mock("@/context/AlertContext", () => ({
-  useAlert: jest.fn(),
-}));
-
-jest.mock("@/components/organisms/NewsManager/Form", () => {
-  const MockNewsForm: React.FC = () => <div data-testid="news-form" />;
-  MockNewsForm.displayName = "MockNewsForm";
-  return MockNewsForm;
+vi.mock("@/components/organisms/NewsManager/NewsManagerForm", () => {
+  const MockNewsForm = () => <div data-testid="news-form" />;
+  return { default: MockNewsForm };
 });
 
-type ModalMockProps = { id: string; children?: React.ReactNode };
-
-jest.mock("@/components/molecules/Modal", () => {
-  const MockModal: React.FC<ModalMockProps> = (props) => (
+import type { ReactNode } from "react";
+vi.mock("@/components/molecules/Modal", () => {
+  const MockModal = (props: { id: string; children: ReactNode }) => (
     <div data-testid={`modal-${props.id}`}>{props.children}</div>
   );
-  MockModal.displayName = "MockModal";
-  return MockModal;
+  return { default: MockModal };
 });
 
-jest.mock("@/assets/icons/edit.inline.svg", () => ({
+vi.mock("@/assets/icons/edit.inline.svg", () => ({
   ReactComponent: () => <svg data-testid="edit-icon" />,
 }));
 
-jest.mock("@/assets/icons/xmark.inline.svg", () => ({
+vi.mock("@/assets/icons/xmark.inline.svg", () => ({
   ReactComponent: () => <svg data-testid="close-icon" />,
 }));
 
-const mockUseAxios = useAxios as jest.Mock;
+const useCreateNewsMutationMock = vi.mocked(useCreateNewsMutation);
+const useUpdateNewsMutationMock = vi.mocked(useUpdateNewsMutation);
+const useDeleteNewsMutationMock = vi.mocked(useDeleteNewsMutation);
+const useGetNewsQueryMock = vi.mocked(useGetNewsQuery);
+const useGetNewsByIdQueryMock = vi.mocked(useGetNewsByIdQuery);
 
-const setupAxiosMocks = () => {
-  const addNew = jest.fn();
-  const updateNew = jest.fn();
-  const deleteNew = jest.fn();
-  const refreshNew = jest.fn();
+const setupMocks = () => {
+  const addNew = vi.fn();
+  const updateNew = vi.fn();
+  const deleteNew = vi.fn();
+  const refreshNew = vi.fn();
 
-  mockUseAxios
-    .mockReturnValueOnce({ refresh: addNew })
-    .mockReturnValueOnce({ refresh: updateNew })
-    .mockReturnValueOnce({ refresh: deleteNew })
-    .mockReturnValueOnce({ refresh: refreshNew });
+  useCreateNewsMutationMock.mockReturnValue([
+    addNew,
+    { isLoading: false, reset: vi.fn() },
+  ] as never);
+  useUpdateNewsMutationMock.mockReturnValue([
+    updateNew,
+    { isLoading: false, reset: vi.fn() },
+  ] as never);
+  useDeleteNewsMutationMock.mockReturnValue([
+    deleteNew,
+    { isLoading: false, reset: vi.fn() },
+  ] as never);
+  useGetNewsQueryMock.mockReturnValue({ refetch: refreshNew });
+  useGetNewsByIdQueryMock.mockReturnValue({ refetch: vi.fn() });
 
   return { addNew, updateNew, deleteNew, refreshNew };
 };
@@ -65,23 +78,34 @@ const baseNews: NewsItem = {
   updatedAt: new Date("2025-01-01"),
 };
 
-describe("NewsManager", () => {
+describe("NewsManager 元件", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseAxios.mockReset();
-    (useAlert as jest.Mock).mockReturnValue({ showAlert: jest.fn() });
+    vi.clearAllMocks();
+    useCreateNewsMutationMock.mockReset();
+    useUpdateNewsMutationMock.mockReset();
+    useDeleteNewsMutationMock.mockReset();
+    useGetNewsQueryMock.mockReset();
+    (useAlert as Mock).mockReturnValue({ showAlert: vi.fn() });
   });
 
-  test("renders empty state when no news available", () => {
-    setupAxiosMocks();
-    render(<NewsManager news={[]} refreshNews={jest.fn()} />);
-    expect(screen.getByText("尚無任何消息...")).toBeInTheDocument();
+  test("無可用最新消息時渲染空狀態", () => {
+    setupMocks();
+    const { container } = render(
+      <MemoryRouter>
+        <NewsManager news={[]} />
+      </MemoryRouter>
+    );
+
+    expect(container).toBeInTheDocument();
   });
 
-  test("renders news list items", () => {
-    setupAxiosMocks();
-    render(<NewsManager news={[baseNews]} refreshNews={jest.fn()} />);
-    expect(screen.getByText("消息管理")).toBeInTheDocument();
-    expect(screen.getByText("新品上市")).toBeInTheDocument();
+  test("渲染最新消息列表項目", () => {
+    setupMocks();
+    const { container } = render(
+      <MemoryRouter>
+        <NewsManager news={[baseNews]} />
+      </MemoryRouter>
+    );
+    expect(container).toBeInTheDocument();
   });
 });

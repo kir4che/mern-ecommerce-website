@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router";
+import { useCallback } from "react";
+import { Link, useSearchParams } from "react-router";
+import removeMarkdown from "remove-markdown";
 
-import type { NewsItem } from "@/types/news";
-import type { NewsResponse } from "@/types/api";
-import { useAxios } from "@/hooks/useAxios";
+import { useGetNewsQuery } from "@/store/slices/apiSlice";
 import { formatDate } from "@/utils/formatDate";
+import { getErrorMessage } from "@/utils/getErrorMessage";
 
-import NotFound from "@/pages/notFound";
+import Loading from "@/components/atoms/Loading";
 import PageHeader from "@/components/molecules/PageHeader";
 import Pagination from "@/components/molecules/Pagination";
-import Loading from "@/components/atoms/Loading";
+import NotFound from "@/pages/notFound";
 
 interface NewsItemProps {
   _id: string;
@@ -19,109 +19,70 @@ interface NewsItemProps {
   content: string;
 }
 
-const NewsItem: React.FC<NewsItemProps> = ({
-  _id,
-  date,
-  category,
-  title,
-  content,
-}) => (
-  <li className="py-4 space-y-4 transition-all border-b border-dashed border-primary/80 hover:bg-gray-50">
-    <time className="inline-block mb-2 text-sm font-light text-gray-600">
-      {formatDate(date)}
-    </time>
-    <Link to={`/news/${_id}`}>
-      <p className="flex items-center text-2xl font-medium group">
-        <span className="px-2.5 py-1 mr-2 text-sm font-light rounded-full bg-primary text-secondary">
+const NewsItem = ({ _id, date, category, title, content }: NewsItemProps) => (
+  <li className="group border-b border-slate-200 py-6 last:border-0 transition-colors hover:bg-slate-50/50">
+    <Link to={`/news/${_id}`} className="block space-y-3">
+      <div className="flex items-center gap-2.5">
+        <time className="font-light text-gray-600 text-sm">
+          {formatDate(date)}
+        </time>
+        <span className="px-2 badge text-nowrap badge-neutral text-xs rounded-full">
           {category}
         </span>
-        <span className="transition-all group-hover:underline group-hover:underline-offset-4">
-          {title}
-        </span>
+      </div>
+      <h3 className="text-xl font-semibold leading-snug group-hover:text-primary transition-colors md:text-2xl">
+        {title}
+      </h3>
+      <p className="text-gray-600 text-sm line-clamp-3">
+        {removeMarkdown(content)}
       </p>
     </Link>
-    <p className="text-gray-700 line-clamp-3">{content}</p>
   </li>
 );
 
 const News = () => {
-  const limit = 5; // 每頁顯示的新聞數量
-  const [page, setPage] = useState(1); // 當前頁碼
-  type NewsListState = { news: NewsItem[]; total: number };
-  const [newsData, setNewsData] = useState<NewsListState>({
-    news: [],
-    total: 0,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // 獲取當前頁數據
-  const { data, error, isLoading, isError } = useAxios<NewsResponse>(
-    `/news?page=${page}&limit=${limit}`,
-    { method: "GET" }
-  );
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = 10;
 
-  // 預加載下一頁數據
-  const totalPagesFromData = data?.total ? Math.ceil(data.total / limit) : 0;
-  const shouldSkipPreload = !data || page >= totalPagesFromData;
-  const { data: nextPageData } = useAxios<NewsResponse>(
-    `/news?page=${page + 1}&limit=${limit}`,
-    { method: "GET" },
-    { skip: shouldSkipPreload }
-  );
+  const { data, error, isLoading, isError } = useGetNewsQuery({ page, limit });
 
-  // 更新當前頁的新聞數據
-  useEffect(() => {
-    if (data) {
-      setNewsData({
-        news: data.news ?? [],
-        total: data.total ?? 0,
-      });
-    }
-  }, [data]);
+  const newsList = data?.news ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.ceil(total / limit);
 
-  const totalPages = Math.ceil(newsData.total / limit); // 總頁數
-
-  // 處理頁碼變更
   const handlePageChange = useCallback(
     (newPage: number) => {
-      if (newPage > 0 && newPage <= totalPages) {
-        // 若有預加載數據且向下一頁移動，直接使用。
-        if (newPage === page + 1 && nextPageData) {
-          setNewsData({
-            news: nextPageData.news ?? [],
-            total: nextPageData.total ?? 0,
-          });
-        }
-        setPage(newPage);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      if (newPage > 0 && newPage <= totalPages)
+        setSearchParams({ page: String(newPage) });
     },
-    [page, nextPageData, totalPages]
+    [totalPages, setSearchParams]
   );
 
-  if (isError) return <NotFound message={error?.message} />;
+  if (isError && !isLoading)
+    return <NotFound message={getErrorMessage(error, "載入最新消息失敗")} />;
 
   return (
     <>
       <PageHeader breadcrumbText="最新消息" titleEn="News" titleCh="最新消息" />
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loading />
-        </div>
+        <Loading />
       ) : (
-        <>
-          <ul className="max-w-screen-xl px-5 pt-10 mx-auto space-y-4 md:px-8">
-            {newsData.news.map((news) => (
+        <div className="max-w-4xl px-5 py-4 mx-auto md:px-8">
+          <ul className="divide-y divide-slate-100">
+            {newsList.map((news) => (
               <NewsItem key={news._id} {...news} />
             ))}
           </ul>
-          {newsData.total > limit && (
+          {total > limit && (
             <Pagination
               page={page}
               totalPages={totalPages}
               handlePageChange={handlePageChange}
             />
           )}
-        </>
+        </div>
       )}
     </>
   );

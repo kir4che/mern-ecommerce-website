@@ -1,9 +1,10 @@
 import { Router } from "express";
 
-import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 import { createOrder, getOrderById, getOrders, getOrdersByUser, updateOrder } from "../controllers/order.controller";
+import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 
 const router = Router();
+
 router.use(authMiddleware);
 
 router.route("/").get(getOrdersByUser);

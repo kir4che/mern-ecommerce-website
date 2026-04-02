@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@plugin 'daisyui' {
+  themes: lofi --default;
+}
+
+@theme {
+  --breakpoint-xs: 490px;
+  --breakpoint-sm: 652px;
+  --background-image-about-cover: url("/src/assets/images/about/about-cover.jpg");
+  --font-sans:
+    "PingFang SC", "Microsoft YaHei", "Arial", "Helvetica", "Noto Sans",
+    sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    @apply max-w-[100vw] overflow-x-hidden;
+  }
+
+  body {
+    @apply text-base tracking-wide bg-white text-primary font-sans;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-medium;
+  }
+
+  h4 {
+    @apply text-lg font-medium;
+  }
+
+  h5 {
+    @apply text-base font-medium;
+  }
+
+  p {
+    @apply text-sm leading-loose;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  /* 隱藏 input 在瀏覽器下預設的 autofill 背景色  */
+  input:-webkit-autofill {
+    box-shadow: inset 0 0 0 2000px white !important;
+  }
+}
+
+@layer components {
+  .img-with-overlay:hover .overlay {
+    @apply block;
+  }
+
+  .img-with-overlay:hover img {
+    @apply scale-100;
+  }
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@utility flex-between {
+  @apply flex items-center justify-between;
+}
+
+@layer utilities {
+  .hide-number-spin {
+    appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+
+    & input[type="number"] {
+      appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        appearance: none;
+        margin: 0;
+      }
+    }
+  }
+
+  .native-number-spin {
+    padding-right: 0;
+
+    &::-webkit-inner-spin-button {
+      margin: -0.3rem 0;
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}

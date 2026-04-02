@@ -1,31 +1,42 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
+import type { AuthHookReturn } from "@/hooks/useAuth";
 import { useAuth } from "@/hooks/useAuth";
 import PrivateRoute from "@/routes/PrivateRoute";
 
-jest.mock("@/hooks/useAuth", () => ({
-  useAuth: jest.fn(),
+vi.mock("@/hooks/useAuth", () => ({
+  useAuth: vi.fn(),
 }));
 
-const MockComponent = () => <div>Protected Component</div>;
+const MockComponent = () => <div>受保護的內容</div>;
 
 describe("PrivateRoute", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
-  test("redirects to login if user is not authenticated", () => {
-    (useAuth as jest.Mock).mockReturnValue({
+  test("使用者沒登入時重定向至登入", () => {
+    // 建立一個沒登入的使用者狀態
+    const authState: AuthHookReturn = {
       user: null,
-      loading: false,
+      isLoading: false,
+      error: null,
       isAuthenticated: false,
-      logout: jest.fn(),
-    });
+      login: vi.fn(),
+      logout: vi.fn(),
+    };
+    vi.mocked(useAuth).mockReturnValue(authState);
 
     render(
       <MemoryRouter initialEntries={["/protected"]}>
         <Routes>
           <Route
             path="/protected"
-            element={<PrivateRoute component={MockComponent} />}
+            element={
+              <PrivateRoute>
+                <MockComponent />
+              </PrivateRoute>
+            }
           />
           <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
@@ -35,26 +46,33 @@ describe("PrivateRoute", () => {
     expect(screen.getByText(/Login Page/i)).toBeInTheDocument();
   });
 
-  test("renders the component if user is authenticated", () => {
-    (useAuth as jest.Mock).mockReturnValue({
-      user: { id: "123", email: "test@example.com" },
-      loading: false,
+  test("使用者登入時顯示受保護內容", () => {
+    const authState: AuthHookReturn = {
+      user: { id: "123", email: "test@example.com", role: "user" },
+      isLoading: false,
+      error: null,
       isAuthenticated: true,
-      logout: jest.fn(),
-    });
+      login: vi.fn(),
+      logout: vi.fn(),
+    };
+    vi.mocked(useAuth).mockReturnValue(authState);
 
     render(
       <MemoryRouter initialEntries={["/protected"]}>
         <Routes>
           <Route
             path="/protected"
-            element={<PrivateRoute component={MockComponent} />}
+            element={
+              <PrivateRoute>
+                <MockComponent />
+              </PrivateRoute>
+            }
           />
           <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/Protected Component/i)).toBeInTheDocument();
+    expect(screen.getByText("受保護的內容")).toBeInTheDocument();
   });
 });

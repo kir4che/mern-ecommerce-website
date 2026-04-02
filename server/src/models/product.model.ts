@@ -1,7 +1,4 @@
-import { Schema, Types, model, Document } from "mongoose";
-
-const VALID_TAGS = ["推薦", "熱銷", "新品", "特價"] as const;
-type Tag = typeof VALID_TAGS[number];
+import { Document, Schema, Types, model } from "mongoose";
 
 export interface IProduct extends Document<Types.ObjectId> {
   _id: Types.ObjectId;
@@ -11,7 +8,7 @@ export interface IProduct extends Document<Types.ObjectId> {
   description: string;
   price: number;
   content: string; // 內容物
-  expiryDate: Date; // 有效期限
+  expiryDate: string; // 有效期限
   allergens: string[]; // 過敏原
   delivery: string; // 配送
   storage: string; // 保存方式
@@ -19,7 +16,7 @@ export interface IProduct extends Document<Types.ObjectId> {
   nutrition: string; // 營養成分
   countInStock: number;
   salesCount: number; // 銷量
-  tags: Tag[]; // 標籤
+  tags: string[]; // 標籤
   imageUrl: string;
   createdAt: Date;
   updatedAt: Date;
@@ -33,7 +30,7 @@ const productSchema = new Schema<IProduct>(
     description: { type: String, default: "" },
     price: { type: Number, required: true },
     content: { type: String, required: true },
-    expiryDate: { type: Date, required: true },
+    expiryDate: { type: String, required: true },
     allergens: { type: [String], default: [] },
     delivery: { type: String, default: "常溫宅配" },
     storage: { type: String, default: "請保存於陰涼處，避免高溫或陽光照射。" },
@@ -43,7 +40,6 @@ const productSchema = new Schema<IProduct>(
     salesCount: { type: Number, default: 0, min: 0 },
     tags: {
       type: [String],
-      enum: VALID_TAGS, // 只允許 VALID_TAGS 中的值
       default: [],
     },
     imageUrl: { type: String, required: true },  },

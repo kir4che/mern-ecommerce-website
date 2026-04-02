@@ -1,13 +1,14 @@
+import * as crypto from "crypto";
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import ShortUniqueId from "short-unique-id";
-import * as crypto from "crypto";
 
 import {
-  OrderModel,
   ORDER_STATUS,
+  OrderModel,
   PAYMENT_STATUS,
 } from "../models/order.model";
+import { ProductModel } from "../models/product.model";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
   const { orderId, name, phone, address, note, ChoosePayment } = req.body;
@@ -15,32 +16,35 @@ const createPaymentHandler = async (req: Request, res: Response) => {
   if (!Types.ObjectId.isValid(orderId))
     return res
       .status(400)
-      .json({ success: false, message: "Invalid order ID format." });
+      .json({ success: false, code: "INVALID_ORDER_ID", message: "Invalid order ID format." });
 
   try {
     const order = await OrderModel.findById(orderId);
     if (!order)
       return res
         .status(404)
-        .json({ success: false, message: "Order not found." });
+        .json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
 
-    // 先更新訂單的購買人資訊
-    order.set({ name, phone, address, note });
+    // 驗證訂單是否可以進行支付（只能支付未付款的訂單）
+    if (order.paymentStatus !== "unpaid")
+      return res
+        .status(400)
+        .json({
+          success: false,
+          code: "ORDER_ALREADY_PAID",
+          message: "This order has already been paid.",
+        });
+
+    // 先更新訂單的購買人資訊（note 暫存於 pendingNote，付款成功後才正式寫入）
+    order.set({ name, phone, address, pendingNote: note ?? "" });
     await order.save();
 
     const { totalAmount, orderItems } = order;
     const uid = new ShortUniqueId({ length: 20 });
     const tradeNo = uid.randomUUID();
-    const MerchantTradeDate = new Date().toLocaleString("zh-TW", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-      timeZone: "UTC",
-    });
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const MerchantTradeDate = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const ItemName = orderItems
       .map(
         (item: { title: string; quantity: number }) =>
@@ -71,6 +75,7 @@ const createPaymentHandler = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     res.status(500).json({
       success: false,
+      code: "PAYMENT_CREATE_FAILED",
       message: "Internal server err. Please try again later.",
     });
   }
@@ -106,9 +111,18 @@ const generateCheckValue = (data: Record<string, any>) => {
 
 // 綠界付款完成後的處理
 const handlePaymentCallback = async (req: Request, res: Response) => {
-  const { RtnCode, PaymentDate, CustomField1 } = req.body;
+  const { RtnCode, PaymentDate, CustomField1, CheckMacValue } = req.body;
   console.log("ECPay callback:", req.body);
   try {
+    const callbackData = { ...req.body };
+    delete callbackData.CheckMacValue;
+    const expectedCheckMacValue = generateCheckValue(callbackData);
+
+    if (CheckMacValue !== expectedCheckMacValue) {
+      console.error("Invalid CheckMacValue:", { received: CheckMacValue, expected: expectedCheckMacValue });
+      return res.status(403).send("0");
+    }
+
     // 判斷交易結果（1 代表付款成功，其他狀態則為失敗）以及更新訂單狀態
     const nextStatus: (typeof ORDER_STATUS)[number] =
       RtnCode == 1 ? "paid" : "created";
@@ -117,17 +131,37 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
 
     let paymentDate = PaymentDate ? new Date(PaymentDate) : new Date();
     if (Number.isNaN(paymentDate.getTime())) paymentDate = new Date();
-    const updateData = {
+
+    const order = await OrderModel.findById(CustomField1);
+    if (!order) return res.status(404).send("Order not found.");
+
+    // 避免重複扣庫存（callback 可能被綠界重送）
+    if (order.paymentStatus === "paid") return res.status(200).send("1");
+
+    const updateData: Record<string, unknown> = {
       status: nextStatus,
       paymentStatus: nextPaymentStatus,
       paymentDate,
     };
 
-    const order = await OrderModel.findById(CustomField1);
-    if (!order) return res.status(404).send("Order not found.");
+    // 付款成功才把暫存備註正式寫入
+    if (RtnCode == 1 && order.pendingNote !== undefined) {
+      updateData.note = order.pendingNote;
+      updateData.pendingNote = undefined;
+    }
 
     order.set(updateData);
     await order.save();
+
+    if (RtnCode == 1)
+      await ProductModel.bulkWrite(
+        order.orderItems.map((item) => ({
+          updateOne: {
+            filter: { _id: item.productId, countInStock: { $gte: item.quantity } },
+            update: { $inc: { countInStock: -item.quantity } },
+          },
+        }))
+      );
 
     res.status(200).send("1");
   } catch (err: unknown) {

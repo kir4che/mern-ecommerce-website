@@ -1,92 +1,99 @@
-import { useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
+import { z } from "zod";
 
 import { useAlert } from "@/context/AlertContext";
-import { useAxios } from "@/hooks/useAxios";
+import { useResetPasswordTokenMutation } from "@/store/slices/apiSlice";
+import { getErrorStatus } from "@/utils/getErrorMessage";
 
-import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
 
-const ResetPassword: React.FC = () => {
+const schema = z
+  .object({
+    password: z
+      .string()
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/, {
+        message: "密碼需包含大小寫英文及數字，且至少 8 字元",
+      }),
+    confirmPassword: z.string().min(1, { message: "請再次輸入密碼" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "兩次輸入的密碼不一致",
+    path: ["confirmPassword"],
+  });
+
+type ResetPasswordFormData = z.infer<typeof schema>;
+
+const ResetPassword = () => {
   const navigate = useNavigate();
-  const { token } = useParams();
+  const { token } = useParams<{ token: string }>();
   const { showAlert } = useAlert();
+  const [resetPasswordToken, { isLoading }] = useResetPasswordTokenMutation();
 
-  const { refresh: ResetPassword } = useAxios(
-    "/user/update-password",
-    { method: "POST" },
-    {
-      immediate: false,
-      onSuccess: () => {
-        showAlert({
-          variant: "success",
-          message: "密碼重設成功，將跳轉至登入頁面。",
-        });
-        setTimeout(() => navigate("/login"), 3000);
-      },
-      onError: (err) => {
-        if (err.statusCode === 400) {
-          showAlert({
-            variant: "error",
-            message: "連結無效或已過期，請重新申請重設密碼。",
-          });
-        } else
-          showAlert({
-            variant: "error",
-            message: "發生錯誤，請稍後再試。",
-          });
-      },
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { password: "", confirmPassword: "" },
+  });
+
+  const onSubmit = async ({ password }: ResetPasswordFormData) => {
+    if (!token) {
+      showAlert({ variant: "error", message: "無效的重設連結" });
+      return;
     }
-  );
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const escapeRegExp = (value: string) =>
-    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-  const confirmPasswordPattern = useMemo(() => {
-    if (!password) return undefined;
-    return {
-      value: new RegExp(`^${escapeRegExp(password)}$`),
-      message: "密碼不一致",
-    } as const;
-  }, [password]);
-
-  const passwordsMatch = password !== "" && password === confirmPassword;
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!passwordsMatch) return;
-    await ResetPassword({ resetToken: token, password });
+    try {
+      await resetPasswordToken({ token, password }).unwrap();
+      showAlert({
+        variant: "success",
+        message: "密碼重設成功，請使用新密碼登入。",
+      });
+      navigate("/login", { replace: true });
+    } catch (err: unknown) {
+      if (getErrorStatus(err) === 400) {
+        showAlert({
+          variant: "error",
+          message: "連結無效或已過期，請重新申請重設密碼。",
+        });
+      } else showAlert({ variant: "error", message: "發生錯誤，請稍後再試。" });
+    }
   };
 
+  const isBtnDisabled = isLoading || isSubmitting;
+
   return (
-    <div className="w-full max-w-sm px-4 mx-auto">
-      <h2 className="mb-8 -mt-12 text-xl text-center ">重設密碼</h2>
-      <form className="flex flex-col gap-4" onSubmit={handleResetPassword}>
+    <div className="w-full px-5 m-auto md:px-8 space-y-4">
+      <h2 className="mb-8 text-center">設定新密碼</h2>
+      <form
+        className="flex flex-col gap-4 max-w-72 mx-auto"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+      >
         <Input
-          value={password}
-          label="新密碼"
+          {...register("password")}
           type="password"
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (!e.target.value) setConfirmPassword("");
-          }}
-          required
+          placeholder="請輸入新密碼"
+          error={errors.password?.message ?? ""}
+          className=""
         />
         <Input
-          value={confirmPassword}
-          label="再次輸入密碼"
+          {...register("confirmPassword")}
           type="password"
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          pattern={confirmPasswordPattern}
-          errorMessage="密碼不一致"
-          required
+          placeholder="請再次輸入密碼"
+          error={errors.confirmPassword?.message ?? ""}
         />
-        <Button type="submit" className="mt-4 rounded-none">
-          重設密碼
+        <Button
+          type="submit"
+          disabled={isBtnDisabled}
+          aria-disabled={isBtnDisabled}
+          className="mx-auto mt-6 w-full btn-primary py-2.5"
+        >
+          {isBtnDisabled ? "處理中" : "確認重設"}
         </Button>
       </form>
     </div>

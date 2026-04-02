@@ -1,11 +1,12 @@
 import shop1 from "@/assets/images/shops/shop1.jpg";
 import shop2 from "@/assets/images/shops/shop2.jpg";
 
+import aboutItem from "@/assets/images/about/about-item.jpg";
 import aboutMission from "@/assets/images/about/about-mission.jpg";
-import aboutPride from "@/assets/images/about/about-pride.jpg";
 import aboutPolicy from "@/assets/images/about/about-policy.jpg";
 import aboutPosture from "@/assets/images/about/about-posture.jpg";
-import aboutItem from "@/assets/images/about/about-item.jpg";
+import aboutPride from "@/assets/images/about/about-pride.jpg";
+import type { NewsItem, Product } from "@/types";
 
 export const CATEGORY_LIST = [
   { label: "全部", value: "/collections/all" },
@@ -22,7 +23,7 @@ export const ABOUT = {
   description:
     "日出麵包坊位於台灣，是一家擁有濃厚鄉村風情的麵包店。我們以追求最新鮮的食材和最美味的口感為己任，致力於為您提供每天的美好開始。",
   description2:
-    "一家位於台北市的小巧麵包店，以精選食材和獨特手藝打造美味營養的麵包。與小麥農戶合作，直接從田野挑選最優質的小麥，確保每片麵包蘊含豐富營養。堅持使用新鮮、當季食材，讓每位顧客品味到最美味口感。\n我們不僅是麵包店，更是注入愛與用心的烘焙之地。師傅們擁有豐富經驗和熱愛烘焙，細緻打磨從麵團揉製到烤製的每一個細節。期待每次相遇成為味蕾冒險，用心製作的麵包，願成為您每天清晨的陽光，為您帶來美好的一天。",
+    "一家位於台北市的小巧麵包店，以精選食材和獨特手藝打造美味營養的麵包。與小麥農戶合作，直接從田野挑選最優質的小麥，確保每片麵包蘊含豐富營養。堅持使用新鮮、當季食材，讓每位顧客嚐到最美味的口感。\n我們不僅是麵包店，更是注入愛與用心的烘焙之地。師傅們擁有豐富經驗和熱愛烘焙，細緻打磨從麵團揉製到烤製的每一個細節。期待每次相遇成為味蕾冒險，用心製作的麵包，願成為您每天清晨的陽光，為您帶來美好的一天。",
   details: [
     {
       title: "Our Mission / 使命",
@@ -110,3 +111,32 @@ export const FAQ = [
       "是的，我們樂意接受各類活動訂製和大量訂購，請提前與我們的客服聯絡，我們將提供最合適的方案滿足您的需求。",
   },
 ];
+
+export const PRODUCT_FORM_TEST_DATA: Partial<Product> = {
+  title: "測試_北海道鮮奶紅豆麵包",
+  tagline: "雲朵般柔軟口感",
+  categories: ["bread"],
+  description: "使用北海道鮮奶與紅豆餡，口感柔軟、奶香濃郁。",
+  price: 95,
+  content: "內含 1 入，約 110g",
+  expiryDate: "常溫保存 2 天",
+  allergens: ["小麥", "乳製品", "蛋"],
+  delivery: "常溫宅配",
+  storage: "陰涼乾燥處保存，避免日照",
+  ingredients: "高筋麵粉、鮮奶、砂糖、紅豆餡、奶油、酵母",
+  nutrition: "每100g：熱量 280kcal，蛋白質 7g，脂肪 8g，碳水 44g",
+  countInStock: 35,
+  tags: ["推薦", "熱銷", "奶香"],
+  imageUrl:
+    "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80",
+};
+
+export const NEWS_FORM_TEST_DATA: Partial<NewsItem> = {
+  title: "測試_春季新品限時活動",
+  category: "活動",
+  date: new Date("2026-04-02T09:00:00"),
+  imageUrl:
+    "https://images.unsplash.com/photo-1517433670267-08bbd4be890f?auto=format&fit=crop&w=900&q=80",
+  content:
+    "春季限定商品正式上架，活動期間購買指定品項可享 85 折，單筆滿千再送折價券。歡迎到門市或線上商店選購。",
+};

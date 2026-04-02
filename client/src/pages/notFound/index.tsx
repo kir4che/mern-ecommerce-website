@@ -1,41 +1,37 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router";
 
-import { useAlert } from "@/context/AlertContext";
-
 import Button from "@/components/atoms/Button";
-
-const DEFAULT_ERROR_MESSAGE = "找不到頁面";
 
 interface NotFoundProps {
   message?: string | string[];
 }
 
-const NotFound: React.FC<NotFoundProps> = ({ message }) => {
+const NotFound = ({ message }: NotFoundProps) => {
   const navigate = useNavigate();
-  const { showAlert } = useAlert();
 
   const normalizedMessage = useMemo(() => {
     if (Array.isArray(message)) return message.filter(Boolean).join("\n");
-    return message ?? "";
+    return message || "抱歉，找不到您要找的頁面";
   }, [message]);
 
-  useEffect(() => {
-    if (normalizedMessage)
-      showAlert({
-        variant: "error",
-        message: normalizedMessage,
-      });
-  }, [normalizedMessage, showAlert]);
-
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-20rem)]">
-      <h2 className="text-4xl">404</h2>
-      <p className="mt-4 mb-10 text-2xl text-center whitespace-pre-line">
-        {normalizedMessage || DEFAULT_ERROR_MESSAGE}
+    <div className="flex-center m-auto flex-col px-5 text-center">
+      <div className="relative">
+        <h1 className="text-9xl font-black text-gray-100 select-none">404</h1>
+        <p className="absolute inset-0 xs:text-nowrap flex-center text-2xl font-medium">
+          您查找的商品或頁面不存在
+        </p>
+      </div>
+      <p className="text-gray-500 mt-2 whitespace-pre-line leading-relaxed">
+        {normalizedMessage}
       </p>
-      <Button onClick={() => navigate("/")} className="px-8">
-        返回首頁
+      <Button
+        variant="primary"
+        onClick={() => navigate("/")}
+        className="px-8 py-2.5 mt-8"
+      >
+        回到首頁
       </Button>
     </div>
   );
