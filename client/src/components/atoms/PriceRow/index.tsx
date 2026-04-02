@@ -1,4 +1,5 @@
 import { addComma } from "@/utils/addComma";
+import { cn } from "@/utils/cn";
 
 interface PriceRowProps {
   label: string;
@@ -6,13 +7,13 @@ interface PriceRowProps {
   className?: string;
 }
 
-const PriceRow: React.FC<PriceRowProps> = ({ label, value, className }) => {
+const PriceRow = ({ label, value, className }: PriceRowProps) => {
   if (value <= 0) return null;
 
   return (
-    <div className={`flex justify-between w-full ${className}`}>
+    <div className={cn("flex justify-between w-full", className)}>
       <p>{label}</p>
-      <p className={className}>NT$ {addComma(value)}</p>
+      <p className={cn(className)}>NT$ {addComma(value)}</p>
     </div>
   );
 };

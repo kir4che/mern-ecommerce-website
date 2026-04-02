@@ -1,13 +1,16 @@
-import { Request, Response } from "express";
-import { Types } from "mongoose";
-import ShortUniqueId from "short-unique-id";
 import * as crypto from "crypto";
+import { Request, Response } from "express";
+import { Types, UpdateQuery } from "mongoose";
+import ShortUniqueId from "short-unique-id";
 
 import {
-  OrderModel,
   ORDER_STATUS,
+  OrderModel,
   PAYMENT_STATUS,
 } from "../models/order.model";
+import { ProductModel } from "../models/product.model";
+import FlashSales from "../models/sales.model";
+import { broadcastFlashSalesUpdate } from "../websocket/salesEvents";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
   const { orderId, name, phone, address, note, ChoosePayment } = req.body;
@@ -15,38 +18,57 @@ const createPaymentHandler = async (req: Request, res: Response) => {
   if (!Types.ObjectId.isValid(orderId))
     return res
       .status(400)
-      .json({ success: false, message: "Invalid order ID format." });
+      .json({ success: false, code: "INVALID_ORDER_ID", message: "Invalid order ID format." });
 
   try {
     const order = await OrderModel.findById(orderId);
     if (!order)
       return res
         .status(404)
-        .json({ success: false, message: "Order not found." });
+        .json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
 
-    // 先更新訂單的購買人資訊
-    order.set({ name, phone, address, note });
-    await order.save();
+    // 驗證訂單是否可以進行支付（只能支付未付款的訂單）
+    if (order.paymentStatus !== "unpaid")
+      return res
+        .status(400)
+        .json({
+          success: false,
+          code: "ORDER_ALREADY_PAID",
+          message: "This order has already been paid.",
+        });
 
+    // 生成交易編號、時間戳、商品名稱（先於訂單更新）
     const { totalAmount, orderItems } = order;
     const uid = new ShortUniqueId({ length: 20 });
     const tradeNo = uid.randomUUID();
-    const MerchantTradeDate = new Date().toLocaleString("zh-TW", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-      timeZone: "UTC",
-    });
-    const ItemName = orderItems
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const MerchantTradeDate = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    let ItemName = orderItems
       .map(
         (item: { title: string; quantity: number }) =>
           `${item.title} x ${item.quantity}`
       )
       .join("#");
+
+    // ECPay 限制 ItemName 400 字元；若超過則從最後一個 # 斷開。
+    if (ItemName.length > 400) {
+      const truncated = ItemName.substring(0, 400);
+      const lastHashIndex = truncated.lastIndexOf("#");
+      ItemName = lastHashIndex > 0 ? truncated.substring(0, lastHashIndex) : truncated;
+    }
+
+    // 更新訂單的購買人資訊、付款方式、交易編號（note 先暫存於 pendingNote，付款成功後才正式寫入）。
+    order.set({
+      name,
+      phone,
+      address,
+      pendingNote: note ?? "",
+      paymentMethod: ChoosePayment,
+      tradeNo,
+    });
+    await order.save();
 
     // 建立傳送給綠界的交易參數
     const base_param = {
@@ -68,10 +90,11 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     const fullParams = Object.assign({}, base_param, { CheckMacValue });
 
     res.json({ success: true, params: fullParams });
-  } catch (err: unknown) {
+  } catch {
     res.status(500).json({
       success: false,
-      message: "Internal server err. Please try again later.",
+      code: "PAYMENT_CREATE_FAILED",
+      message: "Internal server error. Please try again later.",
     });
   }
 };
@@ -96,7 +119,7 @@ const generateCheckValue = (data: Record<string, any>) => {
     .replace(/%2a/g, "*")
     .replace(/%28/g, "(")
     .replace(/%29/g, ")")
-    .replace(/%20/g, "+");
+    .replace(/%7e/g, "~");
 
   // 進行 SHA256 雜湊運算並轉換為大寫
   checkValue = crypto.createHash("sha256").update(checkValue).digest("hex");
@@ -106,9 +129,14 @@ const generateCheckValue = (data: Record<string, any>) => {
 
 // 綠界付款完成後的處理
 const handlePaymentCallback = async (req: Request, res: Response) => {
-  const { RtnCode, PaymentDate, CustomField1 } = req.body;
-  console.log("ECPay callback:", req.body);
+  const { RtnCode, PaymentDate, CustomField1, CheckMacValue } = req.body;
   try {
+    const callbackData = { ...req.body };
+    delete callbackData.CheckMacValue;
+    const expectedCheckMacValue = generateCheckValue(callbackData);
+
+    if (CheckMacValue !== expectedCheckMacValue) return res.status(403).send("0");
+
     // 判斷交易結果（1 代表付款成功，其他狀態則為失敗）以及更新訂單狀態
     const nextStatus: (typeof ORDER_STATUS)[number] =
       RtnCode == 1 ? "paid" : "created";
@@ -117,17 +145,71 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
 
     let paymentDate = PaymentDate ? new Date(PaymentDate) : new Date();
     if (Number.isNaN(paymentDate.getTime())) paymentDate = new Date();
-    const updateData = {
-      status: nextStatus,
-      paymentStatus: nextPaymentStatus,
-      paymentDate,
-    };
 
     const order = await OrderModel.findById(CustomField1);
     if (!order) return res.status(404).send("Order not found.");
 
-    order.set(updateData);
-    await order.save();
+    // 避免重複扣庫存（callback 可能被綠界重送）
+    if (order.paymentStatus === "paid") return res.status(200).send("1");
+
+    // 付款成功即更新訂單、扣除庫存、更新搶購活動
+    if (RtnCode == 1) {
+      // 使用 $set/$unset 確保 pendingNote 只會在付款成功時被正式寫入 note 欄位，並從 pendingNote 中移除。
+      const updateQuery: UpdateQuery<typeof OrderModel> = {
+        $set: {
+          status: nextStatus,
+          paymentStatus: nextPaymentStatus,
+          paymentDate,
+        },
+      };
+
+      if (order.pendingNote !== undefined) {
+        updateQuery.$set!.note = order.pendingNote;
+        updateQuery.$unset = { pendingNote: "" };
+      }
+
+      await OrderModel.updateOne({ _id: order._id }, updateQuery);
+
+      // 扣除庫存
+      await ProductModel.bulkWrite(
+        order.orderItems.map((item) => ({
+          updateOne: {
+            filter: { _id: item.productId, countInStock: { $gte: item.quantity } },
+            update: { $inc: { countInStock: -item.quantity } },
+          },
+        }))
+      );
+
+      // 更新搶購活動的已售數量（用 bulkWrite 一次更新所有項目）
+      if (order.flashSaleId && order.orderItems.length > 0)
+        await FlashSales.bulkWrite(
+          order.orderItems.map((item) => ({
+            updateOne: {
+              filter: { _id: order.flashSaleId },
+              update: {
+                $inc: { "products.$[elem].soldCount": item.quantity },
+              },
+              arrayFilters: [{ "elem.productId": item.productId }],
+            },
+          }))
+        );
+
+      // 若是搶購訂單，廣播庫存更新給所有訂閱使用者。
+      if (order.flashSaleId && global.io)
+        await broadcastFlashSalesUpdate(global.io, order.flashSaleId.toString());
+    } else {
+      // 付款失敗：更新訂單狀態
+      await OrderModel.updateOne(
+        { _id: order._id },
+        {
+          $set: {
+            status: nextStatus,
+            paymentStatus: nextPaymentStatus,
+            paymentDate,
+          },
+        }
+      );
+    }
 
     res.status(200).send("1");
   } catch (err: unknown) {

@@ -1,13 +1,15 @@
+import { cn } from "@/utils/cn";
+
 interface TooltipProps {
   isActivated: boolean;
   text: string;
   children?: React.ReactNode;
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ isActivated, text, children }) => (
+const Tooltip = ({ isActivated, text, children }: TooltipProps) => (
   <p
     role="tooltip"
-    className={`tooltip tooltip-bottom ${isActivated ? "tooltip-open" : ""}`}
+    className={cn("tooltip tooltip-bottom", isActivated ? "tooltip-open" : "")}
     {...(isActivated ? { "data-tip": text } : {})}
   >
     {children}

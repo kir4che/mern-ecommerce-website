@@ -1,40 +1,57 @@
 import { useState } from "react";
 
-interface BlurImageProps {
+import { cn } from "@/utils/cn";
+
+interface BlurImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
-  className?: string;
-  onError?: () => void;
 }
 
-// 當圖片載入時，先顯示模糊背景，載入完成後再顯示圖片。
-const BlurImage = ({ src, alt, className, onError }: BlurImageProps) => {
+const BlurImage = ({
+  src,
+  alt,
+  className,
+  onLoad,
+  onError,
+  ...props
+}: BlurImageProps) => {
   const [isLoading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  const handleError = () => {
-    if (onError) onError();
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setLoading(false);
+    if (onLoad) onLoad(e);
+  };
+
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setLoading(false);
+    setHasError(true);
+    if (onError) onError(e);
   };
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {isLoading && (
+    <>
+      {isLoading && !hasError && (
         <div
-          data-testid="blur-background"
-          className="absolute inset-0 bg-center bg-cover blur-md scale-110"
-          style={{ backgroundImage: `url(${src})` }}
+          data-testid="image-skeleton"
+          className="absolute inset-0 z-0 size-full skeleton rounded-inherit"
         />
       )}
       <img
         src={src}
         alt={alt}
         loading="lazy"
-        onLoad={() => setLoading(false)}
+        onLoad={handleLoad}
         onError={handleError}
-        data-testid="blur-image"
-        className={`relative w-full h-full object-cover object-center duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
+        data-testid="product-image"
+        className={cn(
+          "relative z-10 size-full object-cover object-center transition-opacity duration-700 ease-in-out",
+          isLoading ? "opacity-0" : "opacity-100",
+          className
+        )}
+        {...props}
       />
-    </div>
+    </>
   );
 };
 

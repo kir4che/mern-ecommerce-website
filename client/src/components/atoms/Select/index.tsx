@@ -1,96 +1,143 @@
+import { useState } from "react";
+import { useNavigate } from "react-router";
+
+import { cn } from "@/utils/cn";
+
 interface SelectProps {
-  name: string;
-  label: string;
-  value: string | string[];
+  name?: string;
+  label?: string;
+  value?: string | string[];
+  options: { label: string; value: string }[];
   defaultText?: string;
-  options: { value: string; label: string }[];
-  onChange?: (name: string, value: string | string[]) => void;
-  required?: boolean;
   multiple?: boolean;
-  containerStyle?: string;
-  wrapperStyle?: string;
-  selectStyle?: string;
+  required?: boolean;
+  className?: string;
+  optionsContainerClassName?: string;
+  optionClassName?: string;
+  onChange?: (name: string, value: string | string[]) => void;
 }
 
-const Select: React.FC<SelectProps> = ({
-  name,
+const Select = ({
+  name = "nav-select",
   label,
-  value = "",
+  value,
+  options = [],
   defaultText,
-  options,
-  onChange = () => {},
-  required = false,
   multiple = false,
-  containerStyle = "",
-  wrapperStyle = "",
-  selectStyle = "",
-}) => {
-  // 如果是多選且必填，預設勾選第一個選項。
-  const defaultValue =
-    multiple && required && Array.isArray(value) && value.length === 0
-      ? [options[0]?.value]
-      : value;
+  required = false,
+  className,
+  optionsContainerClassName,
+  optionClassName,
+  onChange,
+}: SelectProps) => {
+  const navigate = useNavigate();
+  const isControlled = value !== undefined;
 
-  const handleMultipleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value: selectedValue, checked } = e.target;
-
-    let updatedValues = Array.isArray(defaultValue) ? [...defaultValue] : [];
-    if (checked) updatedValues.push(selectedValue);
-    else {
-      if (required && updatedValues.length === 1) return; // 必填時，不能取消最後一個勾選的選項。
-      updatedValues = updatedValues.filter((v) => v !== selectedValue);
-    }
-
-    onChange(name, updatedValues);
+  const normalizeValues = (input?: string | string[]) => {
+    if (Array.isArray(input)) return input;
+    if (typeof input === "string" && input) return [input];
+    return [];
   };
 
-  return (
-    <div className={`form-control ${containerStyle}`}>
-      <span className="text-sm leading-6">
-        {label} {required && <span className="text-red-600">*</span>}
-      </span>
-      {multiple && (
-        <p className="mb-2 text-xs text-gray-500">可選擇一或多個選項</p>
-      )}
-      <div className={`flex flex-col gap-y-2 ${wrapperStyle}`}>
-        {multiple ? (
-          options.map(({ value: optValue, label: optLabel }) => (
-            <div key={optValue} className="flex items-center gap-x-1.5">
-              <input
-                id={`${name}-${optValue}`}
-                name={name}
-                type="checkbox"
-                value={optValue}
-                checked={
-                  Array.isArray(defaultValue) && defaultValue.includes(optValue)
-                }
-                onChange={handleMultipleChange}
-                className={selectStyle}
-                data-testid={name}
-              />
-              <label htmlFor={`${name}-${optValue}`} className="text-sm">
-                {optLabel}
+  const initialValues =
+    !isControlled && multiple && required && options[0]?.value
+      ? [options[0].value]
+      : normalizeValues(value);
+
+  const [uncontrolledValues, setUncontrolledValues] =
+    useState<string[]>(initialValues);
+  const selectedValues = isControlled
+    ? normalizeValues(value)
+    : uncontrolledValues;
+
+  const applyValues = (nextValues: string[]) => {
+    if (!isControlled) setUncontrolledValues(nextValues);
+    onChange?.(name, nextValues);
+  };
+
+  const toggleValue = (optionValue: string) => {
+    const hasValue = selectedValues.includes(optionValue);
+    if (hasValue && required && selectedValues.length === 1) return;
+
+    const nextValues = hasValue
+      ? selectedValues.filter((v) => v !== optionValue)
+      : [...selectedValues, optionValue];
+
+    applyValues(nextValues);
+  };
+
+  if (multiple)
+    return (
+      <fieldset className={cn("space-y-2", className)}>
+        {label && <legend className="text-sm font-medium">{label}</legend>}
+        <div className={cn("flex flex-col gap-2", optionsContainerClassName)}>
+          {options.map(({ label: optionLabel, value: optionValue }) => {
+            const id = `${name}-${optionValue}`;
+            const checked = selectedValues.includes(optionValue);
+
+            return (
+              <label
+                key={optionValue}
+                htmlFor={id}
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer",
+                  optionClassName
+                )}
+              >
+                <input
+                  id={id}
+                  type="checkbox"
+                  aria-label={optionLabel}
+                  checked={checked}
+                  onChange={() => toggleValue(optionValue)}
+                  className="checkbox checkbox-sm"
+                />
+                <span className="text-sm">{optionLabel}</span>
               </label>
-            </div>
-          ))
-        ) : (
-          <select
-            name={name}
-            value={defaultValue}
-            onChange={(e) => onChange(name, e.target.value)}
-            required={required}
-            className={`text-base select select-bordered focus:outline-none ${selectStyle}`}
-            data-testid={name}
-          >
-            {defaultText && <option value="">{defaultText}</option>}
-            {options.map(({ value: optValue, label: optLabel }) => (
-              <option key={optValue} value={optValue}>
-                {optLabel}
-              </option>
-            ))}
-          </select>
+            );
+          })}
+        </div>
+      </fieldset>
+    );
+
+  const handleSingleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextValue = event.target.value;
+    if (!isControlled) setUncontrolledValues(nextValue ? [nextValue] : []);
+
+    if (onChange) onChange(name, nextValue);
+    else if (nextValue) navigate(nextValue);
+  };
+
+  const singleValue = selectedValues[0] ?? "";
+
+  return (
+    <div className={cn("form-control w-full space-y-1", className)}>
+      {label && (
+        <label htmlFor={name} className="label pb-0">
+          <span className="label-text text-[13px]">{label}</span>
+        </label>
+      )}
+      <select
+        id={name}
+        name={name}
+        value={singleValue}
+        data-testid={name}
+        onChange={handleSingleChange}
+        className="select select-bordered cursor-pointer outline-none w-full focus:outline-none"
+        aria-label={label || name}
+        required={required}
+      >
+        {defaultText && (
+          <option value="" disabled={required} hidden={required}>
+            {defaultText}
+          </option>
         )}
-      </div>
+        {options.map(({ label: optionLabel, value: optionValue }) => (
+          <option key={optionValue} value={optionValue}>
+            {optionLabel}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };

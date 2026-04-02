@@ -1,19 +1,26 @@
 import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
   ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
+import { createPortal } from "react-dom";
 
-interface Alert {
-  variant: "info" | "success" | "error";
+import Alert from "@/components/atoms/Alert";
+
+export interface Alert {
+  variant: "info" | "success" | "error" | "warning";
   message: string;
   autoDismiss?: boolean; // 是否自動消失
   dismissTimeout?: number; // 自動消失時間
   floating?: boolean; // 位置是否浮動
   top?: string; // 距離頂部的距離
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 interface AlertContextType {
@@ -47,31 +54,33 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
 
       return () => clearTimeout(timer); // 清除計時器
     }
-  }, [alert]);
+  }, [alert, hideAlert]);
 
   useEffect(() => {
     const handler = (e: Event) => {
       try {
         const ce = e as CustomEvent<Alert>;
         if (ce?.detail) showAlert(ce.detail);
-      } catch {}
+      } catch (err: unknown) {
+        void err;
+      }
     };
     window.addEventListener("app:alert", handler as EventListener);
     return () =>
       window.removeEventListener("app:alert", handler as EventListener);
-  }, []);
+  }, [showAlert]);
 
   return (
     <AlertContext.Provider value={{ alert, showAlert, hideAlert }}>
       {children}
+      {alert?.floating && createPortal(<Alert />, document.body)}
     </AlertContext.Provider>
   );
 };
 
 export const useAlert = (): AlertContextType => {
   const context = useContext(AlertContext);
-  if (context === null) {
+  if (context === null)
     throw new Error("useAlert 必須在 AlertProvider 內被使用！");
-  }
   return context;
 };

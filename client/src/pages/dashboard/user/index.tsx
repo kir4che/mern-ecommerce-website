@@ -1,9 +1,8 @@
 import { Link } from "react-router";
 
-import { useAuth } from "@/hooks/useAuth";
-
-import OrderTable from "@/components/organisms/OrdersTable";
 import Button from "@/components/atoms/Button";
+import OrderTable from "@/components/organisms/OrdersTable";
+import { useAuth } from "@/hooks/useAuth";
 
 import LogoutIcon from "@/assets/icons/logout.inline.svg?react";
 import ArrowRightIcon from "@/assets/icons/nav-arrow-right.inline.svg?react";
@@ -12,27 +11,28 @@ const UserDashboard = () => {
   const { user, logout } = useAuth();
 
   return (
-    <div className="w-full max-w-6xl px-5 pt-8 pb-4 mx-auto md:px-8">
-      <h2>帳戶</h2>
-      <div className="flex items-center gap-4 mb-6">
-        <p className="text-base">{user.email}</p>
+    <div className="w-full min-h-[calc(100vh-15rem)] flex flex-col max-w-6xl px-5 pt-8 mx-auto md:px-8">
+      <div className="flex max-sm:justify-between items-center gap-4 mb-6">
+        <p className="text-base">{user?.email}</p>
         <Button
           variant="link"
           icon={LogoutIcon}
           iconPosition="end"
           onClick={logout}
-          className="text-primary"
+          className="text-primary hover:opacity-70"
         >
           登出
         </Button>
       </div>
       <OrderTable isAdmin={false} />
-      <Link
-        to="/contact"
-        className="flex items-center justify-end gap-1 mt-12 text-sm"
-      >
-        聯繫客服 <ArrowRightIcon className="w-5 h-5" />
-      </Link>
+      <div className="mt-auto pt-8">
+        <Link
+          to="/contact"
+          className="flex items-center justify-end gap-1 text-sm font-medium text-gray-content/70 hover:text-primary transition-colors"
+        >
+          聯繫客服 <ArrowRightIcon className="size-5" />
+        </Link>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,11 @@
+import { UserRole } from "@/types";
+import { cn } from "@/utils/cn";
 import { Link } from "react-router";
 
+type Role = UserRole | string | null | undefined;
+
 interface NavigationProps {
-  role: string;
+  role?: Role;
   handleMenuClose: () => void;
 }
 
@@ -30,42 +34,54 @@ const sections = [
   },
 ];
 
-const Navigation: React.FC<NavigationProps> = ({ role, handleMenuClose }) => {
-  const filteredSections = sections.map((section) => {
-    const filteredItems = section.items?.filter((item) => {
-      if (!item.role) return true; // 無角色限制的項目所有人都能看見
-      if (item.role === "admin" && role !== "admin") return false; // 非 admin 隱藏「管理後台」
-      if (item.role === "user" && !["user", "admin"].includes(role))
-        return false;
-      return true;
-    });
-
-    return { ...section, items: filteredItems };
-  });
+const Navigation = ({ role, handleMenuClose }: NavigationProps) => {
+  const filteredSections = sections.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (!item.role) return true;
+      if (item.role === "admin") return role === "admin";
+      if (item.role === "user") return role === "admin" || role === "user";
+      return false;
+    }),
+  }));
 
   return (
-    <nav className="flex w-2/3 gap-24 pt-16 pb-24 mx-auto lg:w-3/5 max-w-96 text-secondary">
+    <nav
+      aria-label="主選單"
+      className="flex max-sm:flex-col sm:items-baseline w-full max-w-xs sm:max-w-2xl gap-12 sm:gap-24 pt-10 sm:pt-16 pb-24 mx-auto px-8 text-white"
+    >
       {filteredSections.map((section, index) => (
-        <ul key={index} className="flex-1 space-y-4">
-          {section.title && (
-            <li className="pb-2.5 border-b border-dashed border-secondary">
-              <Link to={section.path} onClick={handleMenuClose}>
+        <div key={index} className="flex-1">
+          {section.title && section.path && (
+            <div className="pb-2.5 border-b border-dashed border-white/50 mb-4">
+              <Link
+                to={section.path}
+                onClick={handleMenuClose}
+                className="text-lg tracking-wider font-medium hover:text-gray-200 transition-colors"
+              >
                 {section.title}
               </Link>
-            </li>
+            </div>
           )}
           <ul
-            className={`text-nowrap ${index === 1 ? "space-y-2.5" : "space-y-4"}`}
+            className={cn(
+              "flex flex-col text-nowrap",
+              index === 1 ? "space-y-3" : "space-y-4"
+            )}
           >
             {section.items.map(({ title, path }) => (
               <li key={path}>
-                <Link to={path} onClick={handleMenuClose}>
+                <Link
+                  to={path}
+                  onClick={handleMenuClose}
+                  className="block w-fit opacity-80 hover:opacity-100 hover:translate-x-2 transition-all duration-300 font-light tracking-wide"
+                >
                   {title}
                 </Link>
               </li>
             ))}
           </ul>
-        </ul>
+        </div>
       ))}
     </nav>
   );

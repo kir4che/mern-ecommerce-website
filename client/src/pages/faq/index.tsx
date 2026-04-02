@@ -1,23 +1,21 @@
-import { FAQ as faqData } from "@/constants/data";
-
+import Accordion from "@/components/molecules/Accordion";
 import PageHeader from "@/components/molecules/PageHeader";
+import { FAQ as faqData } from "@/constants/data";
 
 const FAQ = () => (
   <>
     <PageHeader breadcrumbText="常見問題" titleEn="FAQ" titleCh="常見問題" />
-    <div className="max-w-3xl px-5 py-20 mx-auto md:px-8">
-      <div className="w-full space-y-4 rounded-none join join-vertical">
+    <div className="max-w-3xl w-full px-5 py-20 mx-auto md:px-8">
+      <div className="w-full space-y-2">
         {faqData.map(({ question, answer }) => (
-          <div
+          <Accordion
             key={question}
-            className="border-b border-dashed collapse border-primary/80 collapse-arrow join-item"
+            title={question}
+            name="faq"
+            defaultOpen={false}
           >
-            <input type="radio" name="faq" />
-            <h3 className="px-0 text-base collapse-title">{question}</h3>
-            <div className="px-0 collapse-content">
-              <p>{answer}</p>
-            </div>
-          </div>
+            {answer}
+          </Accordion>
         ))}
       </div>
     </div>

@@ -1,19 +1,22 @@
 import { createRoot } from "react-dom/client";
-import { RouterProvider } from "react-router";
 import { Provider } from "react-redux";
+import { RouterProvider } from "react-router";
 
-import { ThemeProvider } from "@/context/ThemeContext";
 import { AlertProvider } from "@/context/AlertContext";
-import { store } from "@/store";
+import { ConfirmDialogProvider } from "@/context/ConfirmDialogContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { router } from "@/routes";
+import { store } from "@/store";
 
-import "./style.css";
+import "./styles.css";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <Provider store={store}>
     <ThemeProvider>
       <AlertProvider>
-        <RouterProvider router={router} />
+        <ConfirmDialogProvider>
+          <RouterProvider router={router} />
+        </ConfirmDialogProvider>
       </AlertProvider>
     </ThemeProvider>
   </Provider>

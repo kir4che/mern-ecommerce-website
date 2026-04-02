@@ -1,30 +1,70 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
 
 import Checkbox from "@/components/atoms/Checkbox";
 
-const mockOnChange = jest.fn(); // 模擬 onChange 函式
+describe("Checkbox 元件", () => {
+  test("渲染帶 label 的 checkbox", () => {
+    render(
+      <Checkbox id="test-checkbox" label="Test Label" onChange={vi.fn()} />
+    );
 
-test("renders checkbox with label", () => {
-  render(
-    <Checkbox
-      id="test-checkbox"
-      label="Test Checkbox"
-      onChange={mockOnChange}
-    />
-  );
+    expect(screen.getByTestId("test-checkbox")).toBeInTheDocument();
+    expect(screen.getByLabelText("Test Label")).toBeInTheDocument();
+  });
 
-  expect(screen.getByTestId("test-checkbox")).toBeInTheDocument(); // 確認 Checkbox 有渲染到畫面上
-});
+  test("點擊 checkbox 時呼叫 onChange", () => {
+    const handleChange = vi.fn();
+    render(
+      <Checkbox
+        id="test-checkbox"
+        label="Test Checkbox"
+        onChange={handleChange}
+      />
+    );
 
-test("click checkbox", () => {
-  render(
-    <Checkbox
-      id="test-checkbox"
-      label="Test Checkbox"
-      onChange={mockOnChange}
-    />
-  );
+    const checkbox = screen.getByTestId("test-checkbox");
+    fireEvent.click(checkbox);
+    expect(handleChange).toHaveBeenCalledTimes(1);
+  });
 
-  fireEvent.click(screen.getByTestId("test-checkbox"));
-  expect(mockOnChange).toHaveBeenCalledTimes(1); // 確認 mockOnChange 被呼叫一次
+  test("當 disabled 為 true 時 disabled checkbox", () => {
+    render(
+      <Checkbox
+        id="disabled-checkbox"
+        label="Disabled Checkbox"
+        disabled
+        onChange={vi.fn()}
+      />
+    );
+
+    const checkbox = screen.getByTestId("disabled-checkbox");
+    expect(checkbox).toBeDisabled();
+  });
+
+  test("接受 checked 以控制核取狀態", () => {
+    const { rerender } = render(
+      <Checkbox
+        id="controlled-checkbox"
+        label="Controlled"
+        checked={false}
+        onChange={vi.fn()}
+      />
+    );
+
+    let checkbox = screen.getByTestId("controlled-checkbox");
+    expect(checkbox).not.toBeChecked();
+
+    rerender(
+      <Checkbox
+        id="controlled-checkbox"
+        label="Controlled"
+        checked
+        onChange={vi.fn()}
+      />
+    );
+
+    checkbox = screen.getByTestId("controlled-checkbox");
+    expect(checkbox).toBeChecked();
+  });
 });

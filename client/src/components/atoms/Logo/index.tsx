@@ -6,7 +6,7 @@ interface LogoProps {
   isWhite?: boolean;
 }
 
-const Logo: React.FC<LogoProps> = ({ className, isWhite = false }) => (
+const Logo = ({ className, isWhite = false }: LogoProps) => (
   <img
     src={isWhite ? logoWhitePath : logoPath}
     className={"w-40 " + className}

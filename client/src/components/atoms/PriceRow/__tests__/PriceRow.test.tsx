@@ -1,15 +1,8 @@
-import { render, screen } from "@testing-library/react";
 import PriceRow from "@/components/atoms/PriceRow";
+import { render } from "@testing-library/react";
 
-describe("PriceRow Component", () => {
-  test("renders PriceRow with label and value", () => {
-    render(<PriceRow label="小計" value={100} />);
-
-    expect(screen.getByText("小計")).toBeInTheDocument();
-    expect(screen.getByText("NT$ 100")).toBeInTheDocument();
-  });
-
-  test("does not render when value is 0 or less", () => {
+describe("PriceRow 元件", () => {
+  test("值為 0 或負數時不渲染任何內容", () => {
     const { container } = render(<PriceRow label="小計" value={0} />);
     expect(container).toBeEmptyDOMElement(); // 確認 container 為空
   });

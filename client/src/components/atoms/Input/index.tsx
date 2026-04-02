@@ -1,115 +1,72 @@
-import { useState } from "react";
+import { ComponentProps } from "react";
 
-type NativeInputProps = React.InputHTMLAttributes<HTMLInputElement>;
+import { cn } from "@/utils/cn";
 
-type PatternRule = { value: RegExp; message: string };
-
-interface InputProps
-  extends Omit<NativeInputProps, "type" | "value" | "onChange" | "pattern"> {
-  id?: string;
-  name?: string;
-  type?: "text" | "number" | "email" | "password" | "tel" | "date" | "file";
+interface InputProps extends ComponentProps<"input"> {
   label?: string;
-  placeholder?: string;
-  value?: string | number;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
-  pattern?: PatternRule;
-  errorMessage?: string;
+  error?: string;
   helperText?: string;
-  containerStyle?: string;
-  wrapperStyle?: string;
-  labelStyle?: string;
-  inputStyle?: string;
-  numberStyle?: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  inputClassName?: string;
 }
 
-const Input: React.FC<InputProps> = ({
+const Input = ({
   id,
-  name,
-  type = "text",
   label,
-  placeholder,
-  value,
-  onChange = () => {},
-  required = false,
-  pattern,
-  errorMessage,
+  error,
   helperText,
-  containerStyle = "",
-  wrapperStyle = "flex-col gap-1",
-  labelStyle = "",
-  inputStyle = "",
-  numberStyle = "rounded-none h-fit p-0",
   icon: Icon,
+  className,
+  inputClassName,
+  required,
+  ref,
   ...props
-}) => {
-  const [errorState, setErrorState] = useState<boolean>(false);
-
-  const handleValidation = (value: string | number) => {
-    if (required && !value) {
-      setErrorState(true);
-      return;
-    }
-
-    // 檢查是否符合正則表達式，並且不允許是0
-    if (pattern && value && !pattern.value.test(value.toString())) {
-      setErrorState(true);
-      return;
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setErrorState(false);
-    handleValidation(e.target.value);
-    onChange(e);
-  };
+}: InputProps) => {
+  const isInvalid = !!error;
 
   return (
-    <div className={`flex flex-col gap-1 ${containerStyle}`}>
-      <div className={`flex ${wrapperStyle}`}>
-        {label && (
-          <label
-            htmlFor={id}
-            className={`text-sm ${errorState ? "text-red-600" : ""} ${labelStyle}`}
+    <div className={cn("form-control w-full space-y-1", className)}>
+      {label && (
+        <label htmlFor={id} className="label">
+          <span
+            className={cn(
+              "label-text text-[13px]",
+              isInvalid && "text-red-600"
+            )}
           >
-            {label} {required && <span className="text-red-600">*</span>}
-          </label>
-        )}
-        <div
-          className={`flex items-center gap-2 input focus-within:outline-none input-bordered
-          ${errorState ? "border-red-600 focus-within:border-red-600" : ""}
-          ${type === "number" ? "pl-2.5 pr-0" + numberStyle : ""}
-          ${inputStyle}`}
-        >
-          {Icon && (
-            <Icon
-              className={`w-5 ${errorState ? "stroke-red-500 text-red-500" : ""}`}
-            />
-          )}
-          <input
-            id={id}
-            name={name}
-            type={type}
-            value={value}
-            placeholder={placeholder}
-            onChange={handleChange}
-            onBlur={() => handleValidation(value)}
-            onInvalid={() => handleValidation(value)}
-            required={required}
-            className={`border-none grow ${errorState ? "placeholder-red-300 text-red-600" : ""}`}
-            data-testid={id}
-            aria-invalid={errorState}
-            {...props}
-          />
-        </div>
-      </div>
-      {!errorState && helperText && (
-        <p className="text-gray-400">{helperText}</p>
+            {label} {required && <span className="text-red-600 ml-0.5">*</span>}
+          </span>
+        </label>
       )}
-      {errorState && (
-        <p className="text-red-600">{errorMessage || pattern?.message}</p>
+      <div className="relative flex items-center">
+        {Icon && (
+          <Icon
+            className={cn(
+              "absolute left-3 z-10 size-5 text-gray-500 pointer-events-none",
+              isInvalid && "text-red-600"
+            )}
+          />
+        )}
+        <input
+          ref={ref}
+          id={id}
+          required={required}
+          aria-invalid={isInvalid}
+          className={cn(
+            "input input-bordered w-full focus:outline-none",
+            Icon && "pl-10",
+            isInvalid && "input-error",
+            inputClassName
+          )}
+          {...props}
+        />
+      </div>
+      {(error || helperText) && (
+        <div className="label text-[13px] mt-1">
+          <span className={isInvalid ? "text-red-600" : "text-gray-500"}>
+            {error || helperText}
+          </span>
+        </div>
       )}
     </div>
   );

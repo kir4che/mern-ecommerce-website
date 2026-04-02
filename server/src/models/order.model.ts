@@ -15,9 +15,7 @@ export interface IOrderItem {
   productId: Types.ObjectId;
   quantity: number;
   price: number;
-  amount: number;
   title: string;
-  imageUrl?: string;
 }
 
 export interface IOrder extends Document<Types.ObjectId> {
@@ -38,10 +36,11 @@ export interface IOrder extends Document<Types.ObjectId> {
   shippingStatus: (typeof SHIPPING_STATUS)[number];
   paymentMethod?: string;
   tradeNo?: string; // 綠界交易編號
-  itemName?: string;
   paymentStatus: (typeof PAYMENT_STATUS)[number];
   paymentDate?: Date;
   note?: string;
+  pendingNote?: string; // 暫存備註
+  expiresAt?: Date; // 過期時間
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,8 +50,6 @@ const orderItemSchema = new Schema<IOrderItem>({
   title: { type: String, required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
-  amount: { type: Number, required: true },
-  imageUrl: { type: String },
 });
 
 const orderSchema = new Schema<IOrder>(
@@ -73,10 +70,11 @@ const orderSchema = new Schema<IOrder>(
     shippingStatus: { type: String, enum: SHIPPING_STATUS, default: "pending" },
     paymentMethod: { type: String },
     tradeNo: { type: String },
-    itemName: { type: String },
     paymentStatus: { type: String, enum: PAYMENT_STATUS, default: "unpaid" },
     paymentDate: { type: Date },
     note: { type: String, default: "" },
+    pendingNote: { type: String },
+    expiresAt: { type: Date },
   },
   { timestamps: true }
 );
@@ -90,6 +88,11 @@ orderSchema.index(
     sparse: true,
     partialFilterExpression: { paymentStatus: { $in: ["paid", "refunded"] } },
   }
+);
+
+orderSchema.index(
+  { expiresAt: 1 },
+  { sparse: true, expireAfterSeconds: 0 }
 );
 
 export const OrderModel = model<IOrder>("Order", orderSchema);

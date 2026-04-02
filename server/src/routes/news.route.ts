@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 import { addNew, deleteNewById, getNew, getNewById, updateNew } from "../controllers/news.controller";
+import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 
 const router = Router();
 

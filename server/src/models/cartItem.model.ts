@@ -1,4 +1,4 @@
-import { Schema, Types, model, Document } from "mongoose";
+import { Document, Schema, Types, model } from "mongoose";
 
 export interface ICartItem extends Document<Types.ObjectId> {
   _id: Types.ObjectId;
@@ -13,7 +13,6 @@ const cartItemSchema = new Schema<ICartItem>({
   quantity: { type: Number, required: true, min: [1, "Quantity cannot be less than 1"] },
 }, { timestamps: true });
 
-cartItemSchema.index({ cartId: 1 });
-cartItemSchema.index({ productId: 1 });
+cartItemSchema.index({ cartId: 1, productId: 1 }, { unique: true });
 
 export const CartItemModel = model<ICartItem>("CartItem", cartItemSchema);

@@ -5,21 +5,22 @@ import PrivateRoute from "@/routes/PrivateRoute";
 
 import App from "@/App";
 import About from "@/pages/about";
+import Cart from "@/pages/cart";
+import Checkout from "@/pages/checkout";
+import Collections from "@/pages/collections/[category]";
+import Contact from "@/pages/contact";
+import AdminDashboard from "@/pages/dashboard/admin";
+import UserDashboard from "@/pages/dashboard/user";
+import FAQ from "@/pages/faq";
+import Login from "@/pages/login";
 import News from "@/pages/news";
 import New from "@/pages/news/[id]";
-import FAQ from "@/pages/faq";
-import Contact from "@/pages/contact";
-import Collections from "@/pages/collections/[category]";
+import NotFound from "@/pages/notFound";
 import Product from "@/pages/products/[id]";
 import Register from "@/pages/register";
-import Login from "@/pages/login";
 import RequestResetLink from "@/pages/reset-password";
 import ResetPassword from "@/pages/reset-password/[token]";
-import Cart from "@/pages/cart";
-import Checkout from "@/pages/checkout/[id]";
-import UserDashboard from "@/pages/dashboard/user";
-import AdminDashboard from "@/pages/dashboard/admin";
-import NotFound from "@/pages/notFound";
+import AdminRoute from "@/routes/AdminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -38,21 +39,38 @@ export const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "reset-password", element: <RequestResetLink /> },
       { path: "reset-password/:token", element: <ResetPassword /> },
+      { path: "cart", element: <Cart /> },
       {
-        path: "cart",
-        element: <PrivateRoute component={Cart} />,
+        path: "checkout",
+        element: (
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        ),
       },
       {
         path: "checkout/:id",
-        element: <PrivateRoute component={Checkout} />,
+        element: (
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        ),
       },
       {
         path: "my-account",
-        element: <PrivateRoute component={UserDashboard} />,
+        element: (
+          <PrivateRoute>
+            <UserDashboard />
+          </PrivateRoute>
+        ),
       },
       {
         path: "admin/dashboard",
-        element: <PrivateRoute component={AdminDashboard} />,
+        element: (
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        ),
       },
       { path: "*", element: <NotFound /> },
     ],

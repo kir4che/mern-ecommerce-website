@@ -1,29 +1,27 @@
-export enum AUTH_ACTION_TYPE {
-  LOGIN_REQUEST = "LOGIN_REQUEST",
-  LOGIN_SUCCESS = "LOGIN_SUCCESS",
-  LOGIN_FAIL = "LOGIN_FAIL",
-  LOGOUT = "LOGOUT",
-  LOGOUT_FAIL = "LOGOUT_FAIL",
-}
-
-export const ERROR_MESSAGES = {
-  LOGIN_FAIL: "使用者帳號或密碼不正確，請重新輸入！",
-  LOGOUT_FAIL: "登出失敗，請稍後再試！",
-  STORAGE_FAIL: "登入狀態保存失敗，請檢查您的網路或重試。",
-  LOGIN_RESPONSE_ERROR: "登入失敗，請稍後再試或聯繫我們。",
-} as const;
-
 export const PRODUCT_CATEGORIES = [
-  { label: "所有商品", link: "all" },
-  { label: "推薦", link: "recommend" },
-  { label: "熱銷", link: "hot" },
-  { label: "麵包", link: "bread" },
-  { label: "蛋糕", link: "cake" },
-  { label: "餅乾", link: "cookie" },
-  { label: "其他", link: "other" },
+  { label: "麵包", value: "bread" },
+  { label: "蛋糕", value: "cake" },
+  { label: "餅乾", value: "cookie" },
+  { label: "其他", value: "other" },
 ] as const;
 
-export const ORDER_STATUS = {
+export const PRODUCT_TAGS = [
+  { label: "推薦", value: "recommend" },
+  { label: "熱銷", value: "hot" },
+  { label: "新品", value: "new" },
+  { label: "特價", value: "sale" },
+] as const;
+
+export const PRODUCT_COLLECTIONS = [
+  { label: "所有商品", value: "all", type: "all" },
+  { label: "推薦", value: "recommend", type: "tag" },
+  { label: "熱銷", value: "hot", type: "tag" },
+  { label: "麵包", value: "bread", type: "category" },
+  { label: "蛋糕", value: "cake", type: "category" },
+  { label: "餅乾", value: "cookie", type: "category" },
+] as const;
+
+export const ORDER_STATUS_MAP = {
   created: "已成立",
   paid: "已付款",
   processing: "處理中",
@@ -36,13 +34,13 @@ export const ORDER_STATUS = {
   returned: "已退貨",
 } as const;
 
-export const PAYMENT_STATUS = {
+export const PAYMENT_STATUS_MAP = {
   unpaid: "未付款",
   paid: "已付款",
   refunded: "已退款",
 } as const;
 
-export const SHIPPING_STATUS = {
+export const SHIPPING_STATUS_MAP = {
   pending: "待出貨",
   in_transit: "配送中",
   delivered: "已送達",
@@ -51,18 +49,10 @@ export const SHIPPING_STATUS = {
   returned: "已退貨",
 } as const;
 
-export const ORDERS_FILTER_TYPES = {
-  ALL: 0,
-  UNPAID: 1,
-  PENDING: 2,
-  SHIPPED: 3,
-  COMPLETED: 4,
-} as const;
-
-export const ORDER_FILTER_TYPE_LABELS = {
-  0: "全部",
-  1: "待付款",
-  2: "待出貨",
-  3: "已出貨",
-  4: "已完成",
-} as const;
+export const ORDER_FILTER_OPTIONS = [
+  { id: "ALL", value: 0, label: "全部" },
+  { id: "UNPAID", value: 1, label: "待付款" },
+  { id: "PENDING", value: 2, label: "待出貨" },
+  { id: "SHIPPED", value: 3, label: "已出貨" },
+  { id: "COMPLETED", value: 4, label: "已完成" },
+] as const;
