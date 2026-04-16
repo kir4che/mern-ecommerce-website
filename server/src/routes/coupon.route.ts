@@ -8,10 +8,11 @@ import {
   validateCoupon,
 } from "../controllers/coupon.controller";
 import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
+import { couponLimiter } from "../middlewares/rateLimit.middleware";
 
 const router = Router();
 
-router.route("/validate").post(validateCoupon);
+router.route("/validate").post(couponLimiter, validateCoupon);
 
 router.use(authMiddleware);
 router.use(isAdmin);

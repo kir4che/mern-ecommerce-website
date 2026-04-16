@@ -102,4 +102,5 @@ export const ERROR_CODE_MAP: Record<string, ErrorMapValue> = {
   NOT_FOUND: "找不到您要的資料",
   IMAGE_FILE_REQUIRED: "請先選擇要上傳的圖片",
   IMAGE_UPLOAD_FAILED: "圖片上傳失敗，請稍後再試。",
+  TOO_MANY_REQUESTS: "請求過於頻繁，請稍後再試。",
 };
