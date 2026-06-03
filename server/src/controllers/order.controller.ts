@@ -4,7 +4,10 @@ import { Types } from "mongoose";
 import { CouponModel } from "../models/coupon.model";
 import { OrderModel } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
-import { normalizeCouponCode, validateCouponForSubtotal } from "../utils/coupon";
+import {
+  normalizeCouponCode,
+  validateCouponForSubtotal,
+} from "../utils/coupon";
 import { generateOrderNo } from "../utils/order";
 import { ordersFilrer } from "../utils/ordersFilrer";
 import { calculateShippingFee } from "../utils/shipping";
@@ -50,7 +53,9 @@ const getOrdersByUser = async (req: AuthRequest, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "USER_ORDERS_FETCH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "USER_ORDERS_FETCH_FAILED", message });
   }
 };
 
@@ -91,7 +96,9 @@ const getOrders = async (req: AuthRequest, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "ORDERS_FETCH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "ORDERS_FETCH_FAILED", message });
   }
 };
 
@@ -100,16 +107,22 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
   const orderId = Array.isArray(id) ? id[0] : id;
 
   if (!Types.ObjectId.isValid(orderId))
-    return res
-      .status(400)
-      .json({ success: false, code: "INVALID_ORDER_ID", message: "Invalid order ID format." });
+    return res.status(400).json({
+      success: false,
+      code: "INVALID_ORDER_ID",
+      message: "Invalid order ID format.",
+    });
 
   try {
     const order = await OrderModel.findById(orderId);
 
     // 驗證訂單是否存在
     if (!order)
-      return res.status(404).json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
+      return res.status(404).json({
+        success: false,
+        code: "ORDER_NOT_FOUND",
+        message: "Order not found.",
+      });
 
     // 驗證訂單所有權：只有訂單所有人或 admin 才能查看
     if (req.role !== "admin" && req.userId && !order.userId.equals(req.userId))
@@ -119,13 +132,13 @@ const getOrderById = async (req: AuthRequest, res: Response) => {
         message: "You are not authorized to view this order.",
       });
 
-    res
-      .status(200)
-      .json({ success: true, order });
+    res.status(200).json({ success: true, order });
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "ORDER_FETCH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "ORDER_FETCH_FAILED", message });
   }
 };
 
@@ -188,7 +201,10 @@ const createOrder = async (req: AuthRequest, res: Response) => {
       };
     });
 
-    const subtotal = computedOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = computedOrderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
     const shippingFee = calculateShippingFee(subtotal);
     let discount = 0;
     let appliedCouponCode: string | undefined;
@@ -197,7 +213,10 @@ const createOrder = async (req: AuthRequest, res: Response) => {
     if (typeof couponCode === "string" && couponCode.trim()) {
       const normalizedCode = normalizeCouponCode(couponCode);
       const coupon = await CouponModel.findOne({ code: normalizedCode });
-      const couponValidationResult = validateCouponForSubtotal(coupon, subtotal);
+      const couponValidationResult = validateCouponForSubtotal(
+        coupon,
+        subtotal
+      );
 
       // 優惠碼無效處理
       if (!couponValidationResult.valid)
@@ -260,7 +279,9 @@ const createOrder = async (req: AuthRequest, res: Response) => {
 
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "ORDER_CREATE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "ORDER_CREATE_FAILED", message });
   }
 };
 
@@ -272,9 +293,11 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
   try {
     const order = await OrderModel.findById(orderId);
     if (!order)
-      return res
-        .status(404)
-        .json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
+      return res.status(404).json({
+        success: false,
+        code: "ORDER_NOT_FOUND",
+        message: "Order not found.",
+      });
 
     if (!order.userId.equals(req.userId))
       return res.status(403).json({
@@ -284,7 +307,7 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
       });
 
     // 只允許更新特定欄位
-    const allowedFields = ['name', 'phone', 'address', 'note'];
+    const allowedFields = ["name", "phone", "address", "note"];
     const filteredData = Object.fromEntries(
       Object.entries(updateData).filter(([key]) => allowedFields.includes(key))
     );
@@ -302,7 +325,9 @@ const updateOrder = async (req: AuthRequest, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "ORDER_UPDATE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "ORDER_UPDATE_FAILED", message });
   }
 };
 
@@ -361,5 +386,11 @@ const cancelOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export { cancelOrder, createOrder, getOrderById, getOrders, getOrdersByUser, updateOrder };
-
+export {
+  cancelOrder,
+  createOrder,
+  getOrderById,
+  getOrders,
+  getOrdersByUser,
+  updateOrder,
+};

@@ -1,7 +1,6 @@
 import app from "./app";
 import { OrderModel } from "./models/order.model";
 import { logger } from "./utils/logger";
-import { cleanupExpiredFlashSalesReservations } from "./utils/flashSaleCleanup";
 
 const port = process.env.PORT || 8080;
 

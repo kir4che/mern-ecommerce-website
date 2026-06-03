@@ -90,9 +90,6 @@ orderSchema.index(
   }
 );
 
-orderSchema.index(
-  { expiresAt: 1 },
-  { sparse: true, expireAfterSeconds: 0 }
-);
+orderSchema.index({ expiresAt: 1 }, { sparse: true, expireAfterSeconds: 0 });
 
 export const OrderModel = model<IOrder>("Order", orderSchema);

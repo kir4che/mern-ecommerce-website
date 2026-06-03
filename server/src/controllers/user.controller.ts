@@ -16,17 +16,21 @@ const getUserData = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId)
-      return res
-        .status(401)
-        .json({ success: false, code: "USER_ID_MISSING", message: "User ID not found in request." });
+      return res.status(401).json({
+        success: false,
+        code: "USER_ID_MISSING",
+        message: "User ID not found in request.",
+      });
 
     const user = await UserModel.findById(userId).select(
-      "email role createdAt",
+      "email role createdAt"
     );
     if (!user)
-      return res
-        .status(404)
-        .json({ success: false, code: "USER_NOT_FOUND", message: "User not found!" });
+      return res.status(404).json({
+        success: false,
+        code: "USER_NOT_FOUND",
+        message: "User not found!",
+      });
 
     res.status(200).json({
       success: true,
@@ -38,11 +42,17 @@ const getUserData = async (req: AuthRequest, res: Response) => {
     });
   } catch (err: unknown) {
     if (err instanceof Error && err.name === "TokenExpiredError")
-      return res
-        .status(401)
-        .json({ success: false, code: "TOKEN_EXPIRED", message: "Token has expired." });
+      return res.status(401).json({
+        success: false,
+        code: "TOKEN_EXPIRED",
+        message: "Token has expired.",
+      });
     else
-      return res.status(401).json({ success: false, code: "UNAUTHORIZED", message: "Unauthorized!" });
+      return res.status(401).json({
+        success: false,
+        code: "UNAUTHORIZED",
+        message: "Unauthorized!",
+      });
   }
 };
 
@@ -53,9 +63,11 @@ const createNewUser = async (req: Request, res: Response) => {
     // 先確認該 email 是否已經被註冊過
     const isNewUser = await UserModel.findOne({ email });
     if (isNewUser)
-      return res
-        .status(400)
-        .json({ success: false, code: "USER_ALREADY_EXISTS", message: "User already Exists!" });
+      return res.status(400).json({
+        success: false,
+        code: "USER_ALREADY_EXISTS",
+        message: "User already Exists!",
+      });
 
     // 將 password 進行 hash
     const hashedPassword = await argon2.hash(password);
@@ -72,7 +84,9 @@ const createNewUser = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "USER_REGISTRATION_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "USER_REGISTRATION_FAILED", message });
   }
 };
 
@@ -83,27 +97,31 @@ const loginUser = async (req: Request, res: Response) => {
     // 確認該 email 是否已經被註冊過
     const user = await UserModel.findOne({ email });
     if (!user)
-      return res
-        .status(400)
-        .json({ success: false, code: "USER_NOT_FOUND", message: "User doesn't exist!" });
+      return res.status(400).json({
+        success: false,
+        code: "USER_NOT_FOUND",
+        message: "User doesn't exist!",
+      });
 
     // 確認 password 是否正確
     const passwordMatch = await argon2.verify(user.password, password);
     if (!passwordMatch)
-      return res
-        .status(400)
-        .json({ success: false, code: "INVALID_CREDENTIALS", message: "Invalid Password!" });
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_CREDENTIALS",
+        message: "Invalid Password!",
+      });
 
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
-      { expiresIn: "15m" },
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { userId: user._id },
       process.env.JWT_REFRESH_SECRET as string,
-      { expiresIn: rememberMe ? "7d" : "1d" },
+      { expiresIn: rememberMe ? "7d" : "1d" }
     );
 
     user.refreshToken = refreshToken;
@@ -148,8 +166,8 @@ const resetPassword = async (req: Request, res: Response) => {
   try {
     const user = await UserModel.findOne({ email });
     if (!user)
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
       });
 
     // 生成一次性 Token
@@ -187,12 +205,16 @@ const resetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true });
   } catch (err: unknown) {
-    res.status(500).json({ success: false, code: "PASSWORD_RESET_REQUEST_FAILED", message: "Internal Server Error" });
+    res.status(500).json({
+      success: false,
+      code: "PASSWORD_RESET_REQUEST_FAILED",
+      message: "Internal Server Error",
+    });
   }
 };
 
 const updatePassword = async (req: Request, res: Response) => {
-  const { token } = req.params; 
+  const { token } = req.params;
   const { password } = req.body;
 
   try {
@@ -202,14 +224,16 @@ const updatePassword = async (req: Request, res: Response) => {
     });
 
     if (!user)
-      return res
-        .status(400)
-        .json({ success: false, code: "INVALID_RESET_TOKEN", message: "Invalid or expired token!" });
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_RESET_TOKEN",
+        message: "Invalid or expired token!",
+      });
 
     const hashedPassword = await argon2.hash(password);
     user.password = hashedPassword;
-    
-    user.resetToken = undefined; 
+
+    user.resetToken = undefined;
     user.resetTokenExpiration = undefined;
     await user.save();
 
@@ -219,7 +243,9 @@ const updatePassword = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "PASSWORD_UPDATE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "PASSWORD_UPDATE_FAILED", message });
   }
 };
 
@@ -227,29 +253,33 @@ const refreshAccessToken = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken)
-    return res
-      .status(401)
-      .json({ success: false, code: "REFRESH_TOKEN_REQUIRED", message: "Refresh token is required!" });
+    return res.status(401).json({
+      success: false,
+      code: "REFRESH_TOKEN_REQUIRED",
+      message: "Refresh token is required!",
+    });
 
   try {
     // 驗證 Refresh Token
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET as string,
+      process.env.JWT_REFRESH_SECRET as string
     ) as { userId: Types.ObjectId };
 
     // 檢查資料庫中的 Refresh Token 是否匹配
     const user = await UserModel.findById(decoded.userId);
     if (!user || user.refreshToken !== refreshToken)
-      return res
-        .status(403)
-        .json({ success: false, code: "INVALID_REFRESH_TOKEN", message: "Invalid refresh token!" });
+      return res.status(403).json({
+        success: false,
+        code: "INVALID_REFRESH_TOKEN",
+        message: "Invalid refresh token!",
+      });
 
     // 生成新的 Access Token
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET as string,
-      { expiresIn: "15m" },
+      { expiresIn: "15m" }
     );
 
     res.status(200).json({
@@ -258,13 +288,17 @@ const refreshAccessToken = async (req: Request, res: Response) => {
     });
   } catch (err: unknown) {
     if (err instanceof Error && err.name === "TokenExpiredError")
-      return res
-        .status(403)
-        .json({ success: false, code: "REFRESH_TOKEN_EXPIRED", message: "Refresh token has expired!" });
+      return res.status(403).json({
+        success: false,
+        code: "REFRESH_TOKEN_EXPIRED",
+        message: "Refresh token has expired!",
+      });
 
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "TOKEN_REFRESH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "TOKEN_REFRESH_FAILED", message });
   }
 };
 
@@ -275,5 +309,5 @@ export {
   logoutUser,
   refreshAccessToken,
   resetPassword,
-  updatePassword
+  updatePassword,
 };

@@ -16,9 +16,8 @@ export const errorHandler = (
     500: "INTERNAL_SERVER_ERROR",
   };
   const code =
-    err.code ||
-    (defaultCodeMap[Number(statusCode)] ?? "INTERNAL_SERVER_ERROR");
-  
+    err.code || (defaultCodeMap[Number(statusCode)] ?? "INTERNAL_SERVER_ERROR");
+
   res.status(statusCode).json({
     success: false,
     code,

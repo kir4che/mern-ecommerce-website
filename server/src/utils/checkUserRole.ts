@@ -20,14 +20,20 @@ const checkUserRole = async (
 ) => {
   const user = req.session?.user;
   if (!user)
-    return res.status(401).json({ success: false, code: "UNAUTHORIZED", message: "Unauthorized. Please log in." });
+    return res.status(401).json({
+      success: false,
+      code: "UNAUTHORIZED",
+      message: "Unauthorized. Please log in.",
+    });
 
   const role = user.role;
   if (role === "admin") return next();
 
-  return res
-    .status(403)
-    .json({ success: false, code: "ADMIN_ROLE_REQUIRED", message: "Permission denied. Only admins can add products." });
+  return res.status(403).json({
+    success: false,
+    code: "ADMIN_ROLE_REQUIRED",
+    message: "Permission denied. Only admins can add products.",
+  });
 };
 
 export default checkUserRole;

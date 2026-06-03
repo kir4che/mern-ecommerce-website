@@ -4,7 +4,11 @@ import { Types } from "mongoose";
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   if (req.role !== "admin")
-    return res.status(403).json({ success: false, code: "ADMIN_ACCESS_REQUIRED", message: "你沒有權限執行此操作。" });
+    return res.status(403).json({
+      success: false,
+      code: "ADMIN_ACCESS_REQUIRED",
+      message: "你沒有權限執行此操作。",
+    });
   next();
 };
 
@@ -41,8 +45,16 @@ export const authMiddleware = async (
     next();
   } catch (err: unknown) {
     if (err instanceof Error && err.name === "TokenExpiredError")
-      return res.status(401).json({ success: false, code: "TOKEN_EXPIRED", message: "連線已過期，請重新登入。" });
-    
-    return res.status(401).json({ success: false, code: "INVALID_TOKEN", message: "無效的身份驗證。" });
+      return res.status(401).json({
+        success: false,
+        code: "TOKEN_EXPIRED",
+        message: "連線已過期，請重新登入。",
+      });
+
+    return res.status(401).json({
+      success: false,
+      code: "INVALID_TOKEN",
+      message: "無效的身份驗證。",
+    });
   }
 };

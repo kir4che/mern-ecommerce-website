@@ -42,10 +42,11 @@ const productSchema = new Schema<IProduct>(
       type: [String],
       default: [],
     },
-    imageUrl: { type: String, required: true },  },
+    imageUrl: { type: String, required: true },
+  },
   {
     timestamps: true,
-  },
+  }
 );
 
 productSchema.index({ categories: 1 });

@@ -28,7 +28,8 @@ const getCoupons = async (_req: Request, res: Response) => {
     const coupons = await CouponModel.find().sort({ createdAt: -1 });
     return res.status(200).json({ success: true, coupons });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unexpected error occurred.";
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
     return res
       .status(500)
       .json({ success: false, code: "COUPONS_FETCH_FAILED", message });
@@ -49,11 +50,17 @@ const createCoupon = async (
     minPurchaseAmount = 0,
   } = req.body;
 
-  if (!code || !discountType || typeof discountValue !== "number" || !expiryDate)
+  if (
+    !code ||
+    !discountType ||
+    typeof discountValue !== "number" ||
+    !expiryDate
+  )
     return res.status(400).json({
       success: false,
       code: "COUPON_FIELDS_REQUIRED",
-      message: "code, discountType, discountValue, and expiryDate are required.",
+      message:
+        "code, discountType, discountValue, and expiryDate are required.",
     });
 
   if (!DISCOUNT_TYPES.includes(discountType as (typeof DISCOUNT_TYPES)[number]))
@@ -110,7 +117,8 @@ const createCoupon = async (
         message: "Coupon code already exists.",
       });
 
-    const message = err instanceof Error ? err.message : "Unexpected error occurred.";
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
     return res
       .status(500)
       .json({ success: false, code: "COUPON_CREATE_FAILED", message });
@@ -140,7 +148,10 @@ const updateCouponById = async (
     minPurchaseAmount,
   } = req.body;
 
-  if (discountType && !DISCOUNT_TYPES.includes(discountType as (typeof DISCOUNT_TYPES)[number]))
+  if (
+    discountType &&
+    !DISCOUNT_TYPES.includes(discountType as (typeof DISCOUNT_TYPES)[number])
+  )
     return res.status(400).json({
       success: false,
       code: "INVALID_DISCOUNT_TYPE",
@@ -196,10 +207,16 @@ const updateCouponById = async (
       });
 
     // 合併後再次驗證（避免 percentage > 100）
-    if (discountType === "percentage" || existingCoupon.discountType === "percentage") {
+    if (
+      discountType === "percentage" ||
+      existingCoupon.discountType === "percentage"
+    ) {
       const finalDiscountType = discountType ?? existingCoupon.discountType; // 最終折扣類型
       const finalDiscountValue = discountValue ?? existingCoupon.discountValue; // 最終折扣值
-      const validation = validateDiscountValue(finalDiscountType, finalDiscountValue);
+      const validation = validateDiscountValue(
+        finalDiscountType,
+        finalDiscountValue
+      );
 
       if (!validation.valid)
         return res.status(400).json({
@@ -227,10 +244,14 @@ const updateCouponById = async (
     if (minPurchaseAmount !== undefined)
       updateData.minPurchaseAmount = minPurchaseAmount;
 
-    const coupon = await CouponModel.findByIdAndUpdate(existingCoupon._id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const coupon = await CouponModel.findByIdAndUpdate(
+      existingCoupon._id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     return res.status(200).json({
       success: true,
@@ -250,7 +271,8 @@ const updateCouponById = async (
         message: "Coupon code already exists.",
       });
 
-    const message = err instanceof Error ? err.message : "Unexpected error occurred.";
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
     return res
       .status(500)
       .json({ success: false, code: "COUPON_UPDATE_FAILED", message });
@@ -258,7 +280,10 @@ const updateCouponById = async (
 };
 
 // 刪除優惠券
-const deleteCouponById = async (req: Request<{ id: string }>, res: Response) => {
+const deleteCouponById = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   const { id } = req.params;
 
   if (!Types.ObjectId.isValid(id))
@@ -284,7 +309,8 @@ const deleteCouponById = async (req: Request<{ id: string }>, res: Response) => 
       coupon,
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unexpected error occurred.";
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
     return res
       .status(500)
       .json({ success: false, code: "COUPON_DELETE_FAILED", message });
@@ -335,7 +361,8 @@ const validateCoupon = async (
       code: normalizedCode,
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unexpected error occurred.";
+    const message =
+      err instanceof Error ? err.message : "Unexpected error occurred.";
     return res
       .status(500)
       .json({ valid: false, code: "COUPON_VALIDATE_FAILED", message });
@@ -347,6 +374,5 @@ export {
   deleteCouponById,
   getCoupons,
   updateCouponById,
-  validateCoupon
+  validateCoupon,
 };
-

@@ -9,33 +9,33 @@ import {
   PAYMENT_STATUS,
 } from "../models/order.model";
 import { ProductModel } from "../models/product.model";
-import FlashSales from "../models/sales.model";
-import { broadcastFlashSalesUpdate } from "../websocket/salesEvents";
 
 const createPaymentHandler = async (req: Request, res: Response) => {
   const { orderId, name, phone, address, note, ChoosePayment } = req.body;
 
   if (!Types.ObjectId.isValid(orderId))
-    return res
-      .status(400)
-      .json({ success: false, code: "INVALID_ORDER_ID", message: "Invalid order ID format." });
+    return res.status(400).json({
+      success: false,
+      code: "INVALID_ORDER_ID",
+      message: "Invalid order ID format.",
+    });
 
   try {
     const order = await OrderModel.findById(orderId);
     if (!order)
-      return res
-        .status(404)
-        .json({ success: false, code: "ORDER_NOT_FOUND", message: "Order not found." });
+      return res.status(404).json({
+        success: false,
+        code: "ORDER_NOT_FOUND",
+        message: "Order not found.",
+      });
 
     // 驗證訂單是否可以進行支付（只能支付未付款的訂單）
     if (order.paymentStatus !== "unpaid")
-      return res
-        .status(400)
-        .json({
-          success: false,
-          code: "ORDER_ALREADY_PAID",
-          message: "This order has already been paid.",
-        });
+      return res.status(400).json({
+        success: false,
+        code: "ORDER_ALREADY_PAID",
+        message: "This order has already been paid.",
+      });
 
     // 生成交易編號、時間戳、商品名稱（先於訂單更新）
     const { totalAmount, orderItems } = order;
@@ -56,7 +56,8 @@ const createPaymentHandler = async (req: Request, res: Response) => {
     if (ItemName.length > 400) {
       const truncated = ItemName.substring(0, 400);
       const lastHashIndex = truncated.lastIndexOf("#");
-      ItemName = lastHashIndex > 0 ? truncated.substring(0, lastHashIndex) : truncated;
+      ItemName =
+        lastHashIndex > 0 ? truncated.substring(0, lastHashIndex) : truncated;
     }
 
     // 更新訂單的購買人資訊、付款方式、交易編號（note 先暫存於 pendingNote，付款成功後才正式寫入）。
@@ -135,7 +136,8 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
     delete callbackData.CheckMacValue;
     const expectedCheckMacValue = generateCheckValue(callbackData);
 
-    if (CheckMacValue !== expectedCheckMacValue) return res.status(403).send("0");
+    if (CheckMacValue !== expectedCheckMacValue)
+      return res.status(403).send("0");
 
     // 判斷交易結果（1 代表付款成功，其他狀態則為失敗）以及更新訂單狀態
     const nextStatus: (typeof ORDER_STATUS)[number] =
@@ -152,7 +154,7 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
     // 避免重複扣庫存（callback 可能被綠界重送）
     if (order.paymentStatus === "paid") return res.status(200).send("1");
 
-    // 付款成功即更新訂單、扣除庫存、更新搶購活動
+    // 付款成功即更新訂單、扣除庫存
     if (RtnCode == 1) {
       // 使用 $set/$unset 確保 pendingNote 只會在付款成功時被正式寫入 note 欄位，並從 pendingNote 中移除。
       const updateQuery: UpdateQuery<typeof OrderModel> = {
@@ -174,29 +176,14 @@ const handlePaymentCallback = async (req: Request, res: Response) => {
       await ProductModel.bulkWrite(
         order.orderItems.map((item) => ({
           updateOne: {
-            filter: { _id: item.productId, countInStock: { $gte: item.quantity } },
+            filter: {
+              _id: item.productId,
+              countInStock: { $gte: item.quantity },
+            },
             update: { $inc: { countInStock: -item.quantity } },
           },
         }))
       );
-
-      // 更新搶購活動的已售數量（用 bulkWrite 一次更新所有項目）
-      if (order.flashSaleId && order.orderItems.length > 0)
-        await FlashSales.bulkWrite(
-          order.orderItems.map((item) => ({
-            updateOne: {
-              filter: { _id: order.flashSaleId },
-              update: {
-                $inc: { "products.$[elem].soldCount": item.quantity },
-              },
-              arrayFilters: [{ "elem.productId": item.productId }],
-            },
-          }))
-        );
-
-      // 若是搶購訂單，廣播庫存更新給所有訂閱使用者。
-      if (order.flashSaleId && global.io)
-        await broadcastFlashSalesUpdate(global.io, order.flashSaleId.toString());
     } else {
       // 付款失敗：更新訂單狀態
       await OrderModel.updateOne(

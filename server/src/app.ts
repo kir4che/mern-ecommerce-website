@@ -12,7 +12,10 @@ import { productRouter } from "./routes/product.route";
 import { userRouter } from "./routes/user.route";
 
 import { connectDB } from "./config/db";
-import { authLimiter, generalLimiter } from "./middlewares/rateLimit.middleware";
+import {
+  authLimiter,
+  generalLimiter,
+} from "./middlewares/rateLimit.middleware";
 
 import { v2 as cloudinary } from "cloudinary";
 

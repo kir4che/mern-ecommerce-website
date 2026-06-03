@@ -4,9 +4,11 @@ import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 const uploadImage = async (req: Request, res: Response) => {
   try {
     if (!req.file)
-      return res
-        .status(400)
-        .json({ success: false, code: "IMAGE_FILE_REQUIRED", message: "Please upload an image." });
+      return res.status(400).json({
+        success: false,
+        code: "IMAGE_FILE_REQUIRED",
+        message: "Please upload an image.",
+      });
 
     // 使用 Cloudinary 上傳圖片
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
@@ -35,7 +37,9 @@ const uploadImage = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    return res.status(500).json({ success: false, code: "IMAGE_UPLOAD_FAILED", message });
+    return res
+      .status(500)
+      .json({ success: false, code: "IMAGE_UPLOAD_FAILED", message });
   }
 };
 

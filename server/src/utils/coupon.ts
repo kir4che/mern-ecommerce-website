@@ -13,9 +13,7 @@ type CouponValidationFailure = {
   message: string;
 };
 
-type CouponValidationResult =
-  | CouponValidationSuccess
-  | CouponValidationFailure;
+type CouponValidationResult = CouponValidationSuccess | CouponValidationFailure;
 
 type DiscountValidation = {
   valid: boolean;
@@ -23,8 +21,7 @@ type DiscountValidation = {
 };
 
 // 將優惠碼去除空白並轉成大寫
-export const normalizeCouponCode = (code: string) =>
-  code.trim().toUpperCase();
+export const normalizeCouponCode = (code: string) => code.trim().toUpperCase();
 
 // 驗證折扣數值是否合法
 export const validateDiscountValue = (

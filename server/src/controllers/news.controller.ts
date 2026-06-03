@@ -25,20 +25,22 @@ const getNew = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "NEWS_FETCH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "NEWS_FETCH_FAILED", message });
   }
 };
 
 const getNewById = async (req: Request, res: Response) => {
   try {
     const newsItem = await NewsModel.findById(req.params.id);
-    res
-      .status(200)
-      .json({ success: true, newsItem });
+    res.status(200).json({ success: true, newsItem });
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "NEWS_DETAIL_FETCH_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "NEWS_DETAIL_FETCH_FAILED", message });
   }
 };
 
@@ -50,7 +52,9 @@ const addNew = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "NEWS_CREATE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "NEWS_CREATE_FAILED", message });
   }
 };
 
@@ -71,17 +75,23 @@ const updateNew = async (req: Request, res: Response) => {
     });
 
     if (!updatedNew)
-      return res
-        .status(404)
-        .json({ success: false, code: "NEWS_NOT_FOUND", message: "News not found." });
+      return res.status(404).json({
+        success: false,
+        code: "NEWS_NOT_FOUND",
+        message: "News not found.",
+      });
 
-    res
-      .status(200)
-      .json({ success: true, message: "News updated successfully!", news: updatedNew });
+    res.status(200).json({
+      success: true,
+      message: "News updated successfully!",
+      news: updatedNew,
+    });
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "NEWS_UPDATE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "NEWS_UPDATE_FAILED", message });
   }
 };
 
@@ -92,9 +102,11 @@ const deleteNewById = async (req: Request, res: Response) => {
     const deletedNews = await NewsModel.findByIdAndDelete(newId);
 
     if (!deletedNews)
-      return res
-        .status(404)
-        .json({ success: false, code: "NEWS_NOT_FOUND", message: "News not found." });
+      return res.status(404).json({
+        success: false,
+        code: "NEWS_NOT_FOUND",
+        message: "News not found.",
+      });
 
     res
       .status(200)
@@ -102,7 +114,9 @@ const deleteNewById = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     const message =
       err instanceof Error ? err.message : "Unexpected error occurred.";
-    res.status(500).json({ success: false, code: "NEWS_DELETE_FAILED", message });
+    res
+      .status(500)
+      .json({ success: false, code: "NEWS_DELETE_FAILED", message });
   }
 };
 

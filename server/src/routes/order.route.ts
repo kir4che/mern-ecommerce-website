@@ -1,6 +1,13 @@
 import { Router } from "express";
 
-import { cancelOrder, createOrder, getOrderById, getOrders, getOrdersByUser, updateOrder } from "../controllers/order.controller";
+import {
+  cancelOrder,
+  createOrder,
+  getOrderById,
+  getOrders,
+  getOrdersByUser,
+  updateOrder,
+} from "../controllers/order.controller";
 import { authMiddleware, isAdmin } from "../middlewares/auth.middleware";
 
 const router = Router();
