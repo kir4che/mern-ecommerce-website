@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef } from "react";
+import { useImperativeHandle, useRef } from "react";
 
 import Button from "@/components/atoms/Button";
 import { cn } from "@/utils/cn";
@@ -34,9 +34,7 @@ interface ModalProps {
   className?: string;
   isShowCloseIcon?: boolean;
   isShowCloseBtn?: boolean;
-  loading?: boolean;
   isLoading?: boolean;
-  autoCloseDelay?: number; // 預設 3 秒後自動關閉
   disabled?: boolean;
   children?: React.ReactNode;
   modalAlert?: ModalAlert;
@@ -115,9 +113,7 @@ const Modal = ({
   className = "",
   isShowCloseIcon = false,
   isShowCloseBtn = true,
-  loading = false,
   isLoading = false,
-  autoCloseDelay = 3000,
   disabled = false,
   children,
   modalAlert,
@@ -150,14 +146,6 @@ const Modal = ({
       console.error("Modal confirm error:", err);
     }
   };
-
-  useEffect(() => {
-    if (!loading) return;
-    const timer = setTimeout(() => {
-      dialogRef.current?.close();
-    }, autoCloseDelay);
-    return () => clearTimeout(timer);
-  }, [loading, autoCloseDelay]);
 
   return (
     <dialog
@@ -205,27 +193,25 @@ const Modal = ({
             />
           </div>
         )}
-        {!loading && (
-          <div
-            className={cn(
-              "modal-action px-6 py-4 m-0 rounded-b-box",
-              (children || modalAlert) && "border-t border-gray-100"
-            )}
-          >
-            {isShowCloseBtn && (
-              <Button
-                variant="outline"
-                onClick={handleClose}
-                disabled={disabled || isLoading}
-              >
-                取消
-              </Button>
-            )}
-            <Button onClick={handleConfirm} disabled={disabled || isLoading}>
-              {confirmText}
+        <div
+          className={cn(
+            "modal-action px-6 py-4 m-0 rounded-b-box",
+            (children || modalAlert) && "border-t border-gray-100"
+          )}
+        >
+          {isShowCloseBtn && (
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={disabled || isLoading}
+            >
+              取消
             </Button>
-          </div>
-        )}
+          )}
+          <Button onClick={handleConfirm} disabled={disabled || isLoading}>
+            {confirmText}
+          </Button>
+        </div>
       </div>
       {!isShowCloseIcon && (
         <form method="dialog" className="modal-backdrop">
